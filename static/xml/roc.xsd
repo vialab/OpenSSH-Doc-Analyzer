@@ -1,0 +1,18 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="alinea" type="xs:string"/>
+  <xs:element name="texte">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="alinea" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="typetexte" fixed="roc"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="corps">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="texte"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,3 @@
+venv/**
+static/py/dbconfig.py
+static/py/dbconfig.pyc

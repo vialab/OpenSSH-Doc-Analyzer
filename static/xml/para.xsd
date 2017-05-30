@@ -1,0 +1,198 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="exposant" type="xs:string"/>
+  <xs:element name="marquage">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute type="xs:string" name="typemarq" use="optional"/>
+          <xs:attribute type="xs:string" name="id" use="optional"/>
+          <xs:attribute type="xs:string" name="idref" use="optional"/>
+          <xs:attribute type="xs:string" name="typeref" use="optional"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="renvoi">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute type="xs:string" name="id" use="optional"/>
+          <xs:attribute type="xs:string" name="idref" use="optional"/>
+          <xs:attribute type="xs:string" name="typeref" use="optional"/>
+          <xs:attribute type="xs:string" name="typemarq" use="optional"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="no" type="xs:string"/>
+  <xs:element name="alinea">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="espaceh">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute type="xs:string" name="dim"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ligne">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="espaceh" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="bloc">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ligne" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="verbatim">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="bloc" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="typeverb" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="source">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="bloccitation">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:choice>
+          <xs:element ref="alinea"/>
+          <xs:element ref="verbatim" minOccurs="0"/>
+        </xs:choice>
+        <xs:element ref="source" minOccurs="0"/>
+        <xs:element ref="marquage" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="para">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded" minOccurs="0">
+        <xs:element ref="no"/>
+        <xs:element ref="alinea"/>
+        <xs:element ref="bloccitation"/>
+      </xs:choice>
+      <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="titre">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute type="xs:string" name="traitementparticulier"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="epigraphe">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="dedicace">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="section1">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="no"/>
+        <xs:element ref="titre" minOccurs="0"/>
+        <xs:element ref="epigraphe" minOccurs="0"/>
+        <xs:element ref="para" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="section2" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="section2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="no"/>
+        <xs:element ref="titre" minOccurs="0"/>
+        <xs:element ref="epigraphe" minOccurs="0"/>
+        <xs:element ref="para" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="section3" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="section3">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="no"/>
+        <xs:element ref="titre" minOccurs="0"/>
+        <xs:element ref="epigraphe" minOccurs="0"/>
+        <xs:element ref="para" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="section4" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="section4">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="no"/>
+        <xs:element ref="titre" minOccurs="0"/>
+        <xs:element ref="epigraphe" minOccurs="0"/>
+        <xs:element ref="para" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="section5" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="section5">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="no"/>
+        <xs:element ref="titre" minOccurs="0"/>
+        <xs:element ref="epigraphe" minOccurs="0"/>
+        <xs:element ref="para" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="section6" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="section6">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="no"/>
+        <xs:element ref="titre" minOccurs="0"/>
+        <xs:element ref="epigraphe" minOccurs="0"/>
+        <xs:element ref="para" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="corps">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="dedicace" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="epigraphe" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="section1" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

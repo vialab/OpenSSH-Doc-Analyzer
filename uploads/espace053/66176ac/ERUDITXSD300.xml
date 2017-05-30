@@ -1,0 +1,310 @@
+<article xmlns="http://www.erudit.org/xsd/article" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.erudit.org/xsd/article http://www.erudit.org/xsd/article/3.0.0/eruditarticle.xsd" qualtraitement="minimal" idproprio="66176ac" typeart="article" lang="fr en" ordseq="6" idref="th1">
+  <admin>
+    <infoarticle>
+      <pagination> <ppage>23</ppage> <dpage>25</dpage>  
+       </pagination>
+    </infoarticle>
+    <revue id="espace1041666" lang="fr en">
+      <titrerev>Espace Sculpture</titrerev>
+      <titrerevabr>espace</titrerevabr>
+      <idissn>0821-9222</idissn>
+      <idissnnum>1923-2551</idissnnum>
+      <directeur sexe="masculin">
+        <nompers>
+          <prenom>Serge</prenom>
+          <nomfamille>Fisette</nomfamille>
+        </nompers>
+      </directeur>
+      <redacteurchef typerc="invite" idrefs="th1" sexe="masculin">
+        <nompers>
+          <prenom>Nicolas</prenom>
+          <nomfamille>Mavrikakis</nomfamille>
+        </nompers>
+      </redacteurchef>
+      <redacteurchef typerc="invite" idrefs="th1" sexe="masculin">
+        <nompers>
+          <prenom>Laurent</prenom>
+          <nomfamille>Vernet</nomfamille>
+        </nompers>
+      </redacteurchef>
+      <redacteurchef typerc="regulier" sexe="masculin">
+        <nompers>
+          <prenom>Serge</prenom>
+          <nomfamille>Fisette</nomfamille>
+        </nompers>
+      </redacteurchef>
+    </revue>
+    <numero id="espace053">
+      <nonumero>99</nonumero>
+      <pub>
+        <periode>Printemps</periode>
+        <annee>2012</annee>
+      </pub>
+      <pubnum>
+        <date typedate="publication">2012-03-26</date>
+      </pubnum>
+      <grtheme id="th1">
+        <theme>De quelques questions (et réponses !) sur la radicalité</theme>
+        <themeparal lang="en">A Few Questions (and Answers!) on Radicalness</themeparal>
+      </grtheme>
+    </numero>
+    <editeur>
+      <nomorg>Le Centre de diffusion 3D</nomorg>
+    </editeur>
+    <prod>
+      <nomorg>Le Centre de diffusion 3D</nomorg>
+    </prod>
+    <prodnum>
+      <nomorg>Érudit</nomorg>
+    </prodnum>
+    <diffnum>
+      <nomorg>Érudit</nomorg>
+    </diffnum>
+    <schema nom="Erudit Article" version="3.0.0" lang="fr"/>
+    <droitsauteur>Tous droits réservés © <nomorg>Le Centre de diffusion 3D</nomorg>, 2012</droitsauteur>
+  </admin>
+  <liminaire>
+    <grtitre><surtitre>La nécessité de la radicalité (suite)</surtitre><surtitreparal lang="en">The Need to be Radical (continued)</surtitreparal>
+      <titre>Calgary la battante</titre>
+      
+      <titreparal lang="en">Calgary the Go-Getter</titreparal>
+    </grtitre>
+    <grauteur>
+      <auteur id="au1">
+        <nompers>
+        <prenom>Ève</prenom>
+        
+        <nomfamille>de Garie-Lamanque</nomfamille>
+        </nompers>
+      </auteur>
+      <auteur id="au2">
+        <contribution typecontrib="trl">Translated by</contribution>
+        <nompers>
+        <prenom>Peter</prenom>
+        
+        <nomfamille>Dubé</nomfamille>
+        </nompers>
+      </auteur>
+    </grauteur>
+  </liminaire>
+  <corps lang="fr">
+    <texte typetexte="libre"> LA NÉCESSITÉ DE LA RADICALITÉ (suite) THE NEED TO BE RADICAL
+    (continued) Calgary la battante Ève DE GARIE-LAMANQUE Lors d’une promenade en voiture à Calgary,
+    l’été dernier, j’ai dû affronter l’inattendu. Voilà ainsi qu’au détour d’une rue, dans la
+    communauté de Ramsay – un quartier résidentiel assez tranquille du quadrant sud-est de la ville
+    –, m’est apparue la upside-down church dont j’avais vaguement entendu parler. Cette église
+    inversée tenant par la seule force de son clocher enfoncé dans le sol s’est révélée être une des
+    sculptures les plus iconiques et controversées de l’artiste américain de renommée internationale
+    Dennis Oppenheim 1. Il s’agit d’une petite merveille de l’art public contemporain, du calibre
+    que l’on ne peut se vanter d’avoir en abondance au Québec. C’est donc avec grand étonnement que
+    j’ai constaté que ce véritable « trophée » qui, d’après moi, aurait mérité une place de choix au
+    centre-ville était relégué à une tristounette vie de quartier et se faisait discret malgré ses
+    six mètres de hauteur et son passé scandaleux… La présence de Device to Root Out Evil à Calgary
+    me semble un parfait exemple de la complexité de la situation culturelle qui sévit dans cette
+    ville des Prairies : elle illustre à la fois la très grande ouverture d’esprit, la passion et la
+    détermination de ses intervenants culturels ; et la réalité d’une ville dont la population et
+    les infrastructures ne semblent pas toujours prêtes ou disposées à recevoir de tels éclats
+    d’enthousiasme. La Calgary que j’ai apprise à connaître n’a que peu à voir avec la ville morne,
+    conservatrice et ennuyeuse que certains m’avaient préalablement décrite. Bien au contraire, elle
+    est créative, jeune, dynamique, ingénieuse et pleine de surprises. Les jeunes artistes y sont
+    nombreux – deux établissements d’enseignement y offrent un baccalauréat en beaux-arts, soit
+    l’Alberta College of Art and Design (ACAD) et l’University of Calgary, alors que le renommé
+    Banff Centre n’est qu’à une heure de voiture –, mais surtout remarquablement polyvalents,
+    organisés et entreprenants. Et ils n’ont pas froid aux yeux. Un excellent exemple de cette
+    relève pleine de promesses est le jeune Daniel J. Kirk, un ancien graffiteur qui poursuit
+    aujourd’hui un projet performatif à l’ironie délicieuse, intitulé Blandalism. Sous le pseudonyme
+    de Karl Umber, Kirk parcourt la ville afin de repeindre, en de neutres tons de brun, les bancs
+    publics qui ont subi des actes de vandalisme. Avec un humour cinglant, il dénonce la reposante
+    et fade uniformité dans laquelle se complaisent nombre de ses concitoyens. Calgary est-elle
+    artistically challenged ? Non. Ses ressources sont simplement un peu limitées, si on les compare
+    à celles dont bénéficient les Québécois. C’est ainsi que pour une population de 1 365 200
+    habitants en 2011 2, Calgary compte trois institutions majeures (le Glenbow Museum, l’Art
+    Gallery of Calgary et l’Illingworth Kerr Gallery), une demi-douzaine de galeries privées de
+    renom (dont Trepanier Baer) et six centres d’artistes autogérés. En comparaison, Montréal compte
+    vingt-huit centres d’artistes autogérés et Québec, dix. Pour survivre dans un tel contexte,
+    aussi dynamique et de qualité soit-il, plusieurs artistes choisissent d’oeuvrer en marge du
+    système en place. Certains, comme Daniel J. Kirk ou le collectif Arbour Lake Sghool, poursuivent
+    des démarches sarcastiques et radicales qui questionnent la norme établie et frôlent parfois
+    l’illégalité ; alors que d’autres se lancent en affaires et ouvrent leur propre espace
+    d’exposition alternatif sans but lucratif. L’un des plus populaires est sans contredit la Sugar
+    Cube Gallery, minuscule espace-vitrine d’environ un mètre par un mètre cinquante situé sur la
+    très passante et très hip 17e Avenue Sud-Ouest. Une initiative de Lisa Brawn, Jane Grace et
+    Angela Inglis, le Sugar Cube est le dernier-né d’une série de lieux d’exposition alternatifs qui
+    se succèdent depuis 2001. Extraordinaire outil d’introduction et de sensibilisation à l’art
+    contemporain, cette petite vitrine réussit l’impossible en piquant la curiosité de tous sans
+    jamais se faire élitiste ou exclusive. Une autre tendance toute calgarienne en matière de lieux
+    de diffusion alternatifs est de transformer sa résidence privée en studio et galerie d’art…
+    Surprenant, dites-vous ? Assurément, surtout quand on apprend que ces derniers poussent comme
+    des champignons. Certaines galeries résidentielles ayant fait les annales seraient le
+    Contemporary Art Museum que les artistes émergentes Bree Zorel et Heather Smith ont inauguré
+    dans leur demeure du quartier Kensington en 2010 ; la 809 Gallery, gérée par Tyler Los-Jones de
+    2007 à 2009, également dans Kensington ; le combo galerie et atelier du collectif d’artistes
+    verriers Bee Kingdom ; et, plus récemment, Haight, une galerie d’art contemporain que l’artiste
+    Matthew Mark Bourree a ouverte dans son garage il y a de cela un an. En entrevue, Matthew m’a
+    avoué qu’alors que la décision d’ouvrir son propre espace d’exposition avait été inspirée par
+    l’initiative de collègues et le désir de faire la fête, le projet était venu répondre à des
+    besoins criants et bien réels : ainsi, non seulement les espaces d’exposition se font rares à
+    Calgary, mais ceux présentant des productions locales le sont encore davantage, et le futur
+    diplômé qu’il était alors comprenait déjà l’importance que figurent sur son curriculum vitae
+    d’autres noms que son établissement d’enseignement. C’est après de premiers projets de
+    commissariat un peu farfelus (à l’hiver 2010, une première galerie extérieure faite de glace
+    fondit avant le vernissage, puis son ami Nate McLeod et lui transformèrent une maison de
+    banlieue en lieu d’exposition temporaire) qu’il inaugura sa propre galerie d’art dans un garage
+    entièrement rénové et transformé pour l’occasion. Tandis que Bourree et d’autres
+    artistes-galeristes de la trempe de Lisa Brawn creusent leur niche sur la scène artistique
+    locale en cumulant le double rôle de producteur et de diffuseur, d’autres ont fait leur marque
+    en oeuvrant dans un espace liminal, évoluant tantôt dans le système établi, tantôt hors
+    celui-ci. C’est le cas du collectif Arbour Lake Sghool qui a graduellement pris forme dès 2003,
+    lorsque Andrew et John Frosst acquirent la maison de banlieue chic de leurs parents déménagés
+    depuis longtemps à Edmonton et la transformèrent peu à peu en un riche lieu de rencontre et de
+    production artistique. S’interrogeant quant au lieu d’être de la banlieue moderne et étudiant
+    l’essence primordiale du béhaviorisme urbain, le collectif ne met pas de gants blancs quand
+    vient pour lui le temps de s’exprimer. Ses interventions désopilantes lui ont ainsi valu
+    plusieurs convocations à paraître devant la Cour 3. Au fil des années, les membres du Arbour
+    Lake Sghool ont ainsi simulé sur leur terrain, pendant vingt-quatre heures consécutives,
+    l’univers d’un champ de bataille de la Première Guerre mondiale, au plus grand dam de leurs
+    voisins – faux gaz moutarde et véritables tranchées inclus ; ont retiré leur entière pelouse
+    pour la remplacer par de l’orge qu’ils récoltèrent l’automne venu, avant d’en faire de la bière
+    ; puis, tout récemment, ont déplacé une ferme centenaire devant le Red Deer Museum + Art
+    Gallery, la reconstruisant en simulant son envol, illustrant très poétiquement la transformation
+    du paysage et des traditions agricoles albertains à une époque où les jeunes s’exilent vers la
+    ville au lieu de reprendre la ferme familiale. Plus vivante et audacieuse que jamais, la
+    communauté artistique de Calgary est prête à faire sa marque sur le plan national. Avec à sa
+    tête Naheed Nenshi, un maire jeune qui croit en l’importance d’un secteur culturel et artistique
+    fort et dynamique, la ville a été nommée l’une des capitales culturelles du Canada en 2012.
+    Incontestablement, l’année 2012 sera celle des Prairies. &lt; Ève De GARIE-LAMANQUE détient une
+    maîtrise en histoire de l’art de l’Université Concordia (Montréal). Commissaire invitée à Art
+    Souterrain 2012 (artistes canadiens hors Québec), elle collabore présentement à un projet de
+    monographie de l’oeuvre récente de la sculpteure australienne Penny Harris (University of
+    Wollongong Press). Calgary the Go-Getter I came face to face with something unexpected during a
+    drive in Calgary last summer. It was while on a detour through the community of Ramsay — a
+    pretty, quiet residential neighborhood in the Southwest part of the city — that the “upside-down
+    church” of which I’d vaguely heard appeared before me. This inverted church — held up by the
+    strength of its bell tower anchored in the ground alone — has proved to be one the most iconic
+    and controversial sculptures by internationally renowned American artist Dennis Oppenheim.1 It
+    is a little marvel of contemporary public art. Of a caliber that we cannot boast an abundance of
+    in Quebec. Thus, it was with great astonishment that I noted that this veritable “trophy” —
+    which, in my opinion, deserves a place of pride downtown — was relegated to a sad neighbourhood
+    existence, and was self-effacing despite it’s six meter height and scandalous past. Device to
+    Root Out Evil’s presence in Calgary seems to me a perfect example of the complexity of the
+    cultural situation in this Prairie town: it illustrates at once the wide openness of spirit, the
+    passion and determination of its cultural players, and the reality of a city whose population
+    and infrastructure don’t always seem ready, or disposed, to receive such bursts of enthusiasm.
+    The Calgary I came to know has little to do with the gloomy, conservative and dull town that
+    some people had described to me beforehand. Quite to the contrary, the city is creative, young,
+    dynamic, ingenious and full of surprises. Young artists fill the town — two teaching
+    institutions offer a bachelor’s degree in fine arts: the Alberta College of Art and Design
+    (ACAD) and the University of Calgary, while the renowned Banff Centre is only an hour away by
+    car — moreover they are remarkably polyvalent, organized and enterprising. And they have plenty
+    of pluck. An excellent example of such promise is artist Daniel J. Kirk, an ex-graffitist now
+    pursuing a deliciously ironic performance project entitled Blandalism. Under the pseudonym of
+    Karl Umber, Kirk criss-crosses town in order to repaint vandalized public benches in neutral
+    tones of brown. With biting humour he denounces the bland, comfortable uniformity so many of his
+    fellow citizens delight in. Is Calgary artistically challenged? No. Its resources are just a
+    little limited if one compares them to those enjoyed by Quebecois. Calgary has three major
+    institutions (the Glenbow Museum, the Art Gallery of Calgary and the Illingworth Kerr Gallery),
+    a half-dozen well-known private galleries (including Trepanier Baer) and six artist-run centres
+    for a population of 1,365,200 inhabitants in 2011.2 In comparison, Montreal has twenty-eight
+    artist-run centres and Quebec City, ten. To survive in such a context — however dynamic and high
+    the quality is — many artists opt to work in the margins of the official system. Some, such as
+    Daniel J. Kirk or the Arbour Lake Sghool collective, pursue sarcastic and radical practices that
+    question established norms and sometimes border on illegality, while others get organized and
+    open their own alternative, not-for-profit exhibition spaces. One of the most popular of these
+    is unquestionably the Sugar Cube Gallery, a miniscule window-space of about one by
+    one-and-a-half meters situated on the very busy, and very hip, 17th Ave SW. An initiative of
+    Lisa Brawn, Jane Grace and Angela Inglis, the Sugar Cube is the latest in a series of
+    alternative exhibition spaces that have opened since 2001. An extraordinary tool for introducing
+    contemporary art, and for raising awareness of it, this little display window succeeds in the
+    impossible by piquing the curiosity of one and all without ever becoming elitist or exclusive.
+    Another Calgarian trend in alternative spaces and exhibition strategies is to transform one’s
+    private residence into a studio and art gallery… Surprising, you say? Definitely, especially
+    when one learns that such spaces are sprouting up like weeds. Some residential galleries to find
+    a place in the history books are the Contemporary Art Museum inaugurated by emerging artists
+    Bree Zorel and Heather Smith in their home in the Kensington district in 2010; the 809 Gallery,
+    run by Tyler Los-Jones from 2007 to 2009, also in Kensington; the gallery and studio combo of
+    the glass artists’ collective Bee Kingdom; and more recently, Haight, a contemporary art gallery
+    that artist Matthew Mark Bouree opened in his garage about a year ago. Maththew admitted to me
+    in an interview that while the decision to open his own exhibition space was inspired by the
+    initiatives of colleagues and the desire to party, this project responded to very real, and
+    glaring needs. Not only are exhibition spaces rare in Calgary, but those presenting local work
+    are even more so — and at the time being a future graduate, he already understood the importance
+    of having names of institutions other than where he’d studied on his CV. He opened his first
+    real art gallery — in a garage renovated and transformed for the purpose — after a few eccentric
+    curatorial projects (in the winter of 2010, a first outdoors gallery made of ice melted before
+    the opening, so his friend Nate McLeod and he transformed a suburban house into a temporary
+    exhibition space). While Bourree, and other artist-gallerists of the same cast as Lisa Brawn,
+    carve out their niche in the local arts scene by playing the dual role of producer and
+    exhibitor, others have made their mark by working in a liminal space, evolving sometimes within
+    and sometimes outside the established system. This is the case for the Arbour Lake Sghool
+    collective, which gradually has taken shape since 2003, when Andrew and John Frosst acquired the
+    chic suburban house of their parents — long-since moved to Edmonton — and transformed it little
+    by little into a rich artistic meeting place and production centre. Asking themselves questions
+    about the modern suburbs’ existential space and studying the primordial essence of urban
+    behaviour, the collective takes the gloves off when it comes time to express themselves. Their
+    hilarious interventions have seen them appear in court more than once.3 Over the years, members
+    of the Arbour Lake Sghool have simulated a World War I battlefield on their property — including
+    mustard gas and real trenches — for twenty-four consecutive hours, to the great displeasure of
+    their neighbours; have pulled up their entire lawn and replaced it with barley, which they
+    harvested when autumn came, in order to make beer; and most recently, they have moved a
+    century-old farm in front of the Red Deer Museum + Art Gallery, reconstructing and simulating
+    its flight, poetically illustrating the changes in the landscape and Alberta’s agricultural
+    traditions at a time when young people are fleeing to the cities rather than work on the family
+    farm. More lively and daring than ever, Calgary’s artistic community is ready to make its mark
+    at the national level. With Naheed Nenshi at its head, a young mayor who believes in the
+    importance of a stong cultural and arts sector, the city has been named one of Canada’s cultural
+    capitals for 2012. Incontestably, 2012 will be the prairies’ year. &lt; Translated by Peter DUBÉ
+    Ève De GARIE-LAMANQUE holds a master’s degree in art history from Concordia University
+    (Montreal.) She is a guest curator for Art Souterrain 2012 (Canadian artists from outside
+    Quebec) and at present, is collaborating on a monograph about the recent work of Australian
+    sculptor Penny Harris (University of Wollongong Press). ESPACE 99 printemps/spring 2012 ESPACE
+    99 printemps/spring 2012 &gt; Haight Gallery. Comes to Life, Vue d’installation de l’exposition
+    présentée du 24 juin au 12 août 2011/ Installation view, presented June 24 to August 12, 2011.
+    Artistes participants / Participating artists: Sarah Van Sloten, Ryan McClure Scott, Kelsey
+    Fraser, Nicco Gonzales. Photo : avec l’aimable autorisation / Courtesy Haight Gallery. &lt;
+    Angela INGLIS, Clothes Lines, 2011. Exposition présentée du 2 août au 3 septembre 2011 /
+    Exhibition presented August 2 to September 3, 2011. Photo : avec l’aimable autorisation /
+    Courtesy Sugar Cube Gallery. Arbour Lake Sghool. The Farm Show. Part 2: Growing, Vue de
+    l’installation in situ / Installation view in situ. Exposition / Exhibition Red Deer Museum +
+    Art Gallery, Red Deer, Alberta du 17 juillet au 25 septembre 2011/ July 17-September 25, 2011.
+    Photo : avec l’aimable autorisation / Courtesy Andrew Frosst. Haight Gallery. Photo : avec
+    l’aimable autorisation /Courtesy Ève DGL. Notes 1. Présentée pour la première fois en 1997 à la
+    Biennale de Venise, Device to Root Out Evil a tour à tour été jugée trop controversée par
+    l’Université Stanford, le Fond d’art public de la ville de New York et, finalement, le Comité
+    des parcs de Vancouver, ville où l’oeuvre était pourtant exposée depuis sa présentation dans le
+    cadre de la Vancouver Sculpture Biennale de 2005. En 2008, le Glenbow Museum – avec à sa tête le
+    visionnaire et controversé Jeffrey Spalding –, en partenariat avec le groupe TORODE, ont signé
+    une entente de prêt d’une durée de cinq ans avec les propriétaires de l’oeuvre. / First
+    presented at the Venice Biennale in 1997, Device to Root Out Evil was deemed too controversial —
+    one after the other — by Stanford University, New York’s Public Art Fund and finally the parks
+    committee of Vancouver, a city in which the work had, nonetheless, first been exhibited as part
+    of the Vancouver Sculpture Biennale of 2005. In 2008, the Glenbow Museum — with the visionary
+    and controversial Jeffrey Spalding at its head — in partnership with the TORODE group, signed an
+    agreement for a five-year loan with the work’s owners. 2. Données démographiques publiées par
+    Calgary Economic Development :
+    http://www.calgaryeconomicdevelopment.com/live-work-play/live/demographics. Site visité le 5
+    décembre 2011. / Demographic data published by Calgary Economic Development:
+    http://www.calgaryeconomicdevelopment.com/live-work-play/ live/demographics.Site consulted on
+    December 5, 2011. 3. Les paroles exactes de John Frosst, interviewé le 28 novembre 2011,
+    témoignent de l’attitude espiègle qu’il partage avec le Arbour Lake Sghool : « Oh ! on est
+    seulement allés en Cour trois fois. Donc, pas trop. » / John Frosst’s exact words when
+    interviewed on November 28, 2011 bear witness to the mischievous attitude he shares with the
+    Arbour Lake Sghool: “Oh, we only went to court three times. So, not too often.” ESPACE 99
+    printemps/spring 2012 ESPACE 99 printemps/spring 2012 </texte>
+  </corps>
+  <partiesann lang="fr">
+    <grnotebio>
+      <notebio id="nb1" idrefs="au1 au2" lang="fr">
+        
+        <alinea><marquage typemarq="gras">Ève De GARIE-LAMANQUE</marquage> détient une maîtrise en histoire de l’art de l’Université Concordia (Montréal). Commissaire invitée à Art Souterrain 2012 (artistes canadiens hors Québec), elle collabore présentement à un projet de monographie de l’oeuvre récente de la sculpteure australienne Penny Harris (University of Wollongong Press).</alinea>
+      </notebio>
+         
+    </grnotebio>
+  </partiesann>
+  <partiesann lang="en">
+    <grnotebio>
+      <notebio id="nb2" idrefs="au1 au2" lang="en">
+        <alinea><marquage typemarq="gras">Ève De GARIE-LAMANQUE</marquage> holds a master’s degree in art history from Concordia University (Montreal.) She is a guest curator for Art Souterrain 2012 (Canadian artists from outside Quebec) and at present, is collaborating on a monograph about the recent work of Australian sculptor Penny Harris (University of Wollongong Press).</alinea>
+      </notebio>
+    </grnotebio>
+  </partiesann>
+</article>
