@@ -2,4 +2,5 @@ venv/**
 uploads/**
 file_processing/**
 static/py/dbconfig.py
-**.pyc
+*.pyc
+**/*.pyc
