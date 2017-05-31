@@ -1,7 +1,19 @@
 import db
+import numpy as np
+import base64
+import re
+import cStringIO
+import imp
 from lxml import etree, objectify
+from PIL import Image
 
 ## Common helper functions used across the web app
+
+# Check if this file type is supported by the system
+def isSupportedFile(filename):
+    return "." in filename and \
+           filename.rsplit(".", 1)[1] in CONST.ALLOWED_EXTENSIONS
+
 
 # Log a system error to the systemerror database table
 def logError(e):
@@ -30,7 +42,6 @@ def getXPathElement(xmlDoc, strXPath, aNamespaces=None):
     
     xmlData = getElementTree(ndData[0])
     return xmlData
-
 
 
 # Pull all text from an XML node without sub element mark-up
