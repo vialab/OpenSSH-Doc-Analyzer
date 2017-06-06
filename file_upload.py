@@ -19,15 +19,15 @@ db = db.Database()
 
 @app.route("/")
 def index():
-    xmlDoc = cm.parseXML("C:/Users/Vialab-PC/Desktop")
-    #   xmlData = erudit.4getXPathElement(xmlDoc, "corps")
-    #   strSchema = erudit.getXMLSchema(xmlData)
-    
-    xmlMeta = cm.getXPathElement(xmlDoc, "//erudit:admin", CONST.ERUDIT_NAMESPACES)
-    root = xmlMeta.getroot()
-    cm.removeNamespace(root, CONST.ERUDIT_NAMESPACES["erudit"])
-    db.execProc("erudit_INSERT_metadata", ("1", etree.tostring(xmlMeta).encode("utf-8")))
+    return render_template("index2.html")
 
+@app.route("/reprocess")
+def reprocess():
+    results = db.execQuery("select * from document where dataset='erudit' and id not in (select distinct documentid from meta)")
+    for result in results:
+        xmlDoc = cm.parseXML("C:/Users/Victor/Desktop" + result[2])
+        erudit.saveAllData(xmlDoc)
+    
     return render_template("index2.html")
 
 

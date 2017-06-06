@@ -9,6 +9,15 @@ from PIL import Image
 
 ## Common helper functions used across the web app
 
+# Convert an XML to a UTF-8 encoded string
+# This is how we insert stuff into the database
+def getUTFStringFromXML(xmlDoc):
+    if xmlDoc is None:
+        return ""
+
+    return etree.tostring(xmlDoc, encoding="UTF-8", xml_declaration=False)
+
+
 # Check if this file type is supported by the system
 def isSupportedFile(filename):
     return "." in filename and \
@@ -29,8 +38,9 @@ def removeNamespace(xmlData, namespace):
     ns = u'{%s}' % namespace
     nsl = len(ns)
     for elem in xmlData.getiterator():
-        if elem.tag.startswith(ns):
-            elem.tag = elem.tag[nsl:]
+        if isinstance(elem.tag, basestring):
+            if elem.tag.startswith(ns):
+                elem.tag = elem.tag[nsl:]
 
 
 # Get an element in the erudit namespace
@@ -40,7 +50,10 @@ def getXPathElement(xmlDoc, strXPath, aNamespaces=None):
     else:    
         ndData = xmlDoc.xpath(strXPath, namespaces=aNamespaces)
     
-    xmlData = getElementTree(ndData[0])
+    if(len(ndData) > 0):
+        xmlData = getElementTree(ndData[0])
+    else:
+        return None
     return xmlData
 
 
@@ -63,7 +76,7 @@ def getElementTree(xmlData):
 
 # Parse an xml file
 def parseXML(strPath):
-    xmlDoc = etree.parse(strPath)
+    xmlDoc = etree.parse(strPath.strip())
     return xmlDoc
 
 

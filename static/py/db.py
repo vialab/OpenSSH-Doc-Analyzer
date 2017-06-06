@@ -9,15 +9,20 @@ import common as cm
 class Database(object):
     # Execute an SQL query
     def execQuery(self, strCmd, args=()):
-        conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True, charset="utf8")
+        conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True)
         cursor = conn.cursor()
+        cursor.execute('SET NAMES utf8mb4')
+        cursor.execute("SET CHARACTER SET utf8mb4")
+        cursor.execute("SET character_set_connection=utf8mb4")
+        cursor.execute("SET collation_connection = 'utf8mb4_unicode_ci'")
+
         try:
             cursor.execute(strCmd, args)                
             results = cursor.fetchall()
             cursor.close()
             conn.close()
             return results
-        except MySQLdb.Error, e:
+        except sql.Error, e:
             self.throwSQLError(e, conn, cursor)
 
 
@@ -41,8 +46,13 @@ class Database(object):
 
     # Execute an SQL stored procedure
     def execProc(self, strProc, args=()):
-        conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True, charset="utf8")
+        conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True)
         cursor = conn.cursor()
+        cursor.execute('SET NAMES utf8mb4')
+        cursor.execute("SET CHARACTER SET utf8mb4")
+        cursor.execute("SET character_set_connection=utf8mb4")
+        cursor.execute("SET collation_connection = 'utf8mb4_unicode_ci'")
+
         try:
             results = cursor.callproc(strProc, args)
             cursor.close()
@@ -50,6 +60,7 @@ class Database(object):
             return results
         except sql.Error, e:
             self.throwSQLError(e, conn, cursor)
+            raise
 
 
     # Basic error handling
