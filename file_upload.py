@@ -4,6 +4,7 @@ sys.path.append("./static/py")
 import os
 import db
 import erudit_parser as erudit
+import topic_model as tm
 import common as cm
 import constants as CONST
 
@@ -19,6 +20,17 @@ db = db.Database()
 
 @app.route("/")
 def index():
+    # results = db.execQuery("select id, path from document where id=%s limit 10", (166519,))
+    results = db.execQuery("select id, path from document where dataset='erudit' limit 10")
+    strPath = "C:/Users/Victor/Desktop"
+    aDocument = []
+    for result in results:
+        xmlDoc = cm.parseXML(strPath + result[1])
+        strText = erudit.getTextFromXML(result[0], xmlDoc)
+        aTag = tm.preProcessText(strText, "adam")
+        aDocument.append(" ".join(word[2] for word in aTag))
+
+    tm.fitNMF(aDocument)
     return render_template("index2.html")
 
 @app.route("/reprocess")

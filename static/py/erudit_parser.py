@@ -1,8 +1,13 @@
+import string
 import constants as CONST
 import common as cm
 import nltk
+import db
 from lxml import etree, objectify
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.decomposition import NMF, LatentDirichletAllocation
 
+db = db.Database()
 ## Parser for handling erudit XML data
 
 # Based on our custom schemas in ./static/xml
@@ -25,6 +30,67 @@ def getXMLSchema(xmlData):
     
     return "UNKNOWN"
 
+# Strip the text from the corps element based on its schema
+def getTextFromXML(strDocumentID, xmlData):
+    root = xmlData.getroot()
+    cm.removeNamespace(root, CONST.ERUDIT_NAMESPACES["erudit"])
+    xmlCorps = cm.getXPathElement(xmlData, "//corps")
+    strSchema = getXMLSchema(xmlCorps)
+
+    if(strSchema == "PARA"):
+        # well formed
+        strText = " ".join(xmlCorps.xpath("//para//alinea//text()"))
+    elif(strSchema == "ROC"):
+        # everything should be seperated by paragraphs
+        # need to handle for some anomalies first
+        strText = getTextFromROC(strDocumentID, xmlCorps)
+    else:
+        # just a block of text, no need to handle anomalies
+        strText = " ".join(xmlData.xpath("//corps//text()"))
+
+    # if a bibliography exists in this text, delete it
+    # assumption: bibliography always occurs in the end
+    nEnd = strText.lower().find("bibliographie")
+    if nEnd != -1:
+        strText = strText[:nEnd]
+
+    return strText
+
+
+# ROC = ORC - text is split out by line in <alinea> elements
+# May contain some anomalies that needs to be processed here
+def getTextFromROC(strDocumentID, xmlCorps):
+    metaData = db.execQuery("select d.path, m.titrerev from document d left join meta m on m.documentid = d.id where d.id=%s", (strDocumentID,))
+    # handle anomalies if we have meta data
+    if(metaData):
+        strTitle = metaData[0][1]
+        # strip out titles after occurence threshold has been met
+        nTitles = 0
+        for nd in xmlCorps.xpath("//alinea"):
+            # don't touch this if it has children nodes
+            if len(nd) or not nd.text:
+                continue
+            # check title occurence threshold
+            if strTitle.lower() in nd.text.lower():
+                if nTitles > CONST.TT_TITLE:
+                    # past threshold, remove this node
+                    nd.getparent().remove(nd)
+                else:
+                    nTitles += 1
+    else:
+        # we do not have meta data for this document        
+        # let's try to receive the meta data to try again
+        strMetaXML = cm.getUTFStringFromXML(xmlMeta)
+        db.execProc("erudit_INSERT_metadata", (strDocumentID, strMetaXML))
+        metaData = db.execQuery("select d.path, m.titrerev from document d left join meta m on m.documentid = d.id where d.id=%s", (strDocumentID,))
+        
+        if metaData:
+            # we got something! let's do this again            
+            # WARNING: "SAFE" RECURSION HAPPENING HERE
+            return processTextFromROC(strDocumentID, xmlCorps)
+
+    return " ".join(xmlCorps.xpath("//alinea//text()"))
+        
 
 # Save all the data we want from this XML Document
 def saveAllData(strDocumentID, xmlDoc):
