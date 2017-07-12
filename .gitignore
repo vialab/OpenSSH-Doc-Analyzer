@@ -4,3 +4,5 @@ file_processing/**
 static/py/dbconfig.py
 *.pyc
 **/*.pyc
+model/**
+sproc/**

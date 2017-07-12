@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import string
 import constants as CONST
 import common as cm
@@ -10,9 +11,9 @@ from sklearn.decomposition import NMF, LatentDirichletAllocation
 db = db.Database()
 ## Parser for handling erudit XML data
 
-# Based on our custom schemas in ./static/xml
-# return the XML format type we detected using XSD validation
 def getXMLSchema(xmlData):
+    """ Based on our custom schemas in ./static/xml
+    return the XML format type we detected using XSD validation """
     root = xmlData.getroot()
     cm.removeNamespace(root, CONST.ERUDIT_NAMESPACES["erudit"])
 
@@ -30,11 +31,13 @@ def getXMLSchema(xmlData):
     
     return "UNKNOWN"
 
-# Strip the text from the corps element based on its schema
 def getTextFromXML(strDocumentID, xmlData):
+    """ Strip the text from the corps element based on its schema """
     root = xmlData.getroot()
     cm.removeNamespace(root, CONST.ERUDIT_NAMESPACES["erudit"])
     xmlCorps = cm.getXPathElement(xmlData, "//corps")
+    if xmlCorps is None:
+        return ""
     strSchema = getXMLSchema(xmlCorps)
 
     if(strSchema == "PARA"):
@@ -57,9 +60,9 @@ def getTextFromXML(strDocumentID, xmlData):
     return strText
 
 
-# ROC = ORC - text is split out by line in <alinea> elements
-# May contain some anomalies that needs to be processed here
 def getTextFromROC(strDocumentID, xmlCorps):
+    """ ROC = ORC - text is split out by line in <alinea> elements
+    May contain some anomalies that needs to be processed here """
     metaData = db.execQuery("select d.path, m.titrerev from document d left join meta m on m.documentid = d.id where d.id=%s", (strDocumentID,))
     # handle anomalies if we have meta data
     if(metaData):
@@ -92,8 +95,8 @@ def getTextFromROC(strDocumentID, xmlCorps):
     return " ".join(xmlCorps.xpath("//alinea//text()"))
         
 
-# Save all the data we want from this XML Document
 def saveAllData(strDocumentID, xmlDoc):
+        """ Save all the data we want from this XML Document """
         root = xmlDoc.getroot()
         cm.removeNamespace(root, CONST.ERUDIT_NAMESPACES["erudit"])
         strXML = cm.getUTFStringFromXML(xmlDoc)
@@ -111,36 +114,36 @@ def saveAllData(strDocumentID, xmlDoc):
         strCorpsXML = cm.getUTFStringFromXML(xmlCorps)
         db.execProc("erudit_INSERT", (strDocumentID, strXML, strMetaXML, strBiblioXML, strLiminaireXML, strCorpsXML))
 
-# Save meta data section of the ERUDIT XML
-# Assumes namespace has been stripped from XML
 def saveMetaData(strDocumentID, xmlDoc):
+    """ Save meta data section of the ERUDIT XML
+    (assumes namespace has been stripped from XML) """
     xmlMeta = cm.getXPathElement(xmlDoc, "//admin")
     strMetaXML = cm.getUTFStringFromXML(xmlMeta)
     db.execProc("erudit_INSERT_metadata", (strDocumentID, strMetaXML))
 
-# Save bibliography section of the ERUDIT XML
-# Assumes namespace has been stripped from XML
 def saveBibliography(strDocumentID, xmlDoc):
+    """ Save bibliography section of the ERUDIT XML
+    (assumes namespace has been stripped from XML) """
     xmlBiblio = cm.getXPathElement(xmlDoc, "//partiesann")
     strBiblioXML = cm.getUTFStringFromXML(xmlBiblio)
     db.execProc("erudit_INSERT_biblio", (strDocumentID, strBiblioXML))
 
-# Save key notes section of the ERUDIT XML
-# Assumes namespace has been stripped from XML
 def saveKeynote(strDocumentID, xmlDoc):
+    """ Save key notes section of the ERUDIT XML
+    (assumes namespace has been stripped from XML) """
     xmlLiminaire = cm.getXPathElement(xmlDoc, "//liminaire")
     strLiminaireXML = cm.getUTFStringFromXML(xmlLiminaire)
     db.execProc("erudit_INSERT_liminaire", (strDocumentID, strLiminaireXML))
 
-# Save corps section of the ERUDIT XML
-# Assumes namespace has been stripped from XML
 def saveCorpus(strDocumentID, xmlDoc):
+    """ Save corps section of the ERUDIT XML
+    (assumes namespace has been stripped from XML) """
     xmlCorps = cm.getXPathElement(xmlDoc, "//corps")
     strCorpsXML = cm.getUTFStringFromXML(xmlCorps)
     db.execProc("erudit_INSERT_corps", (strDocumentID, strCorpsXML))
 
-# Save raw Erudit XML
 def saveRawXML(strDocumentID, xmlDoc):
+    """ Save raw Erudit XML """
     strXML = cm.getUTFStringFromXML(xmlDoc)
     db.execUpdate("insert into raw_xml(documentid, rawxml) values(%s, %s)", (strDocumentID, strXML))
 

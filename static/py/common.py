@@ -1,40 +1,47 @@
+# -*- coding: utf-8 -*-
 import db
 import numpy as np
 import base64
 import re
 import cStringIO
 import imp
+import constants as CONST
+import hashlib
+import codecs
 from lxml import etree, objectify
 from PIL import Image
 
 ## Common helper functions used across the web app
 
-# Convert an XML to a UTF-8 encoded string
-# This is how we insert stuff into the database
+def getSHA256(strText):
+    """ Create a checksum for a file """
+    hash_sha256 = hashlib.sha256(strText)
+    return hash_sha256.hexdigest()
+
+
 def getUTFStringFromXML(xmlDoc):
+    """ Convert an XML to a UTF-8 encoded string
+    This is how we insert stuff into the database"""
     if xmlDoc is None:
         return ""
 
     return etree.tostring(xmlDoc, encoding="UTF-8", xml_declaration=False)
 
-
-# Check if this file type is supported by the system
 def isSupportedFile(filename):
+    """ Check if this file type is supported by the system """
     return "." in filename and \
            filename.rsplit(".", 1)[1] in CONST.ALLOWED_EXTENSIONS
 
-
-# Log a system error to the systemerror database table
 def logError(e):
+    """ Log a system error to the systemerror database table """
     newdb = db.Database()
     strError = "System Error %d:  %s" % (e.args[0], e.args[1])
     newdb.execProc("sp_systemerror", (strError,))
 
-
-# Strip the namespaces found in an XML Element tree
-# Erudit data comes has custom schema, strip it out
-# so that we can validate with our own schemas
 def removeNamespace(xmlData, namespace):
+    """ Strip the namespaces found in an XML Element tree
+    Erudit data comes has custom schema, strip it out
+    so that we can validate with our own schemas """
     ns = u'{%s}' % namespace
     nsl = len(ns)
     for elem in xmlData.getiterator():
@@ -42,9 +49,8 @@ def removeNamespace(xmlData, namespace):
             if elem.tag.startswith(ns):
                 elem.tag = elem.tag[nsl:]
 
-
-# Get an element in the erudit namespace
 def getXPathElement(xmlDoc, strXPath, aNamespaces=None):
+    """ Get an element in the erudit namespace """    
     if aNamespaces is None:
         ndData = xmlDoc.xpath(strXPath)
     else:    
@@ -56,9 +62,8 @@ def getXPathElement(xmlDoc, strXPath, aNamespaces=None):
         return None
     return xmlData
 
-
-# Pull all text from an XML node without sub element mark-up
 def getFullText(xmlData):
+    """ Pull all text from an XML node without sub element mark-up """
     if xmlData.text:
         strData = xmlData.text
     else:
@@ -68,19 +73,16 @@ def getFullText(xmlData):
             strData += ndChild.tail
     return strData
 
-
-# Convert an XML Element to an Element Tree
 def getElementTree(xmlData):
+    """ Convert an XML Element to an Element Tree """    
     return etree.ElementTree(xmlData)
 
-
-# Parse an xml file
 def parseXML(strPath):
+    """ Parse an xml file """
     xmlDoc = etree.parse(strPath.strip())
     return xmlDoc
 
-
-# Parse an xsd schema file
 def parseXMLSchema(strSchemaPath):
+    """ Parse an xsd schema file """
     xmlSchema_doc = etree.parse(strSchemaPath)
     return etree.XMLSchema(xmlSchema_doc)

@@ -1,11 +1,35 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Flasky{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
-    <h1>Hello, {% if name %}{{ name }}{% else %}Stranger{% endif %}!</h1>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+        <section>
+            <div id="dropzone">
+                <form action="/upload" class="dropzone needsclick dz-clickable" id="doc-upload">
+                    <div class="dz-message needsclick">
+                    Drop files here or click to upload.<br>
+                    </div>
+                </form>
+            </div>
+        </section>
+        </div>
+    </div>
 </div>
-{{ wtf.quick_form(form) }}
-{% endblock %}
+{% endblock page_content %}
+{% block add_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/dropzone.js"></script>
+<script>
+    Dropzone.autoDiscover = false;
+
+    $(function() {
+    var myDropzone = new Dropzone("#doc-upload");
+    myDropzone.on("queuecomplete", function(file) {
+        // Called when all files in the queue finish uploading.
+        window.location = "{{ url_for('analyzer') }}";
+    });
+    })
+</script>
+{% endblock add_js %}

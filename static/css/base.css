@@ -1,0 +1,60 @@
+body {
+    font-family: "Arial" !important;
+}
+
+.doc {
+    min-height: 200px;
+    font-size: 14px;
+    color: #777;
+    border-bottom: 1px solid lightgray;
+    padding: 21px 13px 34px 13px;
+}
+
+h3 {
+    margin: 18px 0px;
+    font-size: 12px;
+    color: lightgray;
+}
+
+.doc .doc-title {
+    font-size: 20px;
+    color: slategrey;
+}
+
+.doc .doc-author {
+}
+
+.doc .doc-cite {
+    font-style: italic;
+}
+
+ul.doc-term {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.doc-term li {
+    display: inline-block;
+    padding-right: 16px;
+}
+
+
+a.search-term {
+    border-radius: 4px;
+    padding: 8px;
+    color: slategrey;
+    cursor: pointer;
+    line-height: 15px;
+}
+
+a.search-term.active {
+    background: lightgray;
+    color: white;
+}
+
+a.search-term:hover {
+    text-decoration: none;
+    background: lightgray;
+    color: #777;
+}

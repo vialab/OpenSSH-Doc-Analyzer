@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    {% if search_result %}
+    <div class="col-sm-4">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>SEARCH TERMS</h3>
+                <ul class="doc-term">
+                {% for key in search_term %}
+                    <li id="{{ search_term[key]['id'] }}">
+                        {{ search_term[key]["thematicheading"]|safe }} | {{ search_term[key]["heading"]|safe }} ({{key}})
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>FOUND TERMS</h3>
+                <ul class="doc-term">
+                {% for term in key_term %}
+                    <li id="{{ term['id'] }}">
+                        <a id="{{ term['id'] }}" class="search-term {% if term['id']|string() in search_term %}active{% endif %}">{{ term["thematicheading"]|safe }} | {{ term["heading"]|safe }}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-sm-8">
+        {% for result in search_result %}
+        <div class="row">
+            <div class="col-sm-12 doc">
+              <h3>ARTICLE</h3>                
+              <div class="doc-title">{{ result["title"]|safe }} | similarity: {{ result["cossim"]|round(2) }}</div>
+              <div class="doc-author">{{ result["author"]|safe }}</div>
+              <div class="doc-cite">{{ result["citation"]|safe }}</div>
+              <h3>TOPICS</h3>
+              <ul class="doc-term" id="doc-topic">
+                {% for topic in result["topiclist"] %}
+                <li>
+                    <a id="{{ topic['id'] }}" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{ topic["thematicheading"]|safe }} | {{ topic["heading"]|safe }} ( {{ (topic["dist"]*100)|round(2) }} % )</a>
+                </li>
+                {% endfor %}
+              </ul>
+              <h3>PEOPLE</h3>
+              <ul class="doc-term" id="doc-people">
+                {% for entity in result["entitylist"] %}
+                {% if entity["type"] == "nompers" %}                
+                <li>
+                    <a class="search-term">{{ entity["name"]|safe }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}              
+              </ul>                
+              <h3>ORGANIZATIONS</h3>
+              <ul class="doc-term" id="doc-org">
+                {% for entity in result["entitylist"] %}
+                {% if entity["type"] == "nomorgs" %}
+                <li>
+                    <a class="search-term">{{ entity["name"]|safe }}</a>                    
+                </li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>        
+    {% else %}
+    <div class="col-sm-12">
+        Sorry, we didn't find any results for your search. Try changing your parameters and search again.
+    </div>
+    {% endif %}
+</div>
+{% endblock page_content %}

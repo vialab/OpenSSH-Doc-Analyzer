@@ -2,32 +2,29 @@ import dbconfig as cfg
 import MySQLdb as sql
 import common as cm
 
-## Basic MySQL database helper functions
-## Handles connection configuration, and system wide errors
-
-
 class Database(object):
-    # Execute an SQL query
+    """ Basic MySQL database helper functions """
+    conn = None
+    cursor = None
+
+    def __init__(self):
+        self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True, charset="utf8")
+
     def execQuery(self, strCmd, args=()):
-        conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True)
-        cursor = conn.cursor()
-        cursor.execute('SET NAMES utf8mb4')
-        cursor.execute("SET CHARACTER SET utf8mb4")
-        cursor.execute("SET character_set_connection=utf8mb4")
-        cursor.execute("SET collation_connection = 'utf8mb4_unicode_ci'")
-
+        """ Execute an SQL query """
+        self.cursor = self.conn.cursor() 
         try:
-            cursor.execute(strCmd, args)                
-            results = cursor.fetchall()
-            cursor.close()
-            conn.close()
+            self.cursor.execute(strCmd, args)                
+            results = self.cursor.fetchall()
+            self.cursor.close() 
             return results
-        except sql.Error, e:
-            self.throwSQLError(e, conn, cursor)
+        except Exception, e:
+            self.throwSQLError(e)
+            raise
 
 
-    # Execute an SQL insert/update command
     def execUpdate(self, strCmd, args=()):
+        """ Execute an SQL insert/update command """
         strCmd = strCmd.strip()
         strCommitCmd = ""
         if(not(strCmd.lower().startswith("begin;"))):
@@ -40,34 +37,27 @@ class Database(object):
 
         if(not(strCmd.lower().endswith("commit;"))):
             strCommitCmd += " COMMIT;"
-        
+            
         return self.execQuery(strCommitCmd, args)
 
 
-    # Execute an SQL stored procedure
     def execProc(self, strProc, args=()):
-        conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True)
-        cursor = conn.cursor()
-        cursor.execute('SET NAMES utf8mb4')
-        cursor.execute("SET CHARACTER SET utf8mb4")
-        cursor.execute("SET character_set_connection=utf8mb4")
-        cursor.execute("SET collation_connection = 'utf8mb4_unicode_ci'")
+        """ Execute an SQL stored procedure """
+        self.cursor = self.conn.cursor() 
 
         try:
-            results = cursor.callproc(strProc, args)
-            cursor.close()
-            conn.close()
+            results = self.cursor.callproc(strProc, args)
+            self.cursor.close()
             return results
-        except sql.Error, e:
-            self.throwSQLError(e, conn, cursor)
+        except Exception, e:
+            self.throwSQLError(e)
             raise
 
-
-    # Basic error handling
-    # Logs system errors to database
-    def throwSQLError(self, e, conn, cursor):
+    def throwSQLError(self, e):
+        """ Log system errors to database """
         strError = "SQL Error %d:  %s" % (e.args[0], e.args[1])
-        results = cursor.callproc("sp_systemerror", (strError,))
-        cursor.close()
-        conn.close()
+        results = self.cursor.callproc("sp_systemerror", (strError,))
+
+    def __del__(self):
+        self.conn.close()
         
