@@ -86,3 +86,8 @@ def parseXMLSchema(strSchemaPath):
     """ Parse an xsd schema file """
     xmlSchema_doc = etree.parse(strSchemaPath)
     return etree.XMLSchema(xmlSchema_doc)
+
+def saveUTF8ToDisk(strPath, strText):
+    """ Write file out to disk with UTF-8 encoding """
+    with codecs.open(strPath, "w+", "utf-8") as f:
+        f.write(strText)

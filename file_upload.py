@@ -27,13 +27,18 @@ app.config['SESSION_TYPE'] = 'filesystem'
 # Common variables
 oht = oht.Wrapper()
 db = db.Database()
-# tm = tm.TopicModel()
+aStopWord = []
+results = db.execQuery("select lower(word) word, treetag from stopword where dataset=%s", ("adam2",))
+for result in results:
+    aStopWord.append(result[0].strip())
+aStopWord = set(aStopWord)
+tm = tm.TopicModel(stop_words=aStopWord)
 # tm.loadModel()
 # with open("./model/pkl/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
-tm = None
-with open("./model/pkl/tm.pkl", "r") as f:
-    tm = pickle.load(f)
+# tm = None
+# with open("./model/pkl/tm.pkl", "r") as f:
+#     tm = pickle.load(f)
 strPath = "C:/Users/Victor/Desktop"
 
 @app.route("/")
@@ -44,7 +49,8 @@ def index():
     # inferTopicNames()
     # runTopicModel()
     # savePreProcessedList()
-    # transformDocumentToModel(1000)
+    # transformDocumentToModel(200)
+    # saveTFDF()
     return render_template("index.html")
 
 @app.route("/upload", methods=["GET","POST"])
@@ -77,7 +83,7 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
             else:
                 db.execUpdate("insert into dochash(hashkey) values(%s)", (strHash,))
                 session["dochashid"] = db.execQuery("select id from dochash where hashkey=%s order by created desc limit 1", (strHash,))[0][0]
-                strClean = tm.preProcessText(strText.encode("utf-8"))
+                strClean = tm.preProcessText(strText.decode("utf8"))
                 session["topicdist"] = tm.transform(strClean).tolist()
                 for topic_idx in np.array(session["topicdist"])[0].argsort():
                     db.execUpdate("""insert into userdoctopic(dochashid, topicid, dist) 
@@ -119,14 +125,18 @@ def analyzer():
         , search_term=session["searchterm"]
         , key_term=session["keyterm"])
 
-@app.route("/reprocess")
-def reprocess():
-    transformDocumentToModel()
-    return render_template("index.html")
+
+def saveTFDF():
+    tfdf = {}
+    with open("./model/pkl/tfdf2.pkl", "r") as f:
+        tfdf = pickle.load(f)
+    
+    for word in tfdf:
+        db.execUpdate("insert into tfdf(word, freq, docfreq) values(%s, %s, %s)", (word, tfdf[word]["tf"], tfdf[word]["df"]))
 
 def saveStopWords():
     aStopWord = []
-    results = db.execQuery("select distinct lower(word) word from stopword where dataset=%s", ("adam2",))
+    results = db.execQuery("select lower(word) word from stopword where dataset=%s", ("adam2",))
     for result in results:
         aStopWord.append(result[0].lower().strip())
     # aStopWord = set(aStopWord)
@@ -163,6 +173,7 @@ group by dt.documentid
 order by sum(udt.dist * ifnull(dt.dist, 0)) / sqrt( sum(udt.dist * udt.dist) * sum(dt.dist * dt.dist) ) desc
 limit 10;
     """, (strDocHashID,))
+
     for aDoc in aRankList:
         result = db.execQuery("""
     select d.id
@@ -276,35 +287,41 @@ def savePreProcessedList():
         db.execUpdate("update document set cleanpath=%s where id=%s", (aFile.values()[0],aFile.keys()[0]))
         
 
-def runTopicModel(nSampleSize=5000):
+def runTopicModel(nSampleSize=1000):
     aDocument = []
     aDocList = []
     aSample = []
-    dirPath = "./model/corps/"
-    aStopWord = []
-    results = db.execQuery("select lower(word) word, treetag from stopword where dataset=%s", ("adam2",))
-    for result in results:
-        aStopWord.append(result[0])
-        
-    aStopWord = set(aStopWord)
+    dirPath = "./model/corps/boosted/"
+    n = 0
+    strText = u""
     for filename in os.listdir(dirPath):
-        if filename == "161000.txt" or filename == "77000.txt": 
+        if filename.endswith(".txt"): 
             result = dirPath + filename
             with codecs.open(result, encoding="utf-8") as json_file:
                 aData = json.load(json_file)
             for key in aData:
-                aWord = aData[key].split(" ")
-                strText = " ".join(word for word in aWord if u"_" in word and word.split("_")[0] not in aStopWord)
-                for word in aWord:
-                    if word.split("_")[0] in aStopWord:
-                        print(word)
+                n += 1
                 aDocList.append(key)
-                aDocument.append(strText)
-    return
+                aDocument.append(aData[key])
+                strText = aData[key]
+                if n == nSampleSize:
+                    break
+        if n == nSampleSize:
+            break
+
     tm.fitLDA(aDocument, aDocList)
-    tm.saveModel()
+    for i in range(1000):
+        try:
+            tm.processText(strText)
+        except Exception, e:
+            print str(e)
+    # tm.writeModelToDB()
+    # tm.saveModel()
 
 def prePreProcessTextToDisk():
+    with open("./model/pkl/stopword.pkl", "r") as f:
+        tm.aStopWord = pickle.load(f)
+
     results = db.execQuery("""
         select max(cast(replace(replace(cleanpath,'./model/corps/', ''), '.txt', '') as UNSIGNED)) lastfile 
         from document""")
@@ -321,14 +338,13 @@ def prePreProcessTextToDisk():
         strText = erudit.getTextFromXML(result[0], xmlDoc)
         if strText == "":
             continue
-        aTag = tm.preProcessText(strText, dataset="adam2")
-        strCleanText = " ".join(word[2].lower()+"_"+word[1].lower() for word in aTag)
+        strCleanText = tm.preProcessText(strText)
         aData[str(result[0])] = strCleanText
         nDoc += 1
         
         if ((nDoc % 100) == 0) or (nDoc+1 == len(results)):
             strCleanPath = "./model/corps/" + str(nDoc) + ".txt"
-            tm.saveCleanedTextToDisk(strCleanPath, json.dumps(aData))
+            cm.saveUTF8ToDisk(strCleanPath, json.dumps(aData))
             for key in aData:
                 db.execUpdate("update document set cleanpath=%s where id=%s", (strCleanPath, key))
             aData = {}

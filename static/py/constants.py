@@ -8,7 +8,7 @@ DS_MAXTERM = 5 # number of prioritized terms
 
 # Topic model constants
 TM_TOPICS = 100
-TM_FEATURES = 1000
+TM_FEATURES = None
 TM_MAXDF = 1.0
 TM_MINDF = 1
 TM_PASSES = 20
@@ -24,3 +24,8 @@ OHT_TOPDIST = 10 # number of words to get from topic term distribution
 
 # Text Thresholds for text processing
 TT_TITLE = 5
+TT_NGRAMSIG = 0.8
+TT_MINFREQ = 1
+NOUN_TAG = set(["_detpos", "_nom", "_nam", "_pro", "_prodem", "_proind", "_proper", "_propos", "_prorel"])
+NOUN_BOOST = 5
+TT_DEVIATION = 1

@@ -14,7 +14,6 @@ select * from note;
 select * from entity;
 select * from stopword;
 
-
 -- delete from entity;
 -- delete from meta;
 -- delete from note;
@@ -92,7 +91,7 @@ and substring_index(word, '_', 1) = replace(substring_index(word, '_', 2), '_', 
 -- FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' (@wordoed, @fr_translation, @label, @pos, @headingid) 
 -- set word=@wordoed, fr_translation=@fr_translation, label=@label, pos=@pos, headingid=@headingid;
 
--- delete from topic; delete from term; delete from topicterm; delete from doctopic; delete from userdoctopic; delete from dochash;
+-- delete from topic; delete from term; delete from topicterm; delete from doctopic; delete from userdoctopic; delete from dochash; delete from headingterm;
 
 select t.*, h.heading, th.thematicheading from topic t
 left join heading h on h.id=t.headingid
@@ -105,8 +104,6 @@ select distinct lower(word) word from stopword where dataset='adam2' order by wo
 select topicid, max(dist)
 from topicterm
 group by topicid
-
-
 
 select * from topic
 
@@ -124,10 +121,12 @@ select * from document where id=85093
 select * from oht
 
 
-select * from term t
+select * from term t order by word
 -- update term t
 left join pos p on p.pos=t.pos
 -- set t.oht=p.oht
 
 
 select * from stopword order by word
+
+(?<=")(?:\\.|[^"\\])*(?=")
