@@ -32,24 +32,27 @@ results = db.execQuery("select lower(word) word, treetag from stopword where dat
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
-tm = tm.TopicModel(stop_words=aStopWord)
+# tm = tm.TopicModel(stop_words=aStopWord)
 # tm.loadModel()
+# tm.tfidf_vect.fit(tm.tf)
 # with open("./model/pkl/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
-# tm = None
-# with open("./model/pkl/tm.pkl", "r") as f:
-#     tm = pickle.load(f)
-strPath = "C:/Users/Victor/Desktop"
+tm = None
+with open("./model/pkl/tm.pkl", "r") as f:
+    tm = pickle.load(f)
+strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
-    saveStopWords()
+    # tm.tfidf_vect.fit(tm.tf)
+    # tm.saveModel()
+    # saveStopWords()
     # prePreProcessTextToDisk()
     # tm.writeModelToDB()
     # inferTopicNames()
     # runTopicModel()
     # savePreProcessedList()
-    # transformDocumentToModel(200)
+    # transformDocumentToModel(5000)
     # saveTFDF()
     return render_template("index.html")
 
@@ -58,11 +61,10 @@ def upload():
     if request.method == 'POST':
         file = request.files['file']
         if file and cm.isSupportedFile(file.filename):
-            strExt = file.filename.split(".")[-1].lower()
-            strText = ""
-            if strExt == "txt":
-                strText = " ".join(strLine for strLine in file)
-            
+            with open(file.filename, "r") as f:
+                strText = f.read()
+            if strText == "":
+                return            
             strText = tm.removeStopWords(strText)
 
             # Check if this file has already been modeled
@@ -83,7 +85,7 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
             else:
                 db.execUpdate("insert into dochash(hashkey) values(%s)", (strHash,))
                 session["dochashid"] = db.execQuery("select id from dochash where hashkey=%s order by created desc limit 1", (strHash,))[0][0]
-                strClean = tm.preProcessText(strText.decode("utf8"))
+                strClean = tm.processText(strText.decode("utf8"), is_clean=False)
                 session["topicdist"] = tm.transform(strClean).tolist()
                 for topic_idx in np.array(session["topicdist"])[0].argsort():
                     db.execUpdate("""insert into userdoctopic(dochashid, topicid, dist) 
@@ -116,6 +118,45 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
                         n += 1
     return redirect(url_for("index"))
 
+@app.route("/explore")
+@app.route("/explore/<heading_string>")
+def explore( heading_string=None ):
+    if heading_string is None:
+        search_query = None
+        search = db.execQuery("""
+        select t.id
+        , t.topicname
+        , h.fr_heading
+        , th.fr_thematicheading 
+        from topic t 
+        left join heading h on h.id=t.headingid
+        left join thematicheading th on th.id=h.thematicheadingid
+        """)
+    else:
+        heading_list = heading_string.split("+")
+        session["explore_list"] = []
+        for topic in heading_list:
+            try:
+                session["explore_list"].append(int(topic))
+            except:
+                continue
+        search = getSearchResults()
+
+        search_query = ",".join([str(topic) for topic in session["explore_list"]])
+        name_list = db.execQuery("""
+        select t.id
+        , t.topicname
+        , h.fr_heading
+        , th.fr_thematicheading 
+        from topic t 
+        left join heading h on h.id=t.headingid
+        left join thematicheading th on th.id=h.thematicheadingid
+        where t.id in (""" + search_query + ")")
+        search_query = " + ".join([name[2] for name in name_list])
+    return render_template("explore.html"
+        , search_query=search_query
+        , search_result=search
+    )
 
 @app.route("/analyzer")
 def analyzer():
@@ -139,8 +180,9 @@ def saveStopWords():
     results = db.execQuery("select lower(word) word from stopword where dataset=%s", ("adam2",))
     for result in results:
         aStopWord.append(result[0].lower().strip())
+    if " " not in aStopWord:
+        aStopWord.append(u" ")
     # aStopWord = set(aStopWord)
-
     with open("./model/pkl/stopword.pkl", "w+") as f:
         pickle.dump(aStopWord, f)
 
@@ -160,19 +202,36 @@ def inferTopicNames():
         db.execUpdate("update topic set headingid=%s, infername=%s where id=%s", (aTop["id"], strCol, result[0]))
 
 
-def getSearchResults( strDocHashID ):
+def getSearchResults( strDocHashID=None ):
     results = []
-    aRankList = db.execQuery(""" 
-select dt.documentid
-, sum(udt.dist * ifnull(dt.dist, 0)) / sqrt( sum(udt.dist * udt.dist) * sum(dt.dist * dt.dist) ) cossim
-from userdoctopic udt
-left join topic t on t.id=udt.topicid
-left join doctopic dt on dt.topicid=t.id
-where udt.dochashid=%s
-group by dt.documentid
-order by sum(udt.dist * ifnull(dt.dist, 0)) / sqrt( sum(udt.dist * udt.dist) * sum(dt.dist * dt.dist) ) desc
-limit 10;
-    """, (strDocHashID,))
+    if strDocHashID is None:
+        if session["explore_list"]:
+            str_topic = ",".join([str(topic) for topic in session["explore_list"]])
+            str_query = """
+                select documentid
+                , sum(dist / """ + str(len(session["explore_list"])) + """) cossim
+                from doctopic
+                where topicid in (
+                """ + str_topic + """) 
+                group by documentid 
+                order by sum(dist) desc
+                limit 10"""
+
+            aRankList = db.execQuery(str_query)
+        else:
+            redirect(url_for("index"))
+    else:
+        aRankList = db.execQuery(""" 
+            select dt.documentid
+            , sum(udt.dist * ifnull(dt.dist, 0)) / sqrt( sum(udt.dist * udt.dist) * sum(dt.dist * dt.dist) ) cossim
+            from userdoctopic udt
+            left join topic t on t.id=udt.topicid
+            left join doctopic dt on dt.topicid=t.id
+            where udt.dochashid=%s
+            group by dt.documentid
+            order by sum(udt.dist * ifnull(dt.dist, 0)) / sqrt( sum(udt.dist * udt.dist) * sum(dt.dist * dt.dist) ) desc
+            limit 10;
+        """, (strDocHashID,))
 
     for aDoc in aRankList:
         result = db.execQuery("""

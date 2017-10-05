@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Doculyze | Explore{% endblock %}
+
+{% block page_content %}
+<div id="search-box">
+    <table>
+        <thead>
+            <tr>
+                <td colspan="2">SEARCH TERMS</td>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <div id="search-btn">
+        <img src="{{ url_for('static', filename='search_icon.png') }}" onclick="search();"/>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12 text-center">
+        {% if search_query is not none %}
+        <h1>{{ search_query|safe }}</h1>
+        {% else %}
+        <h1>Explore</h1>
+        {% endif %}
+    </div>
+</div>
+<div class="row">
+    {% if search_result is not none and search_query is not none %}
+    <div class="col-sm-12">
+        {% for result in search_result %}
+        <div class="row">
+            <div class="col-sm-12 doc">
+              <h3>ARTICLE</h3>                
+              <div class="doc-title" id="doc-{{result['documentid']}}">{{ result["title"]|safe }} | relevance: {{ result["cossim"]|round(2) }}</div>
+              <div class="doc-author">{{ result["author"]|safe }}</div>
+              <div class="doc-cite">{{ result["citation"]|safe }}</div>
+              <h3>TOPICS</h3>
+              <ul class="doc-term" id="doc-topic">
+                {% for topic in result["topiclist"] %}
+                <li>
+                    <a id="{{ topic['id'] }}" class="search-term {% if topic['id'] in search_term %}active{% endif %}" onclick="addToSearch('{{topic['id']}}', '{{ topic['heading']|safe }}');">{{ topic["thematicheading"]|safe }} | {{ topic["heading"]|safe }} ( {{ (topic["dist"]*100)|round(2) }} % )</a>
+                </li>
+                {% endfor %}
+              </ul>
+              <h3>PEOPLE</h3>
+              <ul class="doc-term" id="doc-people">
+                {% for entity in result["entitylist"] %}
+                {% if entity["type"] == "nompers" %}                
+                <li>
+                    <a class="search-term">{{ entity["name"]|safe }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}              
+              </ul>                
+              <h3>ORGANIZATIONS</h3>
+              <ul class="doc-term" id="doc-org">
+                {% for entity in result["entitylist"] %}
+                {% if entity["type"] == "nomorgs" %}
+                <li>
+                    <a class="search-term">{{ entity["name"]|safe }}</a>                    
+                </li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>        
+    {% elif search_query is not none %}
+    <div class="col-sm-12">
+        Sorry, we didn't find any results for your search. Try changing your parameters and search again.
+    </div>
+    {% else %}
+    <div class="col-sm-12">
+        {% for result in search_result %}
+            <div class="col-sm-4">
+                <a class="search-term" onclick="addToSearch('{{result[0]}}', '{{ result[2] }}');">{{ result[3]|safe }} | {{ result[2]|safe }}</a>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock page_content %}

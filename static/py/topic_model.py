@@ -13,18 +13,17 @@ import numpy as np
 import gc
 import scipy
 import operator
-from eli5.sklearn import InvertableHashingVectorizer
 from sklearn.externals import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, HashingVectorizer, TfidfTransformer
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 
-os.environ["JAVAHOME"] = "C:/Program Files (x86)/Java/jre1.8.0_121/bin/java.exe"
+# os.environ["JAVAHOME"] = "C:/Program Files (x86)/Java/jre1.8.0_121/bin/java.exe"
 
 class TopicModel(object):
     """ Class for handling all topic modeling functions """
     db = db.Database()
     tagger = treetaggerwrapper.TreeTagger(TAGLANG="fr")
-    ner = nltk.tag.stanford.StanfordNERTagger("C:/stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz", "C:/stanford-ner/stanford-ner.jar", encoding="utf-8")
+    # ner = nltk.tag.stanford.StanfordNERTagger("C:/stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz", "C:/stanford-ner/stanford-ner.jar", encoding="utf-8")
     
     # TDIF NMF
     nmf = NMF(n_components=CONST.TM_TOPICS, random_state=CONST.TM_RANDOM,
@@ -48,11 +47,11 @@ class TopicModel(object):
             self.aStopWord.append(word.strip())
 
         self.count_vect = CountVectorizer(max_df=CONST.TM_MAXDF, min_df=CONST.TM_MINDF
-                                        , max_features=CONST.TM_FEATURES, stop_words=self.aStopWord, token_pattern=r"(?<=\")(?:\\.|[^\"\\])*(?=\")")
+                                        , max_features=CONST.TM_FEATURES, stop_words=self.aStopWord, token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")")
         self.tfidf_vect = TfidfTransformer()
 
 
-    def preProcessText(self, strText):
+    def preProcessText(self, strText, quote=False):
         """ Remove stopwords and punctuation, and also lemmatize the text. """
         # Always add spaces after apostrophe
         strText = strText.replace(u"\u2019", u" ")
@@ -78,12 +77,18 @@ class TopicModel(object):
                 # make sure individual lemma is not a stop word
                 if lemma not in self.aStopWord and lemma[0] != u"_" and len(lemma) > 1:
                     aCleanWordList.append([lemma, strPOS])
-                
-        return " ".join(word[0]+"_"+word[1] for word in aCleanWordList)
+        if quote:
+            return " ".join("\""+word[0]+"_"+word[1]+"\"" for word in aCleanWordList)            
+        else:
+            return " ".join(word[0]+"_"+word[1] for word in aCleanWordList)
 
-    def processText(self, strText):
+    def processText(self, strRawText, is_clean=True):
         """ Run TFIDF transformation on text and extract and boost
         1-gram, bi-gram, and tri-gram unique descriptors """
+        strText = strRawText
+        if not is_clean:
+            strText = self.preProcessText(strRawText, quote=True)
+
         doc_tf = self.count_vect.transform([strText])
         doc_tfidf = self.tfidf_vect.transform(doc_tf)
 
@@ -218,21 +223,21 @@ class TopicModel(object):
         aBoosted = {}
         for descriptor in aDescriptor:
             if any(tag in descriptor for tag in CONST.NOUN_TAG):
-                aBoosted[descriptor] = aDescriptor[descriptor]["freq"] * CONST.NOUN_BOOST
+                aBoosted[descriptor] = { "freq":(aDescriptor[descriptor]["freq"] * CONST.NOUN_BOOST) }
             else:
-                aBoosted[descriptor] = aDescriptor[descriptor]["freq"]
+                aBoosted[descriptor] = { "freq":aDescriptor[descriptor]["freq"] }
 
-        aSorted = sorted(aBoosted.items(), key=operator.itemgetter(1))
-        size = len(aSorted)
-        x_axis = scipy.arange(1, size+1)
-        y_axis = [word[1] for word in aSorted]
-        i = self.interpolateIntoLog(x_axis, y_axis)
-        aLabel = list([word[0] for word in aSorted])
-        aLog = [int(round(i(x))) for x in x_axis]
+        # aSorted = sorted(aBoosted.items(), key=operator.itemgetter(1))
+        # size = len(aSorted)
+        # x_axis = scipy.arange(1, size+1)
+        # y_axis = [word[1] for word in aSorted]
+        # i = self.interpolateIntoLog(x_axis, y_axis)
+        # aLabel = list([word[0] for word in aSorted])
+        # aLog = [int(round(i(x))) for x in x_axis]
         
-        aBoosted = {}
-        for descriptor, y in zip(aLabel, aLog):
-            aBoosted[descriptor] = { "freq":y }
+        # aBoosted = {}
+        # for descriptor, y in zip(aLabel, aLog):
+        #     aBoosted[descriptor] = { "freq":y }
 
         return aBoosted
 
@@ -283,6 +288,7 @@ class TopicModel(object):
         joblib.dump(self.lda, "./model/pkl/lda.pkl")
         joblib.dump(self.tfidf, "./model/pkl/tfidf.pkl")
         joblib.dump(self.tf, "./model/pkl/tf.pkl")
+        joblib.dump(self.tfidf_vect, "./model/pkl/tfidf_vect.pkl")
 
         aConfig = {}
         aConfig["doclist"] = self.aDocList
@@ -296,6 +302,7 @@ class TopicModel(object):
             self.is_loaded = True
             self.count_vect = joblib.load("./model/pkl/vectorizer.pkl")
             self.tfidf = joblib.load("./model/pkl/tfidf.pkl")
+            self.tfidf_vect = joblib.load("./model/pkl/tfidf_vect.pkl")
             self.tf = joblib.load("./model/pkl/tf.pkl")
             self.lda = joblib.load("./model/pkl/lda.pkl")
             self.aStopWord = joblib.load("./model/pkl/stopword.pkl")
@@ -308,14 +315,34 @@ class TopicModel(object):
         aFeatureNames = self.count_vect.get_feature_names()
         tf_sum = self.tf.sum(axis=0).A1 # sum term frequencies for each doc
         
-        # save terms with tf and idf
+        # # save terms with tf and idf
         for term in self.count_vect.vocabulary_:
-            aTerm = filter(bool,term.split("_"))
+            aTerm = filter(bool, term.split(" "))
+            no_pos = ""
+            pos = ""
+            # check if bi-gram or tri-gram
+            if len(aTerm) > 1:
+                for idx, word in enumerate(aTerm):
+                    term_pos = filter(bool,word.split("_"))
+                    if len(term_pos) < 2:
+                        term_pos.append("")
+                    no_pos = no_pos + term_pos[0]
+                    pos = pos + term_pos[1]
+                    if idx != len(aTerm)-1:
+                        no_pos = no_pos + " "
+                        pos = pos + " "
+                no_pos = no_pos.strip()
+                pos = pos.strip()
+            else:
+                term_pos = filter(bool,term.split("_"))
+                if len(term_pos) < 2:
+                    term_pos.append("")
+                no_pos = term_pos[0]
+                pos = term_pos[1]
+
             idx = self.count_vect.vocabulary_[term]
-            if len(aTerm) < 2:
-                aTerm.append("")
             self.db.execUpdate("""insert into term(wordpos, word, pos, freq, docfreq) values(%s, %s, %s, %s, %s)"""
-            , (term, aTerm[0], aTerm[1], tf_sum[idx], self.tfidf.idf_[idx]))
+            , (term, no_pos, pos, tf_sum[idx], self.tfidf.idf_[idx]))
 
         # save topics and their term distributions
         for topic_idx, topic in enumerate(self.lda.components_):
@@ -323,5 +350,6 @@ class TopicModel(object):
             for key, value in self.count_vect.vocabulary_.iteritems(): 
                 self.db.execUpdate("""insert into topicterm(topicid, termid, dist) 
                 select topic.id, term.id, %s from topic 
-                left join term on term.wordpos=%s
-                where topic.topicname=%s""", (topic[value], key.encode("utf-8"), topic_idx))
+                left join term on term.wordpos=%s collate utf8mb4_bin
+                where topic.topicname=%s
+                """, (topic[value], key.encode("utf-8"), topic_idx))

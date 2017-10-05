@@ -1,8 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Doculyze | Analyzer{% endblock %}
 
 {% block page_content %}
+<div id="search-box">
+        <table>
+            <thead>
+                <tr>
+                    <td colspan="2">SEARCH TERMS</td>
+                </tr>
+            </thead>
+            <tbody>
+    
+            </tbody>
+        </table>
+        <div id="search-btn">
+            <img src="{{ url_for('static', filename='search_icon.png') }}" onclick="search();"/>
+        </div>
+    </div>
 <div class="row">
     {% if search_result %}
     <div class="col-sm-4">
@@ -12,7 +27,7 @@
                 <ul class="doc-term">
                 {% for key in search_term %}
                     <li id="{{ search_term[key]['id'] }}">
-                        {{ search_term[key]["thematicheading"]|safe }} | {{ search_term[key]["heading"]|safe }} ({{key}})
+                        <a id="{{ search_term[key]['id'] }}" onclick="addToSearch('{{search_term[key]['id']}}', '{{ search_term[key]['heading']|safe }}');" class="search-term {% if search_term[key]['id'] in search_term %}active{% endif %}">{{ search_term[key]["thematicheading"]|safe }} | {{ search_term[key]["heading"]|safe }}</a>
                     </li>
                 {% endfor %}
                 </ul>
@@ -23,9 +38,9 @@
             <div class="col-sm-12">
                 <h3>FOUND TERMS</h3>
                 <ul class="doc-term">
-                {% for term in key_term %}
-                    <li id="{{ term['id'] }}">
-                        <a id="{{ term['id'] }}" class="search-term {% if term['id']|string() in search_term %}active{% endif %}">{{ term["thematicheading"]|safe }} | {{ term["heading"]|safe }}</a>
+                {% for topic in key_term %}
+                    <li id="{{ topic['id'] }}">
+                        <a id="{{ topic['id'] }}" class="search-term {% if topic['id']|string() in search_term %}active{% endif %}" onclick="addToSearch('{{topic['id']}}', '{{ topic['heading']|safe }}');">{{ topic["thematicheading"]|safe }} | {{ topic["heading"]|safe }}</a>
                     </li>
                 {% endfor %}
                 </ul>
@@ -45,7 +60,7 @@
               <ul class="doc-term" id="doc-topic">
                 {% for topic in result["topiclist"] %}
                 <li>
-                    <a id="{{ topic['id'] }}" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{ topic["thematicheading"]|safe }} | {{ topic["heading"]|safe }} ( {{ (topic["dist"]*100)|round(2) }} % )</a>
+                    <a id="{{ topic['id'] }}" onclick="addToSearch('{{topic['id']}}', '{{ topic['heading']|safe }}');" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{ topic["thematicheading"]|safe }} | {{ topic["heading"]|safe }} ( {{ (topic["dist"]*100)|round(2) }} % )</a>
                 </li>
                 {% endfor %}
               </ul>

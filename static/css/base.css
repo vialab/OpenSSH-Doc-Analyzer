@@ -58,3 +58,80 @@ a.search-term:hover {
     background: lightgray;
     color: #777;
 }
+
+#search-box {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 85px;
+    height: 85px;
+    background-color: gray;
+    z-index: 5;
+    border-radius: 85px;
+    -webkit-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
+}
+
+#search-box:hover {
+    height: 300px;
+    width: 300px;
+    border-radius: 5px;
+}
+
+
+#search-box table {
+    opacity: 0;
+    border: none;
+    padding: 5px;
+    width: 100%;
+    -webkit-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
+}
+
+#search-box table thead tr td {
+    text-align: center;
+    padding: 15px;
+    font-weight: bold;
+}
+
+#search-box table tbody tr td {
+    padding: 5px 10px;
+    color: white;
+}
+#search-box table tbody tr td:last-child {
+    text-align: right;
+    cursor: pointer;
+    color: black;
+}
+
+#search-box:hover > table {
+    opacity: 1;
+}
+
+#search-btn {
+    position: absolute;
+    bottom: 0;
+    height: 80px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+#search-btn img {
+    display: block;
+    margin: 0 auto;
+    padding: 5px;
+    height: 75px;
+    width: 75px;
+    border-radius: 75px;
+    -webkit-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
+}
+
+#search-btn img:hover {
+    background-color: white;
+    cursor: pointer;
+}
+
+.slategray {
+    background-color: slategray !important;
+}

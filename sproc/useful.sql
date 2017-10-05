@@ -127,6 +127,22 @@ left join pos p on p.pos=t.pos
 -- set t.oht=p.oht
 
 
-select * from stopword order by word
-
-(?<=")(?:\\.|[^"\\])*(?=")
+select heading.heading, heading.fr_heading, term.word, topicrank.dist, count(oht.wordoed) oht_hits from (
+	SELECT termid, topicid, dist,
+	@term:=CASE WHEN @topic <> topicid THEN 0 ELSE @term+1 END AS rn,
+	@topic:=topicid AS topicset
+	FROM
+	  (SELECT @term:= -1) s,
+	  (SELECT @topic:= -1) c,
+	  (SELECT tt.topicid, tt.termid, tt.dist
+	   FROM topicterm tt
+	   ORDER BY tt.topicid, tt.dist desc
+	  ) t
+) topicrank
+left join term on term.id=topicrank.termid
+left join topic on topic.id=topicrank.topicid
+left join heading on heading.id=topic.headingid
+left join oht on oht.fr_translation=term.word
+where rn < 10
+group by topic.id, heading.heading, heading.fr_heading, term.word, topicrank.dist
+order by topic.id, topicrank.dist desc
