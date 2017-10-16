@@ -51,7 +51,7 @@
     <div class="col-sm-8">
         {% for result in search_result %}
         <div class="row">
-            <div class="col-sm-12 doc">
+            <div class="col-sm-12 doc" id="doc-{{result['id']}}">
               <h3>ARTICLE</h3>                
               <div class="doc-title">{{ result["title"]|safe }} | similarity: {{ result["cossim"]|round(2) }}</div>
               <div class="doc-author">{{ result["author"]|safe }}</div>

@@ -146,3 +146,13 @@ left join oht on oht.fr_translation=term.word
 where rn < 10
 group by topic.id, heading.heading, heading.fr_heading, term.word, topicrank.dist
 order by topic.id, topicrank.dist desc
+
+update term 
+set oht='n'
+where pos like '% %';
+
+update term t
+left join pos p on p.pos=t.pos
+set t.oht=p.oht
+where t.pos not like '% %';
+commit;

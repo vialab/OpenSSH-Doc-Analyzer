@@ -236,7 +236,7 @@ def getSearchResults( strDocHashID=None ):
     for aDoc in aRankList:
         result = db.execQuery("""
     select d.id
-    , t.titre
+    , ifnull(t.titre, t.surtitre) titre
     , (select group_concat(concat(prenom
                                 , CASE WHEN autreprenom != '' and autreprenom is not null 
                                     THEN concat(' ', autreprenom) ELSE '' END
@@ -331,9 +331,9 @@ def transformDocumentToModel(nSampleSize=100):
             db.execUpdate("update document set transformdt=CURRENT_TIMESTAMP where id=%s", (key,))
             n += 1
             if n == nSampleSize:
-                    break
+                break
         if n == nSampleSize:
-                    break
+            break
 
 
 def savePreProcessedList():
