@@ -33,27 +33,13 @@
                 </ul>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-sm-12">
-                <h3>FOUND TERMS</h3>
-                <ul class="doc-term">
-                {% for topic in key_term %}
-                    <li id="{{ topic['id'] }}">
-                        <a id="{{ topic['id'] }}" class="search-term {% if topic['id']|string() in search_term %}active{% endif %}" onclick="addToSearch('{{topic['id']}}', '{{ topic['heading']|safe }}');">{{ topic["thematicheading"]|safe }} | {{ topic["heading"]|safe }}</a>
-                    </li>
-                {% endfor %}
-                </ul>
-            </div>
-        </div>
-
     </div>
     <div class="col-sm-8">
         {% for result in search_result %}
         <div class="row">
             <div class="col-sm-12 doc" id="doc-{{result['id']}}">
               <h3>ARTICLE</h3>                
-              <div class="doc-title">{{ result["title"]|safe }} | similarity: {{ result["cossim"]|round(2) }}</div>
+              <div class="doc-title">{{ result["title"]|safe }}</div>
               <div class="doc-author">{{ result["author"]|safe }}</div>
               <div class="doc-cite">{{ result["citation"]|safe }}</div>
               <h3>TOPICS</h3>
@@ -77,7 +63,7 @@
               <h3>ORGANIZATIONS</h3>
               <ul class="doc-term" id="doc-org">
                 {% for entity in result["entitylist"] %}
-                {% if entity["type"] == "nomorgs" %}
+                {% if entity["type"] == "nomorg" %}
                 <li>
                     <a class="search-term">{{ entity["name"]|safe }}</a>                    
                 </li>

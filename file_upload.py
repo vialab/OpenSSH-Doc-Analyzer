@@ -8,13 +8,15 @@ import codecs
 import cPickle as pickle
 import numpy as np
 import erudit_parser as erudit
+import erudit_corpus as corpus
 import topic_model as tm
 import common as cm
 import constants as CONST
 import oht
 import re
 import nltk
-
+import time
+from lz4.frame import compress, decompress
 from flask import *
 from lxml import etree
 
@@ -81,41 +83,42 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
                 session["topicdist"] = []
                 session["topicdist"].append([0] * len(aHash))
                 for result in aHash:
-                    session["topicdist"][result[2]] = float(result[1])
+                    session["topicdist"][int(result[2])] = float(result[1])
             else:
                 db.execUpdate("insert into dochash(hashkey) values(%s)", (strHash,))
                 session["dochashid"] = db.execQuery("select id from dochash where hashkey=%s order by created desc limit 1", (strHash,))[0][0]
                 strClean = tm.processText(strText.decode("utf8"), is_clean=False)
                 session["topicdist"] = tm.transform(strClean).tolist()
-                for topic_idx in np.array(session["topicdist"])[0].argsort():
-                    db.execUpdate("""insert into userdoctopic(dochashid, topicid, dist) 
-                    select d.id, t.id, %s from dochash d
-                    left join topic t on t.topicname=%s
+                for rank,topic_idx in enumerate(np.array(session["topicdist"])[0].argsort()[::-1]):
+                    db.execUpdate("""insert into userdoctopic(dochashid, topicid, dist, rank) 
+                    select d.id, t.id, %s, %s from dochash d
+                    left join topic t on t.topicname=%s 
                     where d.created > DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL -1 DAY)
-                    and d.hashkey=%s order by d.created desc""", (session["topicdist"][0][topic_idx], topic_idx, strHash))
+                    and d.hashkey=%s order by d.created desc"""
+                    , (session["topicdist"][0][topic_idx], (rank+1), topic_idx, strHash))
             
             session["keyterm"] = []
             session["searchterm"] = {}
             
             n = 0
             for topic_idx in np.array(session["topicdist"])[0].argsort()[::-1][:CONST.DS_MAXTERM]:
-                if session["topicdist"][0][topic_idx] > CONST.DS_MINSIG:
-                    term = {}
-                    topic = db.execQuery("""select t.id, t.topicname, h.fr_heading, th.fr_thematicheading 
-                    from topic t 
-                    left join heading h on h.id=t.headingid
-                    left join thematicheading th on th.id=h.thematicheadingid
-                    where t.topicname=%s""", (str(topic_idx),))
-                    term["id"] = topic[0][0]
-                    term["name"] = topic[0][1]
-                    term["dist"] = session["topicdist"][0][topic_idx]
-                    term["heading"] = topic[0][2]
-                    term["thematicheading"] = topic[0][3]
-                    session["keyterm"].append(term)
+                # if session["topicdist"][0][topic_idx] > CONST.DS_MINSIG:
+                term = {}
+                topic = db.execQuery("""select t.id, t.topicname, h.fr_heading, th.fr_thematicheading 
+                from topic t 
+                left join heading h on h.id=t.headingid
+                left join thematicheading th on th.id=h.thematicheadingid
+                where t.topicname=%s""", (str(topic_idx),))
+                term["id"] = topic[0][0]
+                term["name"] = topic[0][1]
+                term["dist"] = session["topicdist"][0][topic_idx]
+                term["heading"] = topic[0][2]
+                term["thematicheading"] = topic[0][3]
+                session["keyterm"].append(term)
 
-                    if n < CONST.DS_MAXTERM:
-                        session["searchterm"][topic[0][0]] = term
-                        n += 1
+                if n < CONST.DS_MAXTERM:
+                    session["searchterm"][topic[0][0]] = term
+                    n += 1
     return redirect(url_for("index"))
 
 @app.route("/explore")
@@ -160,7 +163,10 @@ def explore( heading_string=None ):
 
 @app.route("/analyzer")
 def analyzer():
+    total_start = time.time()
     search = getSearchResults(session["dochashid"])
+    total_end = time.time()
+    print("Total Time: %s seconds" % (total_end-total_start))
     return render_template("analyzer.html"
         , search_result=search
         , search_term=session["searchterm"]
@@ -221,48 +227,23 @@ def getSearchResults( strDocHashID=None ):
         else:
             redirect(url_for("index"))
     else:
-        aRankList = db.execQuery(""" 
-            select dt.documentid
-            , sum(udt.dist * ifnull(dt.dist, 0)) / sqrt( sum(udt.dist * udt.dist) * sum(dt.dist * dt.dist) ) cossim
-            from userdoctopic udt
-            left join topic t on t.id=udt.topicid
-            left join doctopic dt on dt.topicid=t.id
-            where udt.dochashid=%s
-            group by dt.documentid
-            order by sum(udt.dist * ifnull(dt.dist, 0)) / sqrt( sum(udt.dist * udt.dist) * sum(dt.dist * dt.dist) ) desc
-            limit 10;
-        """, (strDocHashID,))
-
+        start = time.time()
+        aRankList = corpus.match(strDocHashID, 10)
+        end = time.time()
+        print("Found 10 results in %s seconds" % (end-start))
+    
+    start = time.time()        
     for aDoc in aRankList:
-        result = db.execQuery("""
-    select d.id
-    , ifnull(t.titre, t.surtitre) titre
-    , (select group_concat(concat(prenom
-                                , CASE WHEN autreprenom != '' and autreprenom is not null 
-                                    THEN concat(' ', autreprenom) ELSE '' END
-                                , concat(' ', nomfamille)) separator ', ') 
-        from auteur a where a.documentid=d.id 
-        order by auteurpos) as auteur
-    , m.titrerev
-    , m.volume
-    , m.nonumero
-    , m.anonumero
-    , m.editeur
-    , m.annee
-    , m.periode
-    , m.ppage
-    , m.dpage
-    from document d
-    left join meta m on m.documentid=d.id
-    left join titre t on t.documentid=d.id
-    where d.id=%s
-    """, (aDoc[0],))
+        result = corpus.getDocumentInfo(aDoc[0])
         resultlist = list(result[0])
+        # if strDocHashID is None:
         resultlist.append(aDoc[1])
         results.append(tuple(resultlist))
+    end = time.time()
+    print("Retrieved meta info in %s seconds" % (end-start))
     
     search = []
-
+    start = time.time()
     for result in results:
         doc = {}
         doc["id"] = result[0]
@@ -280,13 +261,15 @@ def getSearchResults( strDocHashID=None ):
             doc["citation"] += "-" + result[11]
 
         doc["topiclist"] = []
+        # if strDocHashID is not None:
+            # doc["cossim"] = corpus.calculateCosSim(strDocHashID, result[0])
         doc["cossim"] = result[12]
         aTopicDist = db.execQuery("""
         select t.topicname, t.id, d.dist, h.fr_heading, th.fr_thematicheading from doctopic d 
         left join topic t on t.id=d.topicid
         left join heading h on h.id=t.headingid
         left join thematicheading th on th.id=h.thematicheadingid
-        where d.documentid=%s and d.dist > 0.1 
+        where d.documentid=%s
         order by d.dist desc limit 10""", (doc["id"],))
 
         for topic in aTopicDist:
@@ -308,11 +291,14 @@ def getSearchResults( strDocHashID=None ):
             doc["entitylist"].append(temp)
 
         search.append(doc)
-
+    end = time.time()
+    print("Calculated cosine similarity in %s seconds" % (end-start))
     return search
 
 
 def transformDocumentToModel(nSampleSize=100):
+    """ Save top 10 topics per document as well as a compressed version of all topic distributions
+    - Run cosin sim on top 10 topics and then run cosin similarity on topic distribution """
     results = db.execQuery("select distinct cleanpath from document where cleanpath is not null")
     
     n = 0
@@ -322,11 +308,25 @@ def transformDocumentToModel(nSampleSize=100):
         for key in aData:
             topic_dist = tm.transform(aData[key])
             db.execUpdate("delete from doctopic where documentid=%s;", (key,))
+            db.execUpdate("delete from doctopiclz where documentid=%s;", (key,))
+            
+            topic_str = ""
             for topic_idx, dist in enumerate(topic_dist[0]):
+                if topic_idx > 0:
+                    topic_str = topic_str + ","
+                topic_str = topic_str + str(topic_idx) + "-" + str(dist)
+            
+            topic_hash = compress(topic_str)
+            db.execUpdate("""
+                insert into doctopiclz(documentid, topichash) 
+                values(%s, %s)"""
+                , (key, str(topic_hash).decode("latin1").encode("utf8")) )
+
+            for topic_idx in topic_dist[0].argsort()[::-1][:CONST.DS_MAXTOPIC]:
                 db.execUpdate("""
-                    insert into doctopic(documentid, topicid, dist) 
-                    select %s, id, %s from topic where topicname=%s;"""
-                    , (key, dist, str(topic_idx)) )
+                    insert into doctopic(documentid, topicid, dist, rank) 
+                    select %s, id, %s, %s from topic where topicname=%s;"""
+                    , (key, topic_dist[0][topic_idx], rank, str(topic_idx)) )
 
             db.execUpdate("update document set transformdt=CURRENT_TIMESTAMP where id=%s", (key,))
             n += 1

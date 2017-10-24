@@ -132,6 +132,7 @@ class Wrapper(object):
     
     def getTopicHeadingRankList(self, strID):
         """ Get all headings with a rank for a single topic """
+        aHeading = {}
         results = self.db.execQuery(""" select w.word
 , w.oht
 , tt.dist
@@ -143,7 +144,6 @@ left join term w on w.id=tt.termid
 where tt.topicid=%s
 order by tt.dist desc, w.freq
 limit %s """, (strID, CONST.OHT_TOPDIST))
-        aHeading = {}
         for result in results:
             ngram_weight = 1
             strWord = result[0]
