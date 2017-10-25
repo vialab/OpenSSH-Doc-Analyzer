@@ -167,6 +167,24 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
             # since word collision can occur, save confidence level for each heading score
             # also normalize based on topic weight and whether we had to split ngram or not
             fConf = ((1.0 / len(aWord)) * float(result[3])) / ngram_weight
+            
+            # aWordHeading = {}
+            # for word in aWord:
+            #     if word.headingid in aWordHeading:
+            #         aWordHeading[word.headingid] += 1
+            #     else:
+            #         aWordHeading[word.headingid] = 1
+            
+            # norm_dist = float(result[3])
+            # for key in aHeading:
+            #     aHeading[key] *= (1-norm_dist)
+            
+            # for key in aWordHeading:
+            #     if key in aHeading:
+            #         aHeading[key] = ((aWordHeading[key]/ len(aWord)) * norm_dist) + aHeading[key]
+            #     else:
+            #         aHeading[key] = (aWordHeading[key]/ len(aWord)) * float(result[3])
+
             for word in aWord:
                 if word.headingid in aHeading:
                     aHeading[word.headingid] += fConf
