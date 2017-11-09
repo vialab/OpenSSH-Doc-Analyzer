@@ -1,0 +1,397 @@
+"name","parent","size"
+"2.NA.NA.NA.NA.NA.NA.1","",
+"2.1.NA.NA.NA.NA.NA.2","2.NA.NA.NA.NA.NA.NA.1",
+"2.1.10.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.10.2.NA.NA.NA.4","2.1.10.NA.NA.NA.NA.3",
+"2.1.10.2.2.NA.NA.5","2.1.10.2.NA.NA.NA.4",
+"2.1.10.2.2.3.NA.6","2.1.10.2.2.NA.NA.5",
+"2.1.10.2.3.NA.NA.5","2.1.10.2.NA.NA.NA.4",
+"2.1.10.2.3.4.NA.6","2.1.10.2.3.NA.NA.5",
+"2.1.10.2.3.4.NA.sub.6.1","2.1.10.2.3.4.NA.6",
+"2.1.11.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.11.1.NA.NA.NA.4","2.1.11.NA.NA.NA.NA.3",
+"2.1.11.1.2.NA.NA.5","2.1.11.1.NA.NA.NA.4",
+"2.1.11.1.2.NA.NA.sub.5.1","2.1.11.1.2.NA.NA.5",
+"2.1.12.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.12.1.NA.NA.NA.4","2.1.12.NA.NA.NA.NA.3",
+"2.1.12.1.1.NA.NA.5","2.1.12.1.NA.NA.NA.4",
+"2.1.12.1.NA.NA.NA.sub.4.2","2.1.12.1.NA.NA.NA.4",
+"2.1.12.10.NA.NA.NA.4","2.1.12.NA.NA.NA.NA.3",
+"2.1.12.10.1.NA.NA.5","2.1.12.10.NA.NA.NA.4",
+"2.1.12.2.NA.NA.NA.4","2.1.12.NA.NA.NA.NA.3",
+"2.1.12.2.1.NA.NA.5","2.1.12.2.NA.NA.NA.4",
+"2.1.12.2.1.NA.NA.sub.5.1","2.1.12.2.1.NA.NA.5",
+"2.1.12.3.NA.NA.NA.4","2.1.12.NA.NA.NA.NA.3",
+"2.1.12.3.1.NA.NA.5","2.1.12.3.NA.NA.NA.4",
+"2.1.12.3.2.NA.NA.5","2.1.12.3.NA.NA.NA.4",
+"2.1.12.3.2.NA.NA.sub.5.1","2.1.12.3.2.NA.NA.5",
+"2.1.12.8.NA.NA.NA.4","2.1.12.NA.NA.NA.NA.3",
+"2.1.12.8.6.NA.NA.5","2.1.12.8.NA.NA.NA.4",
+"2.1.12.8.6.6.NA.6","2.1.12.8.6.NA.NA.5",
+"2.1.12.8.6.6.NA.sub.6.1","2.1.12.8.6.6.NA.6",
+"2.1.12.8.7.NA.NA.5","2.1.12.8.NA.NA.NA.4",
+"2.1.12.8.7.3.NA.6","2.1.12.8.7.NA.NA.5",
+"2.1.12.8.7.3.3.7","2.1.12.8.7.3.NA.6",
+"2.1.12.8.7.3.3.sub.7.1","2.1.12.8.7.3.3.7",
+"2.1.13.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.13.3.NA.NA.NA.4","2.1.13.NA.NA.NA.NA.3",
+"2.1.13.3.6.NA.NA.5","2.1.13.3.NA.NA.NA.4",
+"2.1.13.3.6.1.NA.6","2.1.13.3.6.NA.NA.5",
+"2.1.13.3.6.1.1.7","2.1.13.3.6.1.NA.6",
+"2.1.13.8.NA.NA.NA.4","2.1.13.NA.NA.NA.NA.3",
+"2.1.13.8.11.NA.NA.5","2.1.13.8.NA.NA.NA.4",
+"2.1.14.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.14.8.NA.NA.NA.4","2.1.14.NA.NA.NA.NA.3",
+"2.1.14.8.1.NA.NA.5","2.1.14.8.NA.NA.NA.4",
+"2.1.14.8.1.NA.NA.sub.5.1","2.1.14.8.1.NA.NA.5",
+"2.1.15.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.15.25.NA.NA.NA.3","2.1.15.NA.NA.NA.NA.3",
+"2.1.15.25.NA.NA.NA.sub.3.1","2.1.15.25.NA.NA.NA.3",
+"2.1.15.26.NA.NA.NA.3","2.1.15.NA.NA.NA.NA.3",
+"2.1.15.26.NA.NA.NA.sub.3.1","2.1.15.26.NA.NA.NA.3",
+"2.1.15.27.NA.NA.NA.4","2.1.15.NA.NA.NA.NA.3",
+"2.1.15.27.2.NA.NA.4","2.1.15.27.NA.NA.NA.4",
+"2.1.15.27.2.NA.NA.sub.4.3","2.1.15.27.2.NA.NA.4",
+"2.1.15.27.6.NA.NA.4","2.1.15.27.NA.NA.NA.4",
+"2.1.15.27.6.NA.NA.sub.4.1","2.1.15.27.6.NA.NA.4",
+"2.1.15.5.NA.NA.NA.4","2.1.15.NA.NA.NA.NA.3",
+"2.1.15.5.1.NA.NA.4","2.1.15.5.NA.NA.NA.4",
+"2.1.15.5.1.NA.NA.sub.4.1","2.1.15.5.1.NA.NA.4",
+"2.1.15.5.NA.NA.NA.3","2.1.15.NA.NA.NA.NA.3",
+"2.1.15.6.NA.NA.NA.3","2.1.15.NA.NA.NA.NA.3",
+"2.1.15.6.NA.NA.NA.sub.3.2","2.1.15.6.NA.NA.NA.3",
+"2.1.15.NA.NA.NA.NA.2","2.1.NA.NA.NA.NA.NA.2",
+"2.1.15.NA.NA.NA.NA.sub.2.1","2.1.15.NA.NA.NA.NA.2",
+"2.1.4.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.4.NA.NA.NA.NA.sub.3.1","2.1.4.NA.NA.NA.NA.3",
+"2.1.5.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.5.11.NA.NA.NA.4","2.1.5.NA.NA.NA.NA.3",
+"2.1.5.12.NA.NA.NA.4","2.1.5.NA.NA.NA.NA.3",
+"2.1.5.18.NA.NA.NA.4","2.1.5.NA.NA.NA.NA.3",
+"2.1.5.18.1.NA.NA.5","2.1.5.18.NA.NA.NA.4",
+"2.1.5.18.1.NA.NA.sub.5.1","2.1.5.18.1.NA.NA.5",
+"2.1.7.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.7.4.NA.NA.NA.4","2.1.7.NA.NA.NA.NA.3",
+"2.1.7.4.1.NA.NA.5","2.1.7.4.NA.NA.NA.4",
+"2.1.7.4.3.NA.NA.5","2.1.7.4.NA.NA.NA.4",
+"2.1.7.4.3.2.NA.6","2.1.7.4.3.NA.NA.5",
+"2.1.7.4.3.2.NA.sub.6.1","2.1.7.4.3.2.NA.6",
+"2.1.7.5.NA.NA.NA.4","2.1.7.NA.NA.NA.NA.3",
+"2.1.7.5.2.NA.NA.5","2.1.7.5.NA.NA.NA.4",
+"2.1.7.5.2.NA.NA.sub.5.2","2.1.7.5.2.NA.NA.5",
+"2.1.8.NA.NA.NA.NA.3","2.1.NA.NA.NA.NA.NA.2",
+"2.1.8.1.NA.NA.NA.4","2.1.8.NA.NA.NA.NA.3",
+"2.1.8.1.4.NA.NA.5","2.1.8.1.NA.NA.NA.4",
+"2.1.8.1.4.NA.NA.sub.5.1","2.1.8.1.4.NA.NA.5",
+"2.1.8.3.NA.NA.NA.4","2.1.8.NA.NA.NA.NA.3",
+"2.1.8.3.3.NA.NA.5","2.1.8.3.NA.NA.NA.4",
+"2.1.8.3.3.NA.NA.sub.5.1","2.1.8.3.3.NA.NA.5",
+"2.1.8.3.NA.NA.NA.sub.4.1","2.1.8.3.NA.NA.NA.4",
+"2.2.NA.NA.NA.NA.NA.2","2.NA.NA.NA.NA.NA.NA.1",
+"2.2.13.NA.NA.NA.NA.3","2.2.NA.NA.NA.NA.NA.2",
+"2.2.13.3.NA.NA.NA.4","2.2.13.NA.NA.NA.NA.3",
+"2.2.16.NA.NA.NA.NA.3","2.2.NA.NA.NA.NA.NA.2",
+"2.2.18.NA.NA.NA.NA.3","2.2.NA.NA.NA.NA.NA.2",
+"2.2.18.1.NA.NA.NA.4","2.2.18.NA.NA.NA.NA.3",
+"2.2.18.1.1.NA.NA.5","2.2.18.1.NA.NA.NA.4",
+"2.2.18.2.NA.NA.NA.4","2.2.18.NA.NA.NA.NA.3",
+"2.2.18.2.3.NA.NA.5","2.2.18.2.NA.NA.NA.4",
+"2.2.18.2.3.7.NA.6","2.2.18.2.3.NA.NA.5",
+"2.2.18.2.3.7.NA.sub.6.1","2.2.18.2.3.7.NA.6",
+"2.2.3.NA.NA.NA.NA.3","2.2.NA.NA.NA.NA.NA.2",
+"2.2.3.2.NA.NA.NA.4","2.2.3.NA.NA.NA.NA.3",
+"2.2.3.2.6.NA.NA.5","2.2.3.2.NA.NA.NA.4",
+"2.2.3.2.6.3.NA.7","2.2.3.2.6.NA.NA.5",
+"2.2.3.2.6.3.NA.sub.7.1","2.2.3.2.6.3.NA.7",
+"2.2.3.NA.NA.NA.NA.4","2.2.NA.NA.NA.NA.NA.2",
+"2.2.3.NA.NA.NA.NA.sub.4.1","2.2.3.NA.NA.NA.NA.4",
+"2.2.4.NA.NA.NA.NA.3","2.2.NA.NA.NA.NA.NA.2",
+"2.2.4.1.NA.NA.NA.5","2.2.4.NA.NA.NA.NA.3",
+"2.2.5.NA.NA.NA.NA.4","2.2.NA.NA.NA.NA.NA.2",
+"2.2.6.NA.NA.NA.NA.3","2.2.NA.NA.NA.NA.NA.2",
+"2.2.6.1.NA.NA.NA.4","2.2.6.NA.NA.NA.NA.3",
+"2.2.6.1.3.NA.NA.6","2.2.6.1.NA.NA.NA.4",
+"2.2.6.1.3.NA.NA.sub.6.1","2.2.6.1.3.NA.NA.6",
+"2.2.6.1.3.NA.NA.sub.6.2","2.2.6.1.3.NA.NA.6",
+"2.2.6.1.NA.NA.NA.5","2.2.6.NA.NA.NA.NA.3",
+"2.2.6.1.NA.NA.NA.sub.5.1","2.2.6.1.NA.NA.NA.5",
+"2.2.6.2.NA.NA.NA.4","2.2.6.NA.NA.NA.NA.3",
+"2.2.6.2.1.NA.NA.6","2.2.6.2.NA.NA.NA.4",
+"2.2.6.4.NA.NA.NA.5","2.2.6.NA.NA.NA.NA.3",
+"2.2.6.5.NA.NA.NA.5","2.2.6.NA.NA.NA.NA.3",
+"2.2.7.NA.NA.NA.NA.3","2.2.NA.NA.NA.NA.NA.2",
+"2.2.7.1.NA.NA.NA.5","2.2.7.NA.NA.NA.NA.3",
+"2.2.7.1.NA.NA.NA.sub.5.1","2.2.7.1.NA.NA.NA.5",
+"2.2.7.3.NA.NA.NA.5","2.2.7.NA.NA.NA.NA.3",
+"2.2.7.3.NA.NA.NA.sub.5.1","2.2.7.3.NA.NA.NA.5",
+"2.2.7.4.NA.NA.NA.5","2.2.7.NA.NA.NA.NA.3",
+"2.2.7.4.NA.NA.NA.sub.5.1","2.2.7.4.NA.NA.NA.5",
+"2.2.7.NA.NA.NA.NA.4","2.2.NA.NA.NA.NA.NA.2",
+"2.2.9.NA.NA.NA.NA.3","2.2.NA.NA.NA.NA.NA.2",
+"2.2.9.2.NA.NA.NA.4","2.2.9.NA.NA.NA.NA.3",
+"2.2.NA.NA.NA.NA.NA.3","2.NA.NA.NA.NA.NA.NA.1",
+"2.2.NA.NA.NA.NA.NA.sub.3.1","2.2.NA.NA.NA.NA.NA.3",
+"2.3.NA.NA.NA.NA.NA.2","2.NA.NA.NA.NA.NA.NA.1",
+"2.3.1.NA.NA.NA.NA.3","2.3.NA.NA.NA.NA.NA.2",
+"2.3.1.11.NA.NA.NA.6","2.3.1.NA.NA.NA.NA.3",
+"2.3.1.9.NA.NA.NA.6","2.3.1.NA.NA.NA.NA.3",
+"2.3.1.9.NA.NA.NA.sub.6.1","2.3.1.9.NA.NA.NA.6",
+"2.4.NA.NA.NA.NA.NA.2","2.NA.NA.NA.NA.NA.NA.1",
+"2.4.1.NA.NA.NA.NA.3","2.4.NA.NA.NA.NA.NA.2",
+"2.4.1.2.NA.NA.NA.3","2.4.1.NA.NA.NA.NA.3",
+"2.4.10.NA.NA.NA.NA.3","2.4.NA.NA.NA.NA.NA.2",
+"2.4.10.4.NA.NA.NA.4","2.4.10.NA.NA.NA.NA.3",
+"2.4.10.6.NA.NA.NA.4","2.4.10.NA.NA.NA.NA.3",
+"2.4.11.NA.NA.NA.NA.3","2.4.NA.NA.NA.NA.NA.2",
+"2.4.11.6.NA.NA.NA.4","2.4.11.NA.NA.NA.NA.3",
+"2.4.11.7.NA.NA.NA.4","2.4.11.NA.NA.NA.NA.3",
+"2.4.11.8.NA.NA.NA.4","2.4.11.NA.NA.NA.NA.3",
+"2.4.13.NA.NA.NA.NA.3","2.4.NA.NA.NA.NA.NA.2",
+"2.4.13.11.NA.NA.NA.4","2.4.13.NA.NA.NA.NA.3",
+"2.4.13.15.NA.NA.NA.4","2.4.13.NA.NA.NA.NA.3",
+"2.4.13.15.NA.NA.NA.sub.4.1","2.4.13.15.NA.NA.NA.4",
+"2.4.13.4.NA.NA.NA.4","2.4.13.NA.NA.NA.NA.3",
+"2.4.13.4.NA.NA.NA.sub.4.1","2.4.13.4.NA.NA.NA.4",
+"2.4.19.NA.NA.NA.NA.3","2.4.NA.NA.NA.NA.NA.2",
+"2.4.19.8.NA.NA.NA.4","2.4.19.NA.NA.NA.NA.3",
+"2.4.19.8.NA.NA.NA.sub.4.1","2.4.19.8.NA.NA.NA.4",
+"2.4.22.NA.NA.NA.NA.3","2.4.NA.NA.NA.NA.NA.2",
+"2.4.22.1.NA.NA.NA.4","2.4.22.NA.NA.NA.NA.3",
+"2.4.3.NA.NA.NA.NA.3","2.4.NA.NA.NA.NA.NA.2",
+"2.4.3.NA.NA.NA.NA.sub.3.1","2.4.3.NA.NA.NA.NA.3",
+"2.4.9.NA.NA.NA.NA.3","2.4.NA.NA.NA.NA.NA.2",
+"2.4.NA.NA.NA.NA.NA.sub.2.1","2.4.NA.NA.NA.NA.NA.2",
+"2.5.NA.NA.NA.NA.NA.2","2.NA.NA.NA.NA.NA.NA.1",
+"2.5.1.NA.NA.NA.NA.3","2.5.NA.NA.NA.NA.NA.2",
+"2.5.1.1.NA.NA.NA.4","2.5.1.NA.NA.NA.NA.3",
+"2.5.1.1.2.NA.NA.5","2.5.1.1.NA.NA.NA.4",
+"2.5.1.1.2.NA.NA.sub.5.1","2.5.1.1.2.NA.NA.5",
+"2.5.2.NA.NA.NA.NA.3","2.5.NA.NA.NA.NA.NA.2",
+"2.5.2.1.NA.NA.NA.4","2.5.2.NA.NA.NA.NA.3",
+"2.5.3.NA.NA.NA.NA.3","2.5.NA.NA.NA.NA.NA.2",
+"2.5.3.3.NA.NA.NA.4","2.5.3.NA.NA.NA.NA.3",
+"2.5.3.3.2.NA.NA.5","2.5.3.3.NA.NA.NA.4",
+"2.5.4.NA.NA.NA.NA.3","2.5.NA.NA.NA.NA.NA.2",
+"2.5.4.1.NA.NA.NA.4","2.5.4.NA.NA.NA.NA.3",
+"2.5.4.1.NA.NA.NA.sub.4.1","2.5.4.1.NA.NA.NA.4",
+"2.5.4.NA.NA.NA.NA.sub.3.1","2.5.4.NA.NA.NA.NA.3",
+"2.5.4.NA.NA.NA.NA.sub.3.3","2.5.4.NA.NA.NA.NA.3",
+"2.5.5.NA.NA.NA.NA.3","2.5.NA.NA.NA.NA.NA.2",
+"2.5.5.5.NA.NA.NA.4","2.5.5.NA.NA.NA.NA.3",
+"2.5.5.5.1.NA.NA.5","2.5.5.5.NA.NA.NA.4",
+"2.5.5.5.1.NA.NA.sub.5.1","2.5.5.5.1.NA.NA.5",
+"2.5.6.NA.NA.NA.NA.3","2.5.NA.NA.NA.NA.NA.2",
+"2.5.6.NA.NA.NA.NA.sub.3.2","2.5.6.NA.NA.NA.NA.3",
+"2.6.NA.NA.NA.NA.NA.2","2.NA.NA.NA.NA.NA.NA.1",
+"2.6.1.NA.NA.NA.NA.3","2.6.NA.NA.NA.NA.NA.2",
+"2.6.1.NA.NA.NA.NA.sub.3.1","2.6.1.NA.NA.NA.NA.3",
+"2.6.12.NA.NA.NA.NA.3","2.6.NA.NA.NA.NA.NA.2",
+"2.6.12.1.NA.NA.NA.4","2.6.12.NA.NA.NA.NA.3",
+"2.6.12.1.NA.NA.NA.sub.4.1","2.6.12.1.NA.NA.NA.4",
+"2.6.12.2.NA.NA.NA.4","2.6.12.NA.NA.NA.NA.3",
+"2.6.12.2.NA.NA.NA.sub.4.1","2.6.12.2.NA.NA.NA.4",
+"2.6.12.3.NA.NA.NA.4","2.6.12.NA.NA.NA.NA.3",
+"2.6.12.3.NA.NA.NA.sub.4.1","2.6.12.3.NA.NA.NA.4",
+"2.6.12.4.NA.NA.NA.4","2.6.12.NA.NA.NA.NA.3",
+"2.6.12.6.NA.NA.NA.4","2.6.12.NA.NA.NA.NA.3",
+"2.6.12.NA.NA.NA.NA.sub.3.1","2.6.12.NA.NA.NA.NA.3",
+"2.6.14.NA.NA.NA.NA.3","2.6.NA.NA.NA.NA.NA.2",
+"2.6.14.1.NA.NA.NA.4","2.6.14.NA.NA.NA.NA.3",
+"2.6.14.1.NA.NA.NA.sub.4.1","2.6.14.1.NA.NA.NA.4",
+"2.6.2.NA.NA.NA.NA.3","2.6.NA.NA.NA.NA.NA.2",
+"2.6.2.NA.NA.NA.NA.sub.3.1","2.6.2.NA.NA.NA.NA.3",
+"2.6.5.NA.NA.NA.NA.3","2.6.NA.NA.NA.NA.NA.2",
+"2.6.5.1.NA.NA.NA.4","2.6.5.NA.NA.NA.NA.3",
+"2.6.5.1.NA.NA.NA.sub.4.1","2.6.5.1.NA.NA.NA.4",
+"2.6.6.NA.NA.NA.NA.3","2.6.NA.NA.NA.NA.NA.2",
+"2.6.6.NA.NA.NA.NA.sub.3.1","2.6.6.NA.NA.NA.NA.3",
+"2.6.6.NA.NA.NA.NA.sub.3.3","2.6.6.NA.NA.NA.NA.3",
+"2.6.8.NA.NA.NA.NA.3","2.6.NA.NA.NA.NA.NA.2",
+"2.6.8.NA.NA.NA.NA.sub.3.1","2.6.8.NA.NA.NA.NA.3",
+"2.7.NA.NA.NA.NA.NA.2","2.NA.NA.NA.NA.NA.NA.1",
+"2.7.1.NA.NA.NA.NA.3","2.7.NA.NA.NA.NA.NA.2",
+"2.7.1.3.NA.NA.NA.4","2.7.1.NA.NA.NA.NA.3",
+"2.7.1.3.NA.NA.NA.sub.4.1","2.7.1.3.NA.NA.NA.4",
+"2.7.2.NA.NA.NA.NA.3","2.7.NA.NA.NA.NA.NA.2",
+"2.7.2.13.NA.NA.NA.4","2.7.2.NA.NA.NA.NA.3",
+"2.7.2.13.NA.NA.NA.sub.4.3","2.7.2.13.NA.NA.NA.4",
+"2.7.2.6.NA.NA.NA.4","2.7.2.NA.NA.NA.NA.3",
+"2.7.2.6.NA.NA.NA.sub.4.4","2.7.2.6.NA.NA.NA.4",
+"2.7.2.6.NA.NA.NA.sub.4.5","2.7.2.6.NA.NA.NA.4",
+"2.7.3.NA.NA.NA.NA.3","2.7.NA.NA.NA.NA.NA.2",
+"2.7.3.12.NA.NA.NA.4","2.7.3.NA.NA.NA.NA.3",
+"2.7.3.13.NA.NA.NA.4","2.7.3.NA.NA.NA.NA.3",
+"2.7.3.13.1.NA.NA.5","2.7.3.13.NA.NA.NA.4",
+"2.7.3.13.1.NA.NA.sub.5.1","2.7.3.13.1.NA.NA.5",
+"2.7.3.13.2.NA.NA.5","2.7.3.13.NA.NA.NA.4",
+"2.7.3.13.2.NA.NA.sub.5.2","2.7.3.13.2.NA.NA.5",
+"2.7.3.13.4.NA.NA.5","2.7.3.13.NA.NA.NA.4",
+"2.7.3.13.4.NA.NA.sub.5.1","2.7.3.13.4.NA.NA.5",
+"2.7.3.13.NA.NA.NA.sub.4.1","2.7.3.13.NA.NA.NA.4",
+"2.7.3.3.NA.NA.NA.4","2.7.3.NA.NA.NA.NA.3",
+"2.7.3.3.1.NA.NA.5","2.7.3.3.NA.NA.NA.4",
+"2.7.3.3.NA.NA.NA.sub.4.1","2.7.3.3.NA.NA.NA.4",
+"2.7.3.6.NA.NA.NA.4","2.7.3.NA.NA.NA.NA.3",
+"2.7.3.7.NA.NA.NA.4","2.7.3.NA.NA.NA.NA.3",
+"2.7.3.7.1.NA.NA.5","2.7.3.7.NA.NA.NA.4",
+"2.7.3.7.1.NA.NA.sub.5.1","2.7.3.7.1.NA.NA.5",
+"2.7.3.7.NA.NA.NA.sub.4.1","2.7.3.7.NA.NA.NA.4",
+"2.7.3.7.NA.NA.NA.sub.4.2","2.7.3.7.NA.NA.NA.4",
+"2.7.4.NA.NA.NA.NA.3","2.7.NA.NA.NA.NA.NA.2",
+"2.7.4.1.NA.NA.NA.4","2.7.4.NA.NA.NA.NA.3",
+"2.7.4.1.3.NA.NA.5","2.7.4.1.NA.NA.NA.4",
+"2.7.4.1.3.NA.NA.sub.5.2","2.7.4.1.3.NA.NA.5",
+"2.7.4.1.5.NA.NA.5","2.7.4.1.NA.NA.NA.4",
+"2.7.4.1.5.NA.NA.sub.5.1","2.7.4.1.5.NA.NA.5",
+"2.7.4.3.NA.NA.NA.4","2.7.4.NA.NA.NA.NA.3",
+"2.7.4.3.1.NA.NA.5","2.7.4.3.NA.NA.NA.4",
+"2.7.4.3.1.2.NA.6","2.7.4.3.1.NA.NA.5",
+"2.7.4.3.1.8.NA.6","2.7.4.3.1.NA.NA.5",
+"2.7.4.3.1.8.NA.sub.6.3","2.7.4.3.1.8.NA.6",
+"2.7.4.3.NA.NA.NA.sub.4.1","2.7.4.3.NA.NA.NA.4",
+"2.7.4.5.NA.NA.NA.4","2.7.4.NA.NA.NA.NA.3",
+"2.7.4.5.1.NA.NA.5","2.7.4.5.NA.NA.NA.4",
+"2.7.4.5.2.NA.NA.5","2.7.4.5.NA.NA.NA.4",
+"2.7.4.5.2.NA.NA.sub.5.1","2.7.4.5.2.NA.NA.5",
+"2.7.4.NA.NA.NA.NA.sub.3.1","2.7.4.NA.NA.NA.NA.3",
+"2.7.6.NA.NA.NA.NA.3","2.7.NA.NA.NA.NA.NA.2",
+"2.7.6.13.NA.NA.NA.4","2.7.6.NA.NA.NA.NA.3",
+"2.7.6.16.NA.NA.NA.4","2.7.6.NA.NA.NA.NA.3",
+"2.7.6.16.NA.NA.NA.sub.4.1","2.7.6.16.NA.NA.NA.4",
+"2.7.6.NA.NA.NA.NA.sub.3.1","2.7.6.NA.NA.NA.NA.3",
+"liberality","2.6.12.2.NA.NA.NA.sub.4.1","10"
+"one who is addressed","2.7.3.7.1.NA.NA.sub.5.1","10"
+"Description/act of describing","2.7.3.3.1.NA.NA.5","10"
+"generation of grammatical sequences","2.7.4.1.3.NA.NA.sub.5.2","10"
+"Contentment/satisfaction","2.4.10.4.NA.NA.NA.4","10"
+"Translation","2.1.10.2.3.4.NA.6","10"
+"phenomenology","2.1.15.26.NA.NA.NA.sub.3.1","10"
+"dividing and sharing out","2.6.12.3.NA.NA.NA.sub.4.1","10"
+"owner","2.6.2.NA.NA.NA.NA.sub.3.1","10"
+"Calmness","2.4.9.NA.NA.NA.NA.3","10"
+"general/fundamental","2.5.6.NA.NA.NA.NA.sub.3.2","10"
+"specific","2.7.4.3.1.8.NA.sub.6.3","10"
+"American English","2.7.2.6.NA.NA.NA.sub.4.4","10"
+"Absence of doubt, confidence","2.1.13.8.11.NA.NA.5","10"
+"Lack of simplicity","2.2.13.3.NA.NA.NA.4","10"
+"curled/frizzed style","2.2.18.2.3.7.NA.sub.6.1","10"
+"a conference","2.7.3.7.NA.NA.NA.sub.4.2","10"
+"Resolving of problem, solution","2.2.6.4.NA.NA.NA.5","10"
+"Possessor","2.6.2.NA.NA.NA.NA.3","10"
+"Vowel","2.7.4.3.1.2.NA.6","10"
+"a narrative/account","2.7.3.3.NA.NA.NA.sub.4.1","10"
+"Meaning","2.1.10.2.NA.NA.NA.4","10"
+"emotional reaction to stimulus","2.4.NA.NA.NA.NA.NA.sub.2.1","10"
+"bilingualism","2.7.1.3.NA.NA.NA.sub.4.1","10"
+"Longing/yearning","2.5.3.3.2.NA.NA.5","10"
+"Owning","2.6.1.NA.NA.NA.NA.3","10"
+"chief of its/his kind","2.3.1.9.NA.NA.NA.sub.6.1","10"
+"referendum/plebiscite","2.5.1.1.2.NA.NA.sub.5.1","10"
+"Insularity, provincialism","2.1.13.3.6.1.1.7","10"
+"Disposition/character","2.1.4.NA.NA.NA.NA.3","10"
+"one who arbitrates","2.2.7.1.NA.NA.NA.sub.5.1","10"
+"Spirit","2.4.22.1.NA.NA.NA.4","10"
+"intensity/depth","2.4.3.NA.NA.NA.NA.sub.3.1","10"
+"instinctive mind","2.1.5.18.1.NA.NA.sub.5.1","10"
+"philosophizing","2.1.15.NA.NA.NA.NA.sub.2.1","10"
+"binding force of","2.7.3.13.2.NA.NA.sub.5.2","10"
+"capriciousness","2.5.5.5.1.NA.NA.sub.5.1","10"
+"intention/purpose","2.5.4.NA.NA.NA.NA.sub.3.1","10"
+"concept","2.1.15.6.NA.NA.NA.sub.3.2","10"
+"an agreement","2.7.3.13.NA.NA.NA.sub.4.1","10"
+"Emotional perception","2.4.1.2.NA.NA.NA.3","10"
+"dignity","2.4.19.8.NA.NA.NA.sub.4.1","10"
+"familiar form of address","2.4.13.4.NA.NA.NA.sub.4.1","10"
+"a pursuer/detective","2.2.3.2.6.3.NA.sub.7.1","10"
+"phonology and branches","2.7.4.3.NA.NA.NA.sub.4.1","10"
+"intellectual person","2.1.8.1.4.NA.NA.sub.5.1","10"
+"compliance","2.7.3.13.1.NA.NA.sub.5.1","10"
+"Psychology of ideas","2.1.5.11.NA.NA.NA.4","10"
+"Love-affair","2.4.13.11.NA.NA.NA.4","10"
+"back/again","2.6.8.NA.NA.NA.NA.sub.3.1","10"
+"a vote","2.5.1.1.2.NA.NA.sub.5.1","10"
+"Inconstancy","2.5.5.5.1.NA.NA.5","10"
+"place where anything is/may be stored","2.6.14.1.NA.NA.NA.sub.4.1","10"
+"expert, specialist, authority","2.1.12.2.1.NA.NA.sub.5.1","10"
+"A language","2.7.1.NA.NA.NA.NA.3","10"
+"Idea, notion, concept","2.1.7.4.1.NA.NA.5","10"
+"Knowledge","2.1.12.NA.NA.NA.NA.3","10"
+"past","2.7.4.1.5.NA.NA.sub.5.1","10"
+"Respect","2.2.9.2.NA.NA.NA.4","10"
+"of debate/discussion","2.1.7.4.3.2.NA.sub.6.1","10"
+"syntactic analysis","2.7.4.1.3.NA.NA.sub.5.2","10"
+"curiosity","2.2.NA.NA.NA.NA.NA.sub.3.1","10"
+"Lending","2.6.12.4.NA.NA.NA.4","10"
+"Drift, tenor, purport","2.1.10.2.2.3.NA.6","10"
+"a source of wealth","2.6.5.1.NA.NA.NA.sub.4.1","10"
+"a plan","2.5.4.1.NA.NA.NA.sub.4.1","10"
+"child","2.6.6.NA.NA.NA.NA.sub.3.3","10"
+"making particular condition","2.2.6.1.3.NA.NA.sub.6.2","10"
+"Humanistic studies","2.1.12.3.1.NA.NA.5","10"
+"Acquisition","2.6.8.NA.NA.NA.NA.3","10"
+"a statement/declaration","2.7.6.NA.NA.NA.NA.sub.3.1","10"
+"Request","2.7.3.12.NA.NA.NA.4","10"
+"linguistic category/set","2.7.4.NA.NA.NA.NA.sub.3.1","10"
+"Putting forward for discussion","2.2.6.2.1.NA.NA.6","10"
+"incongruity, inconsistency","2.1.8.3.3.NA.NA.sub.5.1","10"
+"implication","2.1.15.27.6.NA.NA.sub.4.1","10"
+"an invention, fiction, story","2.1.12.8.6.6.NA.sub.6.1","10"
+"Acknowledgement/recognition","2.7.6.13.NA.NA.NA.4","10"
+"cautionary advice/admonition","2.2.7.4.NA.NA.NA.sub.5.1","10"
+"collective ownership","2.6.1.NA.NA.NA.NA.sub.3.1","10"
+"State of being harassed","2.4.11.7.NA.NA.NA.4","10"
+"Poverty","2.6.6.NA.NA.NA.NA.3","10"
+"Judgement, decision","2.2.7.NA.NA.NA.NA.4","10"
+"purpose for which something intended","2.5.4.NA.NA.NA.NA.sub.3.3","10"
+"vain imaginings","2.1.7.5.2.NA.NA.sub.5.2","10"
+"linguistic code/sub-code","2.7.4.NA.NA.NA.NA.sub.3.1","10"
+"Worth","2.3.1.11.NA.NA.NA.6","10"
+"basis in reason","2.1.8.3.NA.NA.NA.sub.4.1","10"
+"reservation, proviso","2.2.6.1.3.NA.NA.sub.6.1","10"
+"Possession","2.6.NA.NA.NA.NA.NA.2","10"
+"State of being upset/perturbed","2.4.11.6.NA.NA.NA.4","10"
+"Freedom from trouble/care/sorrow","2.4.10.6.NA.NA.NA.4","10"
+"mechanism/mechanistic theory","2.1.15.25.NA.NA.NA.sub.3.1","10"
+"northern languages","2.7.2.13.NA.NA.NA.sub.4.3","10"
+"something desirable/advantageous","2.6.8.NA.NA.NA.NA.sub.3.1","10"
+"style of bad translations","2.1.10.2.3.4.NA.sub.6.1","10"
+"state of mind","2.1.4.NA.NA.NA.NA.sub.3.1","10"
+"list of questions, questionnaire","2.2.3.NA.NA.NA.NA.sub.4.1","10"
+"Expectation","2.1.14.NA.NA.NA.NA.3","10"
+"by repeating","2.1.11.1.2.NA.NA.sub.5.1","10"
+"imparting","2.6.12.NA.NA.NA.NA.sub.3.1","10"
+"fact of being given","2.1.15.27.2.NA.NA.sub.4.3","10"
+"so as to fix value","2.2.7.3.NA.NA.NA.sub.5.1","10"
+"gullible person, dupe","2.1.12.8.7.3.3.sub.7.1","10"
+"Metaphysics","2.1.15.5.NA.NA.NA.3","10"
+"Accusation, charge","2.2.6.5.NA.NA.NA.5","10"
+"state of being acquainted","2.4.13.15.NA.NA.NA.sub.4.1","10"
+"confirmation with a seal","2.7.6.16.NA.NA.NA.sub.4.1","10"
+"Scholarly knowledge, erudition","2.1.12.2.NA.NA.NA.4","10"
+"Fate/destiny as determining events","2.5.2.1.NA.NA.NA.4","10"
+"Learned person, scholar","2.1.12.2.1.NA.NA.5","10"
+"Word","2.7.4.5.1.NA.NA.5","10"
+"being/entity","2.1.15.5.1.NA.NA.sub.4.1","10"
+"wonderful person","2.1.14.8.1.NA.NA.sub.5.1","10"
+"Perception/cognition","2.1.7.NA.NA.NA.NA.3","10"
+"Dejection","2.4.11.8.NA.NA.NA.4","10"
+"one who converses","2.7.3.7.NA.NA.NA.sub.4.1","10"
+"Experience","2.1.12.1.1.NA.NA.5","10"
+"parting gift","2.6.12.1.NA.NA.NA.sub.4.1","10"
+"other specific types of phrase","2.7.4.5.2.NA.NA.sub.5.1","10"
+"evidence given, testimony","2.2.6.1.NA.NA.NA.sub.5.1","10"
+"act/instance of","2.2.3.NA.NA.NA.NA.sub.4.1","10"
+"Speech-making","2.7.3.6.NA.NA.NA.4","10"
+"assigning/allotting","2.6.12.3.NA.NA.NA.sub.4.1","10"
+"person speaking","2.7.2.6.NA.NA.NA.sub.4.5","10"
+"quality of","2.1.12.1.NA.NA.NA.sub.4.2","10"
+"Keeping from knowledge","2.1.12.10.1.NA.NA.5","10"
+"Psychology of personality","2.1.5.12.NA.NA.NA.4","10"
+"a bondsman/guarantor","2.7.3.13.4.NA.NA.sub.5.1","10"
+"Research","2.2.4.1.NA.NA.NA.5","10"
+"Jewellery","2.2.18.1.1.NA.NA.5","10"
+"scientist","2.1.12.3.2.NA.NA.sub.5.1","10"
+"Beauty","2.2.16.NA.NA.NA.NA.3","10"
+"Offer/action of offering","2.6.12.6.NA.NA.NA.4","10"
+"poor person","2.6.6.NA.NA.NA.NA.sub.3.1","10"
+"Answer","2.2.5.NA.NA.NA.NA.4","10"

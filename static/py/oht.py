@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import db
+import codecs
 import constants as CONST
+import unicodecsv
+from cStringIO import StringIO
 
 class Word(object):
     """ Word object that holds word and heading information """
@@ -192,3 +195,285 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
                     aHeading[word.headingid] = fConf
 
         return aHeading
+
+    def csv(self):
+        with codecs.open("oht_2.csv", "r", "utf8") as f:
+            lines = f.readlines()
+            text = "".join(lines)
+        return text
+
+    def sortHierarchy(self,line_list):
+        has_error = True
+        new_list = line_list
+
+        while has_error:
+            has_error = False
+            parent_idx = len(new_list)-1
+            # iterate through each node in desc. order
+            while parent_idx > 0:
+                can_decrement = True # no errors found
+                node = new_list[parent_idx]
+                parent_node = node.split(",")
+                parent_name = parent_node[1].rstrip()
+                first_idx = None
+
+                if parent_node[2].rstrip() == "\"\"":
+                    # we are root
+                    first_idx = 0
+                else:
+                    # find first reference of this parent node
+                    for idx, parent in enumerate(new_list):
+                        node_parent = parent.split(",")
+                        node_name = node_parent[2].rstrip()
+                        if node_name == parent_name:
+                            # found it
+                            first_idx = idx
+                            break
+
+                if first_idx is not None:
+                    # we were referenced
+                    if parent_idx >= first_idx:
+                    # parent node appears after first reference                        
+                        has_error = True
+                        can_decrement = False # repeat process on current index
+                        parent = new_list[parent_idx]
+                        # delete parent node
+                        del new_list[parent_idx]
+                        # push parent node before first reference
+                        new_list.insert(first_idx, parent)
+
+                if can_decrement:
+                    parent_idx -= 1
+
+        return "".join(new_list)
+
+    def writeHierarchyToCSV(self):
+        oht = codecs.open("oht_filter.csv","w+", "utf-8")
+        aHeading = self.db.execQuery("""
+        select tierindex
+        , tiering 
+        from heading
+        where t1='2' and id in (select distinct headingid from topic)
+        group by tierindex, tiering
+        """)
+        csv = "\"name\",\"parent\",\"size\"\n"
+        parent_list = {}
+        line_list = []
+        for result in aHeading:
+            tier = result[0].split(".")
+            sub_tier = result[1].split(".")
+            curr_tier = result[0]+"."+result[1]
+            if curr_tier in parent_list:
+                continue
+            new_line = "\"" + curr_tier + "\",\""
+            parent_list[curr_tier] = 1
+
+            last_idx = len(tier)
+            for idx, t in enumerate(tier):
+                if t=="NA":
+                    last_idx=idx
+                    break
+
+            if len(sub_tier) > 1:
+                # if sub_tier in form of sub.n.n
+                parent_tier = result[0]+"."+sub_tier[1]
+            else:
+                # otherwise sub_tier is n tier itself
+                # need to go up one tier
+                if last_idx > 1:
+                    tier[last_idx-1] = "NA"
+                    new_tier = ".".join(t for t in tier)
+                    parent_tier = new_tier+"."+str(last_idx-1)
+                    last_idx -= 1
+                else:
+                    parent_tier = ""
+            new_line += parent_tier + "\",\n"
+            line_list.append(new_line)
+            
+            while parent_tier not in parent_list and parent_tier != "":
+                new_line = "\"" + parent_tier + "\",\""
+                parent_list[parent_tier] = 1
+                last_idx -= 1
+
+                if last_idx > 0:
+                    tier[last_idx] = "NA"
+                    new_tier = ".".join(t for t in tier)
+                    parent_tier = new_tier+"."+str(last_idx)
+                else:
+                    parent_tier = ""
+
+                new_line += parent_tier + "\",\n"          
+                line_list.append(new_line)
+
+        csv += self.sortHierarchy(line_list)
+        aHeading = self.db.execQuery("""
+        select id
+        , heading
+        , fr_heading
+        , concat(tierindex,'.',tiering) parent
+        from heading
+        where t1='2' and id in (select distinct headingid from topic)
+        """)
+
+        for result in aHeading:
+            csv += "\""+result[1]+"\",\""+result[3]+"\",\"10\"\n"
+
+        oht.write(csv)
+        oht.close()
+
+
+    def getLocalCSV(self, root, max_depth=1):
+        csv = "\"name\",\"parent\",\"size\"\n"        
+        parent_list = {}        
+        line_list = []
+        parent_list[root] = 1
+        root_tier, sub_tier = self.getParentTier(root)
+        if root_tier == "":
+            tier_index = root
+        else:
+            tier_index = root_tier + "." + sub_tier
+        new_line = "\"" + root + "\",\"" + tier_index + "\",\n"
+        parent_list[tier_index] = 1
+        line_list.append(new_line)
+
+        for n in range(1,max_depth):
+            root_tier, sub_tier = self.getParentTier(tier_index)
+            if root_tier == "":
+                break
+            else:
+                new_line = "\"" + tier_index + "\",\""                
+                tier_index = root_tier + "." + sub_tier
+            new_line += tier_index + "\",\n"
+            parent_list[tier_index] = 1            
+            line_list.append(new_line)
+            
+        new_line = "\"" + tier_index + "\",\"\",\n"        
+        line_list.append(new_line)
+        
+        csv += self.sortHierarchy(line_list)
+        csv += self.getHeadingCSVList(parent_list)
+
+        return csv
+
+    def getTierIndexChildren(self, root):
+        """ Get all immediate sub categories and tier below without subs """
+        csv = "\"heading_id\",\"name\",\"parent\",\"size\",\"keyword\"\n"
+        parent_list = {}        
+        line_list = []
+
+        tier = root.split(".")
+        tier_index = ".".join(t for t in tier[:7])
+        sub_tier = ".".join(t for t in tier[7:])
+        parent_root, parent_sub = self.getParentTier(root)
+
+        parent_tier = parent_root + "." + parent_sub
+        new_line = "\"" + parent_tier + "\",\"" + parent_tier + "\",\"\",,\n"        
+        line_list.append(new_line)
+        parent_list[parent_tier] = 1
+
+        new_line = "\"" + root + "\",\"" + root + "\",\"" + parent_tier + "\",,\n"
+        line_list.append(new_line)
+        parent_list[root] = 1
+        
+        if "sub" in sub_tier:
+            # ensure we are of type sub.n
+            if sub_tier.count(".") > 1:
+                sub_tier = sub_tier.rsplit(".", 1)[0]
+            sub_tier += "%"
+            aHeading = self.db.execQuery("""
+            select tierindex
+            , tiering
+            from heading
+            where tierindex=%s and tiering like %s
+            group by tierindex, tiering
+            """,(tier_index,sub_tier))
+        else:
+            query_tier = ""
+            na_found = False
+            for idx, t in enumerate(tier[:7]):
+                if idx > 0:
+                    query_tier += "."
+                if (not na_found and t == "NA") or idx == 6:
+                    query_tier += "%"
+                    na_found = True
+                    continue
+                query_tier += t
+            aHeading = self.db.execQuery("""
+            select tierindex
+            , tiering
+            from heading
+            where (tierindex=%s) 
+            or (tierindex like %s 
+            and tierindex != %s 
+            and tiering not like %s)
+            group by tierindex, tiering
+            """,(tier_index, query_tier, tier_index, "sub%"))
+
+        for result in aHeading:
+            tier_index = result[0] + "." + result[1]
+            while tier_index not in parent_list:
+                parent_tier, parent_sub = self.getParentTier(tier_index)
+                parent_index = parent_tier + "." + parent_sub
+                new_line = "\"" + tier_index + "\",\"" + tier_index + "\",\"" + parent_index + "\",,\n"
+                line_list.append(new_line)
+                parent_list[tier_index] = 1
+                tier_index = parent_index
+        
+        csv += self.sortHierarchy(line_list)
+        csv += self.getHeadingCSVList(parent_list)
+
+        return csv
+
+    def getHeadingCSVList(self, parent_list):
+        csv = ""
+        for key in parent_list:
+            tier = key.split(".")
+            tier_index = ".".join(t for t in tier[:7])
+            root_tier = ".".join(t for t in tier[7:])
+
+            aHeading = self.db.execQuery("""
+            select id
+            , heading
+            , fr_heading
+            , concat(tierindex,'.',tiering) parent
+            from heading
+            where tierindex=%s and tiering=%s
+            """, (tier_index,root_tier))
+
+            for result in aHeading:
+                csv += "\"" + str(result[0]) + "\",\"" + result[1] + "\",\"" + result[3] + "\",\"10\",\"1\"\n"
+        
+        return csv
+
+    def getParentTier(self, root):
+        root_tier = root.split(".")
+
+        if len(root_tier) == 10: # sub.n.n turns to sub.n
+            tier = ".".join(t for t in root_tier[:7])
+            sub_tier = root_tier[7] + "." + root_tier[8]
+        elif len(root_tier) == 9: # sub.n turns to n
+            tier = ".".join(t for t in root_tier[:7])
+            sub_tier = root_tier[-1]
+        else: # not sub cat - move tiers
+            tier = ""
+            start_na = False
+            last_idx = 6
+            for idx, t in enumerate(root_tier[:7]):
+                if idx > 0:
+                    tier += "."
+                
+                if idx < len(root_tier)-1 and not start_na:
+                    if root_tier[idx+1] == "NA":
+                        if idx == 0: # we are root node
+                            return "", ""
+                        start_na = True
+                        last_idx = idx
+                
+                if start_na or idx == len(root_tier)-1:
+                    tier += "NA"
+                else:
+                    tier += t
+
+            sub_tier = str(last_idx)
+        
+        return tier, sub_tier

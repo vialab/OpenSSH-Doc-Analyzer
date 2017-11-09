@@ -83,4 +83,21 @@
     </div>
     {% endif %}
 </div>
+<style> /* set the CSS */
+    text {
+        font: 10px sans-serif;
+        text-anchor: middle;
+    }
+
+    .node--hover circle {
+        stroke: rgba(0,150,200,0.8);
+        stroke-width: 1.2px;
+    }
+</style>
+<svg width="920" height="920"><g transform="translate(1,1)"></g></svg>
 {% endblock page_content %}
+{% block add_js %}
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<!-- <script src="https://d3js.org/d3-hierarchy.v1.min.js"></script> -->
+<script src="{{ url_for('static', filename='js/explore.js') }}"></script>
+{% endblock %}

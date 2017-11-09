@@ -56,6 +56,7 @@ def index():
     # savePreProcessedList()
     # transformDocumentToModel(5000)
     # saveTFDF()
+    # oht.writeHierarchyToCSV()
     return render_template("index.html")
 
 @app.route("/upload", methods=["GET","POST"])
@@ -172,6 +173,17 @@ def analyzer():
         , search_term=session["searchterm"]
         , key_term=session["keyterm"])
 
+@app.route("/oht")
+@app.route("/oht/<tier_index>")
+def oht_csv(tier_index=None):
+    if tier_index is None:
+        return Response(oht.csv(), mimetype="text/csv")
+        
+    if len(tier_index.split(".")) < 7:
+        abort(404)
+
+    csv = oht.getTierIndexChildren(tier_index)
+    return Response(csv, mimetype="text/csv")
 
 def saveTFDF():
     tfdf = {}
