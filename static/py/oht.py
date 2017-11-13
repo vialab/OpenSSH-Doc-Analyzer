@@ -232,7 +232,7 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
 
                 if first_idx is not None:
                     # we were referenced
-                    if parent_idx >= first_idx:
+                    if parent_idx > first_idx:
                     # parent node appears after first reference                        
                         has_error = True
                         can_decrement = False # repeat process on current index
@@ -321,93 +321,84 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
         oht.write(csv)
         oht.close()
 
-
-    def getLocalCSV(self, root, max_depth=1):
-        csv = "\"name\",\"parent\",\"size\"\n"        
-        parent_list = {}        
-        line_list = []
-        parent_list[root] = 1
-        root_tier, sub_tier = self.getParentTier(root)
-        if root_tier == "":
-            tier_index = root
-        else:
-            tier_index = root_tier + "." + sub_tier
-        new_line = "\"" + root + "\",\"" + tier_index + "\",\n"
-        parent_list[tier_index] = 1
-        line_list.append(new_line)
-
-        for n in range(1,max_depth):
-            root_tier, sub_tier = self.getParentTier(tier_index)
-            if root_tier == "":
-                break
-            else:
-                new_line = "\"" + tier_index + "\",\""                
-                tier_index = root_tier + "." + sub_tier
-            new_line += tier_index + "\",\n"
-            parent_list[tier_index] = 1            
-            line_list.append(new_line)
-            
-        new_line = "\"" + tier_index + "\",\"\",\n"        
-        line_list.append(new_line)
-        
-        csv += self.sortHierarchy(line_list)
-        csv += self.getHeadingCSVList(parent_list)
-
-        return csv
-
     def getTierIndexChildren(self, root):
         """ Get all immediate sub categories and tier below without subs """
         csv = "\"heading_id\",\"name\",\"parent\",\"size\",\"keyword\"\n"
         parent_list = {}        
         line_list = []
-
-        tier = root.split(".")
-        tier_index = ".".join(t for t in tier[:7])
-        sub_tier = ".".join(t for t in tier[7:])
-        parent_root, parent_sub = self.getParentTier(root)
-
-        parent_tier = parent_root + "." + parent_sub
-        new_line = "\"" + parent_tier + "\",\"" + parent_tier + "\",\"\",,\n"        
-        line_list.append(new_line)
-        parent_list[parent_tier] = 1
-
-        new_line = "\"" + root + "\",\"" + root + "\",\"" + parent_tier + "\",,\n"
-        line_list.append(new_line)
-        parent_list[root] = 1
         
-        if "sub" in sub_tier:
-            # ensure we are of type sub.n
-            if sub_tier.count(".") > 1:
-                sub_tier = sub_tier.rsplit(".", 1)[0]
-            sub_tier += "%"
+        if root=="root":
+            new_line = "\"" + root + "\",\"" + root + "\",\"\",,\n"
+            line_list.append(new_line)
+            parent_list[root] = 1
+
+            new_line = "\"1.NA.NA.NA.NA.NA.NA.1\",\"1.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            line_list.append(new_line)
+            parent_list["1.NA.NA.NA.NA.NA.NA.1"] = 1
+
+            new_line = "\"2.NA.NA.NA.NA.NA.NA.1\",\"2.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            line_list.append(new_line)
+            parent_list["2.NA.NA.NA.NA.NA.NA.1"] = 1
+
+            new_line = "\"3.NA.NA.NA.NA.NA.NA.1\",\"3.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            line_list.append(new_line)
+            parent_list["3.NA.NA.NA.NA.NA.NA.1"] = 1
+
             aHeading = self.db.execQuery("""
-            select tierindex
-            , tiering
-            from heading
-            where tierindex=%s and tiering like %s
-            group by tierindex, tiering
-            """,(tier_index,sub_tier))
+            select tierindex, tiering from heading 
+            where tierindex like %s
+            group by tierindex, tiering""",('%.NA.NA.NA.NA.NA.NA',))
         else:
-            query_tier = ""
-            na_found = False
-            for idx, t in enumerate(tier[:7]):
-                if idx > 0:
-                    query_tier += "."
-                if (not na_found and t == "NA") or idx == 6:
-                    query_tier += "%"
-                    na_found = True
-                    continue
-                query_tier += t
-            aHeading = self.db.execQuery("""
-            select tierindex
-            , tiering
-            from heading
-            where (tierindex=%s) 
-            or (tierindex like %s 
-            and tierindex != %s 
-            and tiering not like %s)
-            group by tierindex, tiering
-            """,(tier_index, query_tier, tier_index, "sub%"))
+            tier = root.split(".")
+            tier_index = ".".join(t for t in tier[:7])
+            sub_tier = ".".join(t for t in tier[7:])
+            parent_root, parent_sub = self.getParentTier(root)
+            if parent_root == "":
+                parent_tier = "root"
+            else:
+                parent_tier = parent_root + "." + parent_sub
+
+            new_line = "\"" + parent_tier + "\",\"" + parent_tier + "\",\"\",,\n"        
+            line_list.append(new_line)
+            parent_list[parent_tier] = 1
+
+            new_line = "\"" + root + "\",\"" + root + "\",\"" + parent_tier + "\",,\n"
+            line_list.append(new_line)
+            parent_list[root] = 1
+            
+            if "sub" in sub_tier:
+                # ensure we are of type sub.n
+                if sub_tier.count(".") > 1:
+                    sub_tier = sub_tier.rsplit(".", 1)[0]
+                sub_tier += "%"
+                aHeading = self.db.execQuery("""
+                select tierindex
+                , tiering
+                from heading
+                where tierindex=%s and tiering like %s
+                group by tierindex, tiering
+                """,(tier_index,sub_tier))
+            else:
+                query_tier = ""
+                na_found = False
+                for idx, t in enumerate(tier[:7]):
+                    if idx > 0:
+                        query_tier += "."
+                    if (not na_found and t == "NA") or (idx == 6 and not na_found):
+                        query_tier += "%"
+                        na_found = True
+                        continue
+                    query_tier += t
+                aHeading = self.db.execQuery("""
+                select tierindex
+                , tiering
+                from heading
+                where (tierindex=%s) 
+                or (tierindex like %s 
+                and tierindex != %s 
+                and tiering not like %s)
+                group by tierindex, tiering
+                """,(tier_index, query_tier, tier_index, "sub%"))
 
         for result in aHeading:
             tier_index = result[0] + "." + result[1]

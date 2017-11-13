@@ -135,3 +135,13 @@ a.search-term:hover {
 .slategray {
     background-color: slategray !important;
 }
+
+text {
+    font: 10px sans-serif;
+    text-anchor: middle;
+}
+
+.node--hover circle {
+    stroke: rgba(0,150,200,0.8);
+    stroke-width: 1.2px;
+}

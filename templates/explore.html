@@ -3,7 +3,7 @@
 {% block title %}Doculyze | Explore{% endblock %}
 
 {% block page_content %}
-<div id="search-box">
+<!-- <div id="search-box">
     <table>
         <thead>
             <tr>
@@ -82,22 +82,21 @@
         {% endfor %}
     </div>
     {% endif %}
+</div> -->
+<div class="col-sm-12 text-center">
+    <h1>Explore</h1>
 </div>
-<style> /* set the CSS */
-    text {
-        font: 10px sans-serif;
-        text-anchor: middle;
-    }
+<div id="search-vis" class="col-sm-12 text-center">
 
-    .node--hover circle {
-        stroke: rgba(0,150,200,0.8);
-        stroke-width: 1.2px;
-    }
-</style>
-<svg width="920" height="920"><g transform="translate(1,1)"></g></svg>
+</div>
+<div id="mini-vis" class="col-sm-12 text-center">
+
+</div>
 {% endblock page_content %}
 {% block add_js %}
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<!-- <script src="https://d3js.org/d3-hierarchy.v1.min.js"></script> -->
 <script src="{{ url_for('static', filename='js/explore.js') }}"></script>
+<script>
+    createNewVis("#search-vis", "main-search", "/oht/", "root", 920, 920);
+</script>
 {% endblock %}

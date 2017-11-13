@@ -105,7 +105,11 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
             for topic_idx in np.array(session["topicdist"])[0].argsort()[::-1][:CONST.DS_MAXTERM]:
                 # if session["topicdist"][0][topic_idx] > CONST.DS_MINSIG:
                 term = {}
-                topic = db.execQuery("""select t.id, t.topicname, h.fr_heading, th.fr_thematicheading 
+                topic = db.execQuery("""select t.id
+                , t.topicname
+                , h.fr_heading
+                , th.fr_thematicheading
+                , concat(h.tierindex, case when h.tiering is not null then concat('.', h.tiering) else '' end)
                 from topic t 
                 left join heading h on h.id=t.headingid
                 left join thematicheading th on th.id=h.thematicheadingid
@@ -115,6 +119,7 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
                 term["dist"] = session["topicdist"][0][topic_idx]
                 term["heading"] = topic[0][2]
                 term["thematicheading"] = topic[0][3]
+                term["tier_index"] = topic[0][4]
                 session["keyterm"].append(term)
 
                 if n < CONST.DS_MAXTERM:
@@ -179,7 +184,7 @@ def oht_csv(tier_index=None):
     if tier_index is None:
         return Response(oht.csv(), mimetype="text/csv")
         
-    if len(tier_index.split(".")) < 7:
+    if len(tier_index.split(".")) < 7 and tier_index != "root":
         abort(404)
 
     csv = oht.getTierIndexChildren(tier_index)

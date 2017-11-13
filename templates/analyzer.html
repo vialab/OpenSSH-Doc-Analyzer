@@ -22,7 +22,7 @@
     {% if search_result %}
     <div class="col-sm-4">
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12" id="search-term-box">
                 <h3>SEARCH TERMS</h3>
                 <ul class="doc-term">
                 {% for key in search_term %}
@@ -81,3 +81,13 @@
     {% endif %}
 </div>
 {% endblock page_content %}
+{% block add_js %}
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="{{ url_for('static', filename='js/explore.js') }}"></script>
+<script>
+    {% for key in search_term %}
+    createNewVis("#search-term-box", "mini-{{search_term[key]['tier_index']}}", "/oht/", "{{search_term[key]['tier_index']}}", 75, 75, false, false, false);
+    {% endfor %}
+</script>
+<script src="{{ url_for('static', filename='js/analyzer.js') }}"></script>
+{% endblock add_js %}
