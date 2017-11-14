@@ -2,6 +2,11 @@ body {
     font-family: "Arial" !important;
 }
 
+body div.navbar {
+    z-index: 100 !important;
+    border-radius: 0 !important;
+}
+
 .doc {
     min-height: 200px;
     font-size: 14px;
@@ -144,4 +149,35 @@ text {
 .node--hover circle {
     stroke: rgba(0,150,200,0.8);
     stroke-width: 1.2px;
+}
+
+#search-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 75px 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: white;
+    z-index: 6;
+    -webkit-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#search-dialog button.close {
+    font-weight: 900;
+    position: absolute;
+    right: 15px;
+    top: 75px;
+    font-size: 24px;
+}
+
+#search-dialog svg {
+    background-color: white;
+    -webkit-transition: all 0.5s linear;
+    transition: all 0.5s linear;
+}
+
+.highlight {
+    background-color: yellow;
 }

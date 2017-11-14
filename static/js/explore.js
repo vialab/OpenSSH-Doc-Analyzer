@@ -28,28 +28,32 @@ function clicked(cb_keyword) {
     return function(d) {
         if( d.data.keyword ) {
             if(typeof(cb_keyword) != "undefined") {
-                cb_keyword();
-            } else {
-                return;
+                cb_keyword(d);
             }
+            return;
         }
         var $container = $(this).closest("svg");
         var svg_id = $container.attr("id");
         var width = $container.attr("width");
         var height = $container.attr("height");
         var pack = d3.pack().size([width, height]).padding(padding);    
-        update(d3.select("svg#" + svg_id), pack, "/oht/", d.id);
+        update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, true, true, true, cb_keyword);
     };
 }
 
 function createNewVis(svg_path, svg_id, path, id, width, height, change_focus=true, add_label=true, add_event=true, cb_keyword) {
-    var svg = d3.select(svg_path).append("svg")
+    svg_id = svg_id.replace(/\./g, "-");
+    var svg = null;
+    if($("#"+svg_id).length > 0) {
+        svg = d3.select("#"+svg_id);
+    } else {
+        svg = d3.select(svg_path).append("svg")
         .attr("width", width)
         .attr("height", height);
-
-    svg.attr("id", svg_id);
-    svg.attr("tier-index", id);
-    svg.append("g").attr("transform", "translate(1,1)");
+        svg.attr("id", svg_id);
+        svg.attr("tier-index", id);
+        svg.append("g").attr("transform", "translate(1,1)");
+    }
     
     var pack = d3.pack().size([width-5, height-5]).padding(padding);
 

@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
 {% block title %}Doculyze | Analyzer{% endblock %}
-
 {% block page_content %}
+<div id="search-dialog">
+    <button class="close" onclick="toggleSearchDialog();">
+        <span>&times;</span>
+    </button>
+</div>
 <div id="search-box">
         <table>
             <thead>
