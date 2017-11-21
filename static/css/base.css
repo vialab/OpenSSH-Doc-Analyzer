@@ -1,5 +1,6 @@
 body {
     font-family: "Arial" !important;
+    overflow-x: hidden;
 }
 
 body div.navbar {
@@ -11,8 +12,12 @@ body div.navbar {
     min-height: 200px;
     font-size: 14px;
     color: #777;
-    border-bottom: 1px solid lightgray;
+    border-bottom: 1px solid #eee;
     padding: 21px 13px 34px 13px;
+}
+
+.doc:last-child {
+    border: none;
 }
 
 h3 {
@@ -27,6 +32,7 @@ h3 {
 }
 
 .doc .doc-author {
+    
 }
 
 .doc .doc-cite {
@@ -44,6 +50,63 @@ ul.doc-term li {
     padding-right: 16px;
 }
 
+#search-result-container {
+    width: 100vw;
+    height: 90vh;
+    padding-bottom: 200px;
+    overflow: scroll;
+    position: absolute;
+    left: 0;
+    top: 50px;
+    z-index: 0;
+    -webkit-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#search-term-container {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 5px;
+    z-index: 2;
+    background-color: white;
+    border-top: 1px solid lightgray;
+}
+
+.term-container, .sortable-placeholder {
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+}
+
+.term-container {
+    padding: 15px;
+    -webkit-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
+}
+
+.term-container.selected {
+    background-color: #a8d1ff;
+}
+
+.sortable-placeholder {
+    border: 5px dashed #ddd;
+    min-width: 125px;
+    min-height: 125px;
+    margin: 10px;
+}
+
+.term-heading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background-color: rgba(0, 100, 150, 0.5);
+    padding: 5px;
+    pointer-events: none;
+}
 
 a.search-term {
     border-radius: 4px;
@@ -155,13 +218,14 @@ text {
     position: fixed;
     top: 0;
     left: 0;
-    padding: 75px 0;
-    width: 100vw;
+    padding: 60px 0;
+    width: 95vw;
     height: 100vh;
     background-color: white;
-    z-index: 6;
+    z-index: 1;
     -webkit-transition: all 0.5s ease;
     transition: all 0.5s ease;
+    border-right: 1px solid lightgray;
 }
 
 #search-dialog button.close {
@@ -170,6 +234,16 @@ text {
     right: 15px;
     top: 75px;
     font-size: 24px;
+}
+
+#search-dialog-title {
+    background-color: rgba(0, 100, 150, 0.8);
+    color: white;
+    font-size: 24px;
+    position: absolute;
+    left: 50%;
+    top: 75px;
+    transform: translateX(-50%);
 }
 
 #search-dialog svg {

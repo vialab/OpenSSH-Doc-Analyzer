@@ -110,6 +110,7 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
                 , h.fr_heading
                 , th.fr_thematicheading
                 , concat(h.tierindex, case when h.tiering is not null then concat('.', h.tiering) else '' end)
+                , t.headingid
                 from topic t 
                 left join heading h on h.id=t.headingid
                 left join thematicheading th on th.id=h.thematicheadingid
@@ -120,9 +121,10 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
                 term["heading"] = topic[0][2]
                 term["thematicheading"] = topic[0][3]
                 term["tier_index"] = topic[0][4]
+                term["heading_id"] = topic[0][5]
                 session["keyterm"].append(term)
 
-                if n < CONST.DS_MAXTERM:
+                if n < CONST.DS_MAXTERM and session["topicdist"][0][topic_idx] > 0.1:
                     session["searchterm"][topic[0][0]] = term
                     n += 1
     return redirect(url_for("index"))
@@ -235,7 +237,7 @@ def getSearchResults( strDocHashID=None ):
                 , sum(dist / """ + str(len(session["explore_list"])) + """) cossim
                 from doctopic
                 where topicid in (
-                """ + str_topic + """) 
+                """ + str_topic + """)
                 group by documentid 
                 order by sum(dist) desc
                 limit 10"""

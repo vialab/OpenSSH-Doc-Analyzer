@@ -22,16 +22,16 @@ function removeFromSearch(elem, topic_id ) {
     }
 }
 
-function search() {
-    var topics = Object.keys(search_terms);
-    var url = "/explore"
-    for(var i = 0; i < topics.length; i++) {
-        if(i > 0) {
-            url += "+";
-        } else {
-            url += "/";
-        }
-        url += topics[i];
-    }
-    window.location.href = url;
-}
+// function search() {
+//     var topics = Object.keys(search_terms);
+//     var url = "/explore"
+//     for(var i = 0; i < topics.length; i++) {
+//         if(i > 0) {
+//             url += "+";
+//         } else {
+//             url += "/";
+//         }
+//         url += topics[i];
+//     }
+//     window.location.href = url;
+// }

@@ -2,8 +2,10 @@
 var focus_id = "";
 
 // set the dimensions and margins of the vis
-var margin = {top: 20, right: 90, bottom: 30, left: 90},
-padding = 15;
+var margin = {top: 20, right: 90, bottom: 30, left: 90};
+var padding = 15;
+var min_size = 80;
+var add_size = 220;
     
 var format = d3.format(",d");
 
@@ -37,30 +39,32 @@ function clicked(cb_keyword) {
         var width = $container.attr("width");
         var height = $container.attr("height");
         var pack = d3.pack().size([width, height]).padding(padding);    
-        update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, true, true, true, cb_keyword);
+        update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, true, true, true, d.data.heading_id, cb_keyword);
     };
 }
 
-function createNewVis(svg_path, svg_id, path, id, width, height, change_focus=true, add_label=true, add_event=true, cb_keyword) {
+function createNewVis(svg_path, svg_id, path, id, width, height, weight, change_focus=true, add_label=true, add_event=true, cb_keyword, heading_id) {
     svg_id = svg_id.replace(/\./g, "-");
     var svg = null;
     if($("#"+svg_id).length > 0) {
         svg = d3.select("#"+svg_id);
     } else {
-        svg = d3.select(svg_path).append("svg")
-        .attr("width", width)
-        .attr("height", height);
-        svg.attr("id", svg_id);
-        svg.attr("tier-index", id);
-        svg.append("g").attr("transform", "translate(1,1)");
+        svg = d3.select(svg_path).append("svg");
+        svg.append("g").attr("transform", "translate(2.5,2.5)");
     }
+
+    svg.attr("width", width);
+    svg.attr("height", height);
+    svg.attr("weight", weight);
+    svg.attr("id", svg_id);
+    svg.attr("tier-index", id);
     
     var pack = d3.pack().size([width-5, height-5]).padding(padding);
 
-    update(svg, pack, path, id, change_focus, add_label, add_event, cb_keyword);
+    update(svg, pack, path, id, change_focus, add_label, add_event, heading_id, cb_keyword);
 }
 
-function update(svg, pack, path, id, change_focus=true, add_label=true, add_event=true, cb_keyword) {
+function update(svg, pack, path, id, change_focus=true, add_label=true, add_event=true, heading_id, cb_keyword) {
     if(change_focus && focus_id == id) {
         return;
     }
@@ -102,7 +106,11 @@ function update(svg, pack, path, id, change_focus=true, add_label=true, add_even
         .attr("r", function(d) { return d.r; })
         .style("fill", function(d) { 
             if(d.data.keyword) {
-                return color(-4);
+                if(d.data.heading_id == heading_id) {
+                    return "rgb(255,0,0)";
+                } else {
+                    return color(-4);
+                }
             } else {
                 return color(d.depth);                
             }
@@ -140,4 +148,18 @@ function collapse(d) {
         d._children.forEach(collapse);
         d.children = null;
     }
+}
+
+function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
+    tier_id = tier_index.replace(/\./g, "-");
+    var $box = $("<div class='term-container text-center' id='term-"
+        + tier_id + "'><input type='hidden' class='term-heading-id' value='" 
+        + heading_id +"'/><div class='term-heading'>"
+        + heading_text + "</div><div class='term-vis' id='term-vis-" 
+        + tier_id + "'></div></div>");
+    
+    $("#search-term-box").append($box);
+    var vis_size = min_size + (add_size * weight);
+    createNewVis("#term-vis-" + tier_id, "mini-" + tier_id
+        , "/oht/", tier_index, vis_size, vis_size, weight, false, false, false, null, heading_id);
 }

@@ -3,81 +3,56 @@
 {% block title %}Doculyze | Analyzer{% endblock %}
 {% block page_content %}
 <div id="search-dialog">
+    <div id="search-dialog-title"></div>
     <button class="close" onclick="toggleSearchDialog();">
         <span>&times;</span>
     </button>
 </div>
-<div id="search-box">
-        <table>
-            <thead>
-                <tr>
-                    <td colspan="2">SEARCH TERMS</td>
-                </tr>
-            </thead>
-            <tbody>
-    
-            </tbody>
-        </table>
-        <div id="search-btn">
-            <img src="{{ url_for('static', filename='search_icon.png') }}" onclick="search();"/>
-        </div>
+<div id="search-term-container">
+    <div class="row">
+        <div class="col-sm-12" id="search-term-box"></div>
     </div>
-<div class="row">
+</div>
+<div id="search-result-container">
     {% if search_result %}
-    <div class="col-sm-4">
-        <div class="row">
-            <div class="col-sm-12" id="search-term-box">
-                <h3>SEARCH TERMS</h3>
-                <ul class="doc-term">
-                {% for key in search_term %}
-                    <li id="{{ search_term[key]['id'] }}">
-                        <a id="{{ search_term[key]['id'] }}" onclick="addToSearch('{{search_term[key]['id']}}', '{{ search_term[key]['heading']|safe }}');" class="search-term {% if search_term[key]['id'] in search_term %}active{% endif %}">{{ search_term[key]["thematicheading"]|safe }} | {{ search_term[key]["heading"]|safe }}</a>
-                    </li>
-                {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-8">
         {% for result in search_result %}
-        <div class="row">
-            <div class="col-sm-12 doc" id="doc-{{result['id']}}">
-              <h3>ARTICLE</h3>                
-              <div class="doc-title">{{ result["title"]|safe }}</div>
-              <div class="doc-author">{{ result["author"]|safe }}</div>
-              <div class="doc-cite">{{ result["citation"]|safe }}</div>
-              <h3>TOPICS</h3>
-              <ul class="doc-term" id="doc-topic">
-                {% for topic in result["topiclist"] %}
-                <li>
-                    <a id="{{ topic['id'] }}" onclick="addToSearch('{{topic['id']}}', '{{ topic['heading']|safe }}');" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{ topic["thematicheading"]|safe }} | {{ topic["heading"]|safe }} ( {{ (topic["dist"]*100)|round(2) }} % )</a>
-                </li>
-                {% endfor %}
-              </ul>
-              <h3>PEOPLE</h3>
-              <ul class="doc-term" id="doc-people">
-                {% for entity in result["entitylist"] %}
-                {% if entity["type"] == "nompers" %}                
-                <li>
-                    <a class="search-term">{{ entity["name"]|safe }}</a>
-                </li>
-                {% endif %}
-                {% endfor %}              
-              </ul>                
-              <h3>ORGANIZATIONS</h3>
-              <ul class="doc-term" id="doc-org">
-                {% for entity in result["entitylist"] %}
-                {% if entity["type"] == "nomorg" %}
-                <li>
-                    <a class="search-term">{{ entity["name"]|safe }}</a>                    
-                </li>
-                {% endif %}
-                {% endfor %}
-              </ul>
-            </div>
+        <div class="doc" id="doc-{{result['id']}}">
+            <h3>ARTICLE</h3>                
+            <div class="doc-title">{{ result["title"]|safe }}</div>
+            <div class="doc-author">{{ result["author"]|safe }}</div>
+            <div class="doc-cite">{{ result["citation"]|safe }}</div>
+            <h3>TOPICS</h3>
+            <ul class="doc-term" id="doc-topic">
+            {% for topic in result["topiclist"] %}
+            {% if topic['dist'] > 0.1 %}
+            <li>
+                <a id="{{ topic['id'] }}" onclick="addToSearch('{{topic['id']}}', '{{ topic['heading']|safe }}');" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{ topic["thematicheading"]|safe }} | {{ topic["heading"]|safe }} ( {{ (topic["dist"]*100)|round(2) }} % )</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            </ul>
+            <h3>PEOPLE</h3>
+            <ul class="doc-term" id="doc-people">
+            {% for entity in result["entitylist"] %}
+            {% if entity["type"] == "nompers" %}                
+            <li>
+                <a class="search-term">{{ entity["name"]|safe }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}              
+            </ul>                
+            <h3>ORGANIZATIONS</h3>
+            <ul class="doc-term" id="doc-org">
+            {% for entity in result["entitylist"] %}
+            {% if entity["type"] == "nomorg" %}
+            <li>
+                <a class="search-term">{{ entity["name"]|safe }}</a>                    
+            </li>
+            {% endif %}
+            {% endfor %}
+            </ul>
         </div>
         {% endfor %}
-    </div>        
     {% else %}
     <div class="col-sm-12">
         Sorry, we didn't find any results for your search. Try changing your parameters and search again.
@@ -88,9 +63,10 @@
 {% block add_js %}
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="{{ url_for('static', filename='js/explore.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/jquery/jquery.sortable.min.js') }}"></script>
 <script>
     {% for key in search_term %}
-    createNewVis("#search-term-box", "mini-{{search_term[key]['tier_index']}}", "/oht/", "{{search_term[key]['tier_index']}}", 75, 75, false, false, false);
+    drawSearchTerm("{{search_term[key]['tier_index']|safe}}", "{{ search_term[key]['heading_id'] }}", "{{ search_term[key]['heading']|safe }}", {{ search_term[key]['dist'] }});
     {% endfor %}
 </script>
 <script src="{{ url_for('static', filename='js/analyzer.js') }}"></script>
