@@ -29,9 +29,7 @@ function hovered(hover) {
 function clicked(cb_keyword) {
     return function(d) {
         if( d.data.keyword ) {
-            if(typeof(cb_keyword) != "undefined") {
-                cb_keyword(d);
-            }
+            cb_keyword(d);
             return;
         }
         var $container = $(this).closest("svg");
@@ -46,8 +44,9 @@ function clicked(cb_keyword) {
 function createNewVis(svg_path, svg_id, path, id, width, height, weight, change_focus=true, add_label=true, add_event=true, cb_keyword, heading_id) {
     svg_id = svg_id.replace(/\./g, "-");
     var svg = null;
-    if($("#"+svg_id).length > 0) {
-        svg = d3.select("#"+svg_id);
+
+    if($(svg_path + " #"+svg_id).length > 0) {
+        svg = d3.select(svg_path + " #"+svg_id);
     } else {
         svg = d3.select(svg_path).append("svg");
         svg.append("g").attr("transform", "translate(2.5,2.5)");
@@ -60,15 +59,10 @@ function createNewVis(svg_path, svg_id, path, id, width, height, weight, change_
     svg.attr("tier-index", id);
     
     var pack = d3.pack().size([width-5, height-5]).padding(padding);
-
     update(svg, pack, path, id, change_focus, add_label, add_event, heading_id, cb_keyword);
 }
 
 function update(svg, pack, path, id, change_focus=true, add_label=true, add_event=true, heading_id, cb_keyword) {
-    if(change_focus && focus_id == id) {
-        return;
-    }
-
     var url_path = path + id;
     d3.csv(url_path, function(error, data) {
         if (error) throw error;
@@ -106,7 +100,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true, add_even
         .attr("r", function(d) { return d.r; })
         .style("fill", function(d) { 
             if(d.data.keyword) {
-                if(d.data.heading_id == heading_id) {
+                if(d.data.heading_id == heading_id) {                    
                     return "rgb(255,0,0)";
                 } else {
                     return color(-4);
@@ -152,14 +146,22 @@ function collapse(d) {
 
 function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
     tier_id = tier_index.replace(/\./g, "-");
-    var $box = $("<div class='term-container text-center' id='term-"
-        + tier_id + "'><input type='hidden' class='term-heading-id' value='" 
+    var container_path = "term-" + tier_id;
+    container_path += "-" + $("[id^=" + container_path + "]").length.toString();
+    var svg_path = "term-vis-" + tier_id;
+    svg_path += "-" + $("[id^=" + svg_path + "]").length.toString();
+    var $box = $("<div class='term-container text-center' id='"
+        + container_path + "'><button class='close' onclick='$(this).parent().remove();'>\
+        <span>&times;</span></button><input type='hidden' class='term-heading-id' value='" 
         + heading_id +"'/><div class='term-heading'>"
-        + heading_text + "</div><div class='term-vis' id='term-vis-" 
-        + tier_id + "'></div></div>");
+        + heading_text + "</div><div class='term-vis' id='" 
+        + svg_path + "'></div></div>");
     
-    $("#search-term-box").append($box);
+    $("#add-term").before($box);
     var vis_size = min_size + (add_size * weight);
-    createNewVis("#term-vis-" + tier_id, "mini-" + tier_id
+    
+    svg_path = "#" + svg_path;
+
+    createNewVis(svg_path, "mini-" + tier_id
         , "/oht/", tier_index, vis_size, vis_size, weight, false, false, false, null, heading_id);
 }
