@@ -4,8 +4,8 @@ var focus_id = "";
 // set the dimensions and margins of the vis
 var margin = {top: 20, right: 90, bottom: 30, left: 90};
 var padding = 15;
-var min_size = 80;
-var add_size = 220;
+var min_size = 100;
+var add_size = 50;
     
 var format = d3.format(",d");
 
@@ -28,6 +28,7 @@ function hovered(hover) {
 
 function clicked(cb_keyword) {
     return function(d) {
+        d3.event.stopPropagation();
         if( d.data.keyword ) {
             cb_keyword(d);
             return;
@@ -41,7 +42,7 @@ function clicked(cb_keyword) {
     };
 }
 
-function createNewVis(svg_path, svg_id, path, id, width, height, weight, change_focus=true, add_label=true, add_event=true, cb_keyword, heading_id) {
+function createNewVis(svg_path, svg_id, path, id, width, height, weight, change_focus=true, add_label=true, add_event=true, heading_id, cb_keyword) {
     svg_id = svg_id.replace(/\./g, "-");
     var svg = null;
 
@@ -153,8 +154,8 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
     var $box = $("<div class='term-container text-center' id='"
         + container_path + "'><button class='close' onclick='$(this).parent().remove();'>\
         <span>&times;</span></button><input type='hidden' class='term-heading-id' value='" 
-        + heading_id +"'/><div class='term-heading'>"
-        + heading_text + "</div><div class='term-vis' id='" 
+        + heading_id +"'/><input type='hidden' class='term-heading-weight' value='1'/>\
+        <div class='term-heading'>" + heading_text + "</div><div class='term-vis' id='" 
         + svg_path + "'></div></div>");
     
     $("#add-term").before($box);
@@ -163,5 +164,5 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
     svg_path = "#" + svg_path;
 
     createNewVis(svg_path, "mini-" + tier_id
-        , "/oht/", tier_index, vis_size, vis_size, weight, false, false, false, null, heading_id);
+        , "/oht/", tier_index, vis_size, vis_size, weight, false, false, false, heading_id);
 }

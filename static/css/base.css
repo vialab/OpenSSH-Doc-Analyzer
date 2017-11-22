@@ -8,6 +8,13 @@ body div.navbar {
     border-radius: 0 !important;
 }
 
+#search-result-container, #add-term, #search-box
+, #search-box table, #search-dialog, #search-dialog-title
+, #search-dialog svg, #search-dialog .slider, .term-container { 
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
 .doc {
     min-height: 200px;
     font-size: 14px;
@@ -59,17 +66,13 @@ ul.doc-term li {
     left: 0;
     top: 50px;
     z-index: 0;
-    -webkit-transition: all 0.5s ease;
-    transition: all 0.5s ease;
 }
 
 #search-term-container {
     position: fixed;
     left: 0;
     bottom: 0;
-    min-height: 20px;
     width: 100%;
-    padding: 5px;
     z-index: 2;
     background-color: white;
     border-top: 1px solid lightgray;
@@ -97,8 +100,6 @@ ul.doc-term li {
     margin: 25px;
     padding: 15px;
     cursor: pointer;
-    -webkit-transition: all 0.2s ease-in;
-    transition: all 0.2s ease-in;
 }
 
 #add-term:hover {
@@ -117,8 +118,7 @@ ul.doc-term li {
 .term-container {
     position: relative;
     padding: 15px;
-    -webkit-transition: all 0.2s ease-in;
-    transition: all 0.2s ease-in;
+    cursor: pointer;
 }
 
 .term-container:hover {
@@ -195,8 +195,6 @@ a.search-term:hover {
     background-color: gray;
     z-index: 5;
     border-radius: 85px;
-    -webkit-transition: all 0.2s ease-in;
-    transition: all 0.2s ease-in;
 }
 
 #search-box:hover {
@@ -211,8 +209,6 @@ a.search-term:hover {
     border: none;
     padding: 5px;
     width: 100%;
-    -webkit-transition: all 0.2s ease-in;
-    transition: all 0.2s ease-in;
 }
 
 #search-box table thead tr td {
@@ -267,14 +263,12 @@ text {
     position: fixed;
     top: 0;
     left: 0;
-    padding: 60px 0;
+    padding-top: 75px;
     width: 95vw;
     height: 100vh;
     background-color: white;
     z-index: 1;
     overflow: hidden;
-    -webkit-transition: all 0.5s ease;
-    transition: all 0.5s ease;
     border-right: 1px solid lightgray;
 }
 
@@ -298,10 +292,15 @@ text {
 
 #search-dialog svg {
     background-color: white;
-    -webkit-transition: all 0.5s linear;
-    transition: all 0.5s linear;
 }
 
 .highlight {
     background-color: yellow;
+}
+
+#search-dialog .slider {
+    position: absolute;
+    bottom: 190px;
+    left: 50%;
+    transform: translate(-50%, 0);
 }
