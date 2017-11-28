@@ -9,7 +9,7 @@ DS_PENALTY = 10 # penalty parameter (RWPD) for non matching topics
 DS_MAXTOPIC = 10 # number of topics to recognize
 
 # Topic model constants
-TM_TOPICS = 100
+TM_TOPICS = 1000
 TM_FEATURES = None
 TM_MAXDF = 1.0
 TM_MINDF = 1

@@ -74,6 +74,13 @@ $(document).ready(function() {
     $("#weight-slider").slider();
 });
 
+function deleteTerm(self) {
+    $(self).parent().remove();
+    if(searching) {
+        toggleSearchDialog();
+    }
+}
+
 function toggleSearchDialog() {
     if(searching) {
         $("#search-dialog").css("left", -$(window).width()-75);
@@ -138,7 +145,7 @@ function keywordClicked(d) {
         , false, false, false, d.data.heading_id);
 
     $target.attr("tier-index", new_tier_index);
-    toggleSearchDialog();
+    // toggleSearchDialog();
 
     animate("select", $("#"+target_parent).parent());
 }
@@ -155,7 +162,7 @@ function search() {
         heading_list.push( {
             "heading_id": $(".term-heading-id", $(this)).val(),
             "weight": $(".term-heading-weight", $(this)).val(),
-            "order": i
+            "order": i+1
         });
     });
 }

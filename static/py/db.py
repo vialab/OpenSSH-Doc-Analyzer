@@ -5,9 +5,37 @@ import common as cm
 class Database(object):
     """ Basic MySQL database helper functions """
     conn = None
+    session_open = False
 
     def __init__(self):
         self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True, charset='utf8')
+
+    def beginSession(self):
+        """ Returns a cursor to be able to maintain a session """
+        if self.session_open:
+            raise "A session already exists."
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("SET NAMES utf8mb4;")
+            cursor.execute("SET CHARACTER SET utf8mb4;")
+            cursor.execute("SET character_set_connection=utf8mb4;")
+            return cursor
+        except Exception, e:
+            cursor.close()
+            raise
+
+    def execSessionQuery(self, cursor, strCmd, args=(), close_cursor=False):
+        """ Used to run a query on a specific cursor """
+        try:
+            cursor.execute(strCmd, args)
+            results = cursor.fetchall()
+            if close_cursor:
+                cursor.close()
+                self.session_open = False
+            return results
+        except Exception, e:
+            cursor.close()
+            raise
 
     def execQuery(self, strCmd, args=(), is_update=False):
         """ Execute an SQL query """
@@ -53,11 +81,10 @@ class Database(object):
         cursor = self.conn.cursor() 
 
         try:
-            cursor.execute("SET NAMES utf8mb4; SET CHARACTER SET utf8mb4; SET character_set_connection=utf8mb4;")
-            results = cursor.callproc(strProc, args)
-            return results        
+            cursor.callproc(strProc, args)
+            return cursor.fetchall()        
         except Exception, e:
-            self.throwSQLError(e)
+            # self.throwSQLError(e)
             raise
         finally:
             cursor.close()    

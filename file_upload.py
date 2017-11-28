@@ -284,7 +284,10 @@ def getSearchResults( strDocHashID=None ):
             # doc["cossim"] = corpus.calculateCosSim(strDocHashID, result[0])
         doc["cossim"] = result[12]
         aTopicDist = db.execQuery("""
-        select t.topicname, t.id, d.dist, h.fr_heading, th.fr_thematicheading from doctopic d 
+        select t.topicname, t.id, d.dist, h.fr_heading, th.fr_thematicheading
+            , concat(h.tierindex, case when h.tiering is not null then concat('.', h.tiering) else '' end)
+            , t.headingid
+        from doctopic d 
         left join topic t on t.id=d.topicid
         left join heading h on h.id=t.headingid
         left join thematicheading th on th.id=h.thematicheadingid
@@ -298,6 +301,8 @@ def getSearchResults( strDocHashID=None ):
             temp["dist"] = topic[2]
             temp["heading"] = topic[3]
             temp["thematicheading"] = topic[4]
+            temp["tier_index"] = topic[5]
+            temp["heading_id"] = topic[6]
             doc["topiclist"].append(temp)
         
         doc["entitylist"] = []

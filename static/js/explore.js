@@ -102,7 +102,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true, add_even
         .style("fill", function(d) { 
             if(d.data.keyword) {
                 if(d.data.heading_id == heading_id) {                    
-                    return "rgb(255,0,0)";
+                    return "rgb(0,100,150)";
                 } else {
                     return color(-4);
                 }
@@ -110,6 +110,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true, add_even
                 return color(d.depth);                
             }
         });
+
         if(add_label) {
             var leaf = node.filter(function(d) { return !d.children; });
         
@@ -152,7 +153,7 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
     var svg_path = "term-vis-" + tier_id;
     svg_path += "-" + $("[id^=" + svg_path + "]").length.toString();
     var $box = $("<div class='term-container text-center' id='"
-        + container_path + "'><button class='close' onclick='$(this).parent().remove();'>\
+        + container_path + "'><button class='close' onclick='deleteTerm(this);'>\
         <span>&times;</span></button><input type='hidden' class='term-heading-id' value='" 
         + heading_id +"'/><input type='hidden' class='term-heading-weight' value='1'/>\
         <div class='term-heading'>" + heading_text + "</div><div class='term-vis' id='" 
