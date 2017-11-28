@@ -31,18 +31,18 @@ def matchTopicList(topic_list, n=100):
         limit 1
         """, (search_id, weight, order, heading_id))
     
+    return db.execProc("sp_searchtopic", (
+        CONST.DS_MAXTOPIC
+        , CONST.DS_PENALTY
+        , search_id
+        , n
+    ))
 
 
-def match(dochash_id, n=100):
+def match(sproc, dochash_id, n=100):
     """ Find closest matching docs using ranked weighted penalty distance """
-    sqrt_dist = math.sqrt(CONST.DS_MAXTOPIC)
-    max_dist = CONST.DS_MAXTOPIC-1
-    sqrt_max = math.sqrt(max_dist)
-    return db.execProc("sp_matchdoc", (
-        sqrt_dist
-        , max_dist
-        , sqrt_max
-        , CONST.DS_MAXTOPIC
+    return db.execProc("sp_searchdoc", (
+        CONST.DS_MAXTOPIC
         , CONST.DS_PENALTY
         , dochash_id
         , n

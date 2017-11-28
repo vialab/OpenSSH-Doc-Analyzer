@@ -288,6 +288,7 @@ text {
     left: 50%;
     top: 75px;
     transform: translateX(-50%);
+    text-transform: uppercase;
 }
 
 #search-dialog svg {

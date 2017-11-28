@@ -39,7 +39,8 @@ class Heading(object):
     db = db.Database()
     
     def __init__(self, strID):
-        """Return a heading object that initializes for a given word in the dictionary"""
+        """ Return a heading object that initializes for a 
+            given word in the dictionary"""
         heading = self.db.execQuery(""" select h.id
         , h.thematicheadingid
         , h.heading
@@ -64,7 +65,10 @@ class Heading(object):
 
     def Synset(self):
         """ Returns list of words categorized within current heading """
-        results = self.db.execQuery(""" select w.id from word w where w.headingid=%s """, (self.id,))
+        results = self.db.execQuery("""
+            select w.id 
+            from word w 
+            where w.headingid=%s""", (self.id,))
         words = []
         for result in results:
             word = Word(result[0])
@@ -72,8 +76,10 @@ class Heading(object):
         return words
 
 
+
     def Hypernym(self):
-        """ Returns a list of heading objects that are parent to current heading """
+        """ Returns a list of heading objects that are parent 
+            to current heading """
         nLen = len(self.atierindex)-1
         strIndex = ""
         for i in range(nLen):
@@ -84,29 +90,43 @@ class Heading(object):
         for i in range(7-nLen):
             strIndex+=".NA"
 
-        results = self.db.execQuery( """ select id from heading where tierindex=%s """, (strIndex,))
+        results = self.db.execQuery("""
+            select id 
+            from heading 
+            where tierindex=%s""", (strIndex,))
         headings = []
         for result in results:
             heading = Heading(result[0])
             headings.append(heading)
 
         return headings
+
+
 
     def Hyponym(self):
-        """ Returns a list of heading objects that are sub categories within the parent tier """
-        results = self.db.execQuery( """ select id from heading where tierindex=%s and subcat is not null """,(self.tierindex,))
+        """ Returns a list of heading objects that are sub 
+            categories within the parent tier """
+        results = self.db.execQuery("""
+            select id 
+            from heading 
+            where tierindex=%s 
+            and subcat is not null """,(self.tierindex,))
         headings = []
         for result in results:
             heading = Heading(result[0])
             headings.append(heading)
 
         return headings
+
+
 
 class Wrapper(object):
     """ Wrapper functions to traverse OHT """
     wordList = []
     db = db.Database()
     ALLOWED_LANG = ["en", "fr"]
+
+
 
     def getWordList(self, strWord, pos=None, lang="en"):
         """ Returns a list of word objects that matches """
@@ -115,15 +135,23 @@ class Wrapper(object):
         
         if lang=="en":
             if pos is None:
-                results = self.db.execQuery("select id from word where word=%s", (strWord,))
+                results = self.db.execQuery("""
+                    select id from word 
+                    where word=%s""", (strWord,))
             else:
-                results = self.db.execQuery("select id from word where word=%s and pos=%s", (strWord,pos))
+                results = self.db.execQuery("""
+                    select id from word 
+                    where word=%s and pos=%s""", (strWord,pos))
         
         if lang=="fr":
             if pos is None:
-                results = self.db.execQuery("select id from word where fr_translation=%s", (strWord,))
+                results = self.db.execQuery("""
+                    select id from word 
+                    where fr_translation=%s""", (strWord,))
             else:
-                results = self.db.execQuery("select id from word where fr_translation=%s and pos=%s", (strWord,pos))
+                results = self.db.execQuery("""
+                    select id from word 
+                    where fr_translation=%s and pos=%s""", (strWord,pos))
         
         words = []
         for result in results:
@@ -132,26 +160,34 @@ class Wrapper(object):
 
         return words
 
+
     
     def getTopicHeadingRankList(self, strID):
         """ Get all headings with a rank for a single topic """
         aHeading = {}
         results = self.db.execQuery(""" select w.word
-, w.oht
-, tt.dist
-, (tt.dist/x.total) normdist
-, w.freq
-from topicterm tt
-left join (select topicid, sum(dist) total from topicterm group by topicid) x on x.topicid=tt.topicid
-left join term w on w.id=tt.termid
-where tt.topicid=%s
-order by tt.dist desc, w.freq
-limit %s """, (strID, CONST.OHT_TOPDIST))
+            , w.oht
+            , tt.dist
+            , (tt.dist/x.total) normdist
+            , w.freq
+            from topicterm tt
+            left join (select topicid, sum(dist) total 
+                from topicterm group by topicid) x on x.topicid=tt.topicid
+            left join term w on w.id=tt.termid
+            where tt.topicid=%s
+            order by tt.dist desc, w.freq
+            limit %s """, (strID, CONST.OHT_TOPDIST))
+
         for result in results:
             ngram_weight = 1
             strWord = result[0]
             strPOS = result[1]
-            self.db.execUpdate("insert into headingterm(word, pos, topicid, dist, normdist, freq) values(%s, %s, %s, %s, %s, %s)", (strWord, strPOS, strID, result[2], result[3], result[4]))
+            self.db.execUpdate("""
+                insert into headingterm
+                (word, pos, topicid, dist, normdist, freq) 
+                values(%s, %s, %s, %s, %s, %s)"""
+                , (strWord, strPOS, strID, result[2], result[3], result[4]))
+
             aWord = self.getWordList(strWord, pos=strPOS, lang="fr")
             if len(aWord) == 0:
                 aGram = filter(bool, strWord.split(" "))
@@ -160,33 +196,19 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
                     ngram_weight = len(aGram)
                     aGramPOS = filter(bool, strPOS.split(" "))
                     for ngram, ngram_pos in zip(aGram, aGramPOS):
-                        aWordGram = self.getWordList(ngram, pos=ngram_pos, lang="fr")
+                        aWordGram = self.getWordList(ngram
+                                                    , pos=ngram_pos
+                                                    , lang="fr")
                         if len(aWordGram) > 0:
                             # concat results together
                             aWord = aWord + aWordGram
                 if len(aWord) == 0:
                     # still nothing? skip it then
                     continue
-            # since word collision can occur, save confidence level for each heading score
-            # also normalize based on topic weight and whether we had to split ngram or not
+            # since word collision can occur, save confidence level for each 
+            # heading score also normalize based on topic weight and whether 
+            # we had to split ngram or not
             fConf = ((1.0 / len(aWord)) * float(result[3])) / ngram_weight
-            
-            # aWordHeading = {}
-            # for word in aWord:
-            #     if word.headingid in aWordHeading:
-            #         aWordHeading[word.headingid] += 1
-            #     else:
-            #         aWordHeading[word.headingid] = 1
-            
-            # norm_dist = float(result[3])
-            # for key in aHeading:
-            #     aHeading[key] *= (1-norm_dist)
-            
-            # for key in aWordHeading:
-            #     if key in aHeading:
-            #         aHeading[key] = ((aWordHeading[key]/ len(aWord)) * norm_dist) + aHeading[key]
-            #     else:
-            #         aHeading[key] = (aWordHeading[key]/ len(aWord)) * float(result[3])
 
             for word in aWord:
                 if word.headingid in aHeading:
@@ -196,13 +218,10 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
 
         return aHeading
 
-    def csv(self):
-        with codecs.open("oht_2.csv", "r", "utf8") as f:
-            lines = f.readlines()
-            text = "".join(lines)
-        return text
+
 
     def sortHierarchy(self,line_list):
+        """ Sort tree to ensure declarations come before references """
         has_error = True
         new_list = line_list
 
@@ -247,122 +266,61 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
 
         return "".join(new_list)
 
-    def writeHierarchyToCSV(self):
-        oht = codecs.open("oht_filter.csv","w+", "utf-8")
-        aHeading = self.db.execQuery("""
-        select tierindex
-        , tiering 
-        from heading
-        where t1='2' and id in (select distinct headingid from topic)
-        group by tierindex, tiering
-        """)
-        csv = "\"name\",\"parent\",\"size\"\n"
-        parent_list = {}
-        line_list = []
-        for result in aHeading:
-            tier = result[0].split(".")
-            sub_tier = result[1].split(".")
-            curr_tier = result[0]+"."+result[1]
-            if curr_tier in parent_list:
-                continue
-            new_line = "\"" + curr_tier + "\",\""
-            parent_list[curr_tier] = 1
 
-            last_idx = len(tier)
-            for idx, t in enumerate(tier):
-                if t=="NA":
-                    last_idx=idx
-                    break
-
-            if len(sub_tier) > 1:
-                # if sub_tier in form of sub.n.n
-                parent_tier = result[0]+"."+sub_tier[1]
-            else:
-                # otherwise sub_tier is n tier itself
-                # need to go up one tier
-                if last_idx > 1:
-                    tier[last_idx-1] = "NA"
-                    new_tier = ".".join(t for t in tier)
-                    parent_tier = new_tier+"."+str(last_idx-1)
-                    last_idx -= 1
-                else:
-                    parent_tier = ""
-            new_line += parent_tier + "\",\n"
-            line_list.append(new_line)
-            
-            while parent_tier not in parent_list and parent_tier != "":
-                new_line = "\"" + parent_tier + "\",\""
-                parent_list[parent_tier] = 1
-                last_idx -= 1
-
-                if last_idx > 0:
-                    tier[last_idx] = "NA"
-                    new_tier = ".".join(t for t in tier)
-                    parent_tier = new_tier+"."+str(last_idx)
-                else:
-                    parent_tier = ""
-
-                new_line += parent_tier + "\",\n"          
-                line_list.append(new_line)
-
-        csv += self.sortHierarchy(line_list)
-        aHeading = self.db.execQuery("""
-        select id
-        , heading
-        , fr_heading
-        , concat(tierindex,'.',tiering) parent
-        from heading
-        where t1='2' and id in (select distinct headingid from topic)
-        """)
-
-        for result in aHeading:
-            csv += "\""+result[1]+"\",\""+result[3]+"\",\"10\"\n"
-
-        oht.write(csv)
-        oht.close()
 
     def getTierIndexChildren(self, root):
         """ Get all immediate sub categories and tier below without subs """
         csv = "\"heading_id\",\"name\",\"parent\",\"size\",\"keyword\"\n"
         parent_list = {}        
         line_list = []
-        
+        # if we are looking for the root
         if root=="root":
             new_line = "\"" + root + "\",\"" + root + "\",\"\",,\n"
             line_list.append(new_line)
             parent_list[root] = 1
-
-            new_line = "\"1.NA.NA.NA.NA.NA.NA.1\",\"1.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            # include all three root categories, the mind
+            new_line = "\"1.NA.NA.NA.NA.NA.NA.1\"\
+                ,\"1.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
             line_list.append(new_line)
             parent_list["1.NA.NA.NA.NA.NA.NA.1"] = 1
-
-            new_line = "\"2.NA.NA.NA.NA.NA.NA.1\",\"2.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            # the earth
+            new_line = "\"2.NA.NA.NA.NA.NA.NA.1\"\
+                ,\"2.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
             line_list.append(new_line)
             parent_list["2.NA.NA.NA.NA.NA.NA.1"] = 1
-
-            new_line = "\"3.NA.NA.NA.NA.NA.NA.1\",\"3.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            # society
+            new_line = "\"3.NA.NA.NA.NA.NA.NA.1\"\
+                ,\"3.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
             line_list.append(new_line)
             parent_list["3.NA.NA.NA.NA.NA.NA.1"] = 1
-
+            # get tier index list
             aHeading = self.db.execQuery("""
             select tierindex, tiering from heading 
-            where tierindex like %s
+            where tierindex like %s 
+            and id in (select distinct headingid from topic)
             group by tierindex, tiering""",('%.NA.NA.NA.NA.NA.NA',))
         else:
+            # we are not root node
             tier = root.split(".")
             tier_index = ".".join(t for t in tier[:7])
             sub_tier = ".".join(t for t in tier[7:])
+            # get immediate parent of this node
             parent_root, parent_sub = self.getParentTier(root)
             if parent_root == "":
                 parent_tier = "root"
             else:
                 parent_tier = parent_root + "." + parent_sub
-
-            new_line = "\"" + parent_tier + "\",\"" + parent_tier + "\",\"\",,\n"        
+            # append to csv the parent
+            new_line = "\"" + parent_tier 
+                + "\",\"" + parent_tier 
+                + "\",\"\",,\n"        
             line_list.append(new_line)
             parent_list[parent_tier] = 1
-
-            new_line = "\"" + root + "\",\"" + root + "\",\"" + parent_tier + "\",,\n"
+            # now append to csv the node
+            new_line = "\"" + root 
+                + "\",\"" + root 
+                + "\",\"" + parent_tier 
+                + "\",,\n"
             line_list.append(new_line)
             parent_list[root] = 1
             
@@ -371,24 +329,29 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
                 if sub_tier.count(".") > 1:
                     sub_tier = sub_tier.rsplit(".", 1)[0]
                 sub_tier += "%"
+                # get nodes around this sub node
                 aHeading = self.db.execQuery("""
                 select tierindex
                 , tiering
                 from heading
-                where tierindex=%s and tiering like %s
+                where tierindex=%s and tiering like %s 
+                and id in (select distinct headingid from topic)
                 group by tierindex, tiering
                 """,(tier_index,sub_tier))
             else:
+                # go up one node
                 query_tier = ""
                 na_found = False
                 for idx, t in enumerate(tier[:7]):
                     if idx > 0:
                         query_tier += "."
-                    if (not na_found and t == "NA") or (idx == 6 and not na_found):
+                    if (not na_found and t == "NA") 
+                            or (idx == 6 and not na_found):
                         query_tier += "%"
                         na_found = True
                         continue
                     query_tier += t
+                # and search for anything around that node
                 aHeading = self.db.execQuery("""
                 select tierindex
                 , tiering
@@ -396,32 +359,41 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
                 where (tierindex=%s) 
                 or (tierindex like %s 
                 and tierindex != %s 
-                and tiering not like %s)
+                and tiering not like %s) 
+                and id in (select distinct headingid from topic)
                 group by tierindex, tiering
                 """,(tier_index, query_tier, tier_index, "sub%"))
 
+        # for all the headings found
         for result in aHeading:
             tier_index = result[0] + "." + result[1]
+            # make sure their parents exist in our CSV
             while tier_index not in parent_list:
                 parent_tier, parent_sub = self.getParentTier(tier_index)
                 parent_index = parent_tier + "." + parent_sub
-                new_line = "\"" + tier_index + "\",\"" + tier_index + "\",\"" + parent_index + "\",,\n"
+                new_line = "\"" + tier_index 
+                    + "\",\"" + tier_index 
+                    + "\",\"" + parent_index 
+                    + "\",,\n"
                 line_list.append(new_line)
                 parent_list[tier_index] = 1
                 tier_index = parent_index
         
-        csv += self.sortHierarchy(line_list)
-        csv += self.getHeadingCSVList(parent_list)
+        csv += self.sortHierarchy(line_list) # sort references in our csv
+        csv += self.getHeadingCSVList(parent_list) # now append all children
 
         return csv
 
+
+
     def getHeadingCSVList(self, parent_list):
+        """ Convert array of headings into a CSV """
         csv = ""
         for key in parent_list:
             tier = key.split(".")
             tier_index = ".".join(t for t in tier[:7])
             root_tier = ".".join(t for t in tier[7:])
-
+            # get all nodes for this heading
             aHeading = self.db.execQuery("""
             select id
             , heading
@@ -430,13 +402,18 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
             from heading
             where tierindex=%s and tiering=%s
             """, (tier_index,root_tier))
-
+            # append all nodes to csv
             for result in aHeading:
-                csv += "\"" + str(result[0]) + "\",\"" + result[1] + "\",\"" + result[3] + "\",\"10\",\"1\"\n"
-        
+                csv += "\"" + str(result[0]) 
+                    + "\",\"" + result[1] 
+                    + "\",\"" + result[3] 
+                    + "\",\"10\",\"1\"\n"
         return csv
 
+
+
     def getParentTier(self, root):
+        """ Get parent tier of tier index """
         root_tier = root.split(".")
 
         if len(root_tier) == 10: # sub.n.n turns to sub.n
@@ -449,22 +426,23 @@ limit %s """, (strID, CONST.OHT_TOPDIST))
             tier = ""
             start_na = False
             last_idx = 6
+            # generate new tier index
             for idx, t in enumerate(root_tier[:7]):
                 if idx > 0:
                     tier += "."
-                
+                # look for where NA's start
                 if idx < len(root_tier)-1 and not start_na:
                     if root_tier[idx+1] == "NA":
                         if idx == 0: # we are root node
                             return "", ""
                         start_na = True
                         last_idx = idx
-                
+                # fill rest of tier index with NA if needed
                 if start_na or idx == len(root_tier)-1:
                     tier += "NA"
                 else:
+                    # otherwise insert node
                     tier += t
 
             sub_tier = str(last_idx)
-        
         return tier, sub_tier
