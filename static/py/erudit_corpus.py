@@ -39,7 +39,7 @@ def matchTopicList(topic_list, n=100):
     ))
 
 
-def match(sproc, dochash_id, n=100):
+def match(dochash_id, n=100):
     """ Find closest matching docs using ranked weighted penalty distance """
     return db.execProc("sp_searchdoc", (
         CONST.DS_MAXTOPIC

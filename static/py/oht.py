@@ -304,26 +304,43 @@ class Wrapper(object):
             tier = root.split(".")
             tier_index = ".".join(t for t in tier[:7])
             sub_tier = ".".join(t for t in tier[7:])
-            # get immediate parent of this node
-            parent_root, parent_sub = self.getParentTier(root)
-            if parent_root == "":
-                parent_tier = "root"
-            else:
-                parent_tier = parent_root + "." + parent_sub
-            # append to csv the parent
-            new_line = "\"" + parent_tier 
-                + "\",\"" + parent_tier 
-                + "\",\"\",,\n"        
-            line_list.append(new_line)
-            parent_list[parent_tier] = 1
-            # now append to csv the node
-            new_line = "\"" + root 
-                + "\",\"" + root 
-                + "\",\"" + parent_tier 
-                + "\",,\n"
-            line_list.append(new_line)
-            parent_list[root] = 1
             
+            # set "root" as top of hierarchy
+            new_line = "\"root\",\"root\",\"\",,\n"
+            line_list.append(new_line)
+            parent_list["root"] = False          
+            
+            # then get parents of parents till we reach root            
+            curr_node = root
+            at_root = False
+            at_first = True
+            while not at_root:
+                # get immediate parent of this node
+                temp_root, temp_sub = self.getParentTier(curr_node)
+                if temp_root == "":
+                    temp_tier = "root"
+                    at_root = True
+                else:
+                    temp_tier = temp_root + "." + temp_sub
+
+                # now append node to csv
+                new_line = "\"" + curr_node \
+                    + "\",\"" + curr_node \
+                    + "\",\"" + temp_tier \
+                    + "\",,\n"
+                line_list.append(new_line)
+                parent_list[curr_node] = at_first
+                
+                if at_first:
+                    # save most immediate parent for later
+                    parent_root = temp_root
+                    parent_sub = temp_sub
+                    parent_tier = temp_tier
+                    at_first = False
+                
+                curr_node = temp_tier
+            
+            # now get sibling nodes of selected tier
             if "sub" in sub_tier:
                 # ensure we are of type sub.n
                 if sub_tier.count(".") > 1:
@@ -345,7 +362,7 @@ class Wrapper(object):
                 for idx, t in enumerate(tier[:7]):
                     if idx > 0:
                         query_tier += "."
-                    if (not na_found and t == "NA") 
+                    if (not na_found and t == "NA") \
                             or (idx == 6 and not na_found):
                         query_tier += "%"
                         na_found = True
@@ -371,12 +388,12 @@ class Wrapper(object):
             while tier_index not in parent_list:
                 parent_tier, parent_sub = self.getParentTier(tier_index)
                 parent_index = parent_tier + "." + parent_sub
-                new_line = "\"" + tier_index 
-                    + "\",\"" + tier_index 
-                    + "\",\"" + parent_index 
+                new_line = "\"" + tier_index \
+                    + "\",\"" + tier_index \
+                    + "\",\"" + parent_index \
                     + "\",,\n"
                 line_list.append(new_line)
-                parent_list[tier_index] = 1
+                parent_list[tier_index] = True
                 tier_index = parent_index
         
         csv += self.sortHierarchy(line_list) # sort references in our csv
@@ -390,6 +407,8 @@ class Wrapper(object):
         """ Convert array of headings into a CSV """
         csv = ""
         for key in parent_list:
+            if not parent_list[key]:
+                continue
             tier = key.split(".")
             tier_index = ".".join(t for t in tier[:7])
             root_tier = ".".join(t for t in tier[7:])
@@ -404,9 +423,9 @@ class Wrapper(object):
             """, (tier_index,root_tier))
             # append all nodes to csv
             for result in aHeading:
-                csv += "\"" + str(result[0]) 
-                    + "\",\"" + result[1] 
-                    + "\",\"" + result[3] 
+                csv += "\"" + str(result[0]) \
+                    + "\",\"" + result[1] \
+                    + "\",\"" + result[3] \
                     + "\",\"10\",\"1\"\n"
         return csv
 
