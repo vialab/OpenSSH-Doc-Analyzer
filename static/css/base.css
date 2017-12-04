@@ -160,11 +160,15 @@ ul.doc-term li {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: white;
-    background-color: rgba(0, 100, 150, 0.5);
+    color: rgba(255,255,255,0.5);
     padding: 5px;
     pointer-events: none;
     text-transform: uppercase;
+}
+
+.term-container:hover .term-heading {
+    background-color: rgba(0, 100, 150, 0.5);
+    color: white;
 }
 
 a.search-term {

@@ -212,4 +212,10 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
     // draw mini-vis to this element
     createNewVis(svg_path, "mini-" + tier_id
         , "/oht/", tier_index, vis_size, vis_size, weight, false, false, false, heading_id);
+    
+    // re-instantiate sortable (drag and drop) dom elements
+    $("#search-term-box").sortable("destroy");
+    $("#search-term-box").sortable({
+        items: ".term-container"
+    });
 }

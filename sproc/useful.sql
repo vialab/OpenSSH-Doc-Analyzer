@@ -156,3 +156,9 @@ left join pos p on p.pos=t.pos
 set t.oht=p.oht
 where t.pos not like '% %';
 commit;
+
+
+alter table userdoctopic add column rank int;
+
+select * from doctopic;
+select * from 

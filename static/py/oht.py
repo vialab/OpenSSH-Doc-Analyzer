@@ -277,27 +277,26 @@ class Wrapper(object):
         if root=="root":
             new_line = "\"" + root + "\",\"" + root + "\",\"\",,\n"
             line_list.append(new_line)
-            parent_list[root] = 1
+            parent_list[root] = False
             # include all three root categories, the mind
             new_line = "\"1.NA.NA.NA.NA.NA.NA.1\"\
                 ,\"1.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
             line_list.append(new_line)
-            parent_list["1.NA.NA.NA.NA.NA.NA.1"] = 1
+            parent_list["1.NA.NA.NA.NA.NA.NA.1"] = True
             # the earth
             new_line = "\"2.NA.NA.NA.NA.NA.NA.1\"\
                 ,\"2.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
             line_list.append(new_line)
-            parent_list["2.NA.NA.NA.NA.NA.NA.1"] = 1
+            parent_list["2.NA.NA.NA.NA.NA.NA.1"] = True
             # society
             new_line = "\"3.NA.NA.NA.NA.NA.NA.1\"\
                 ,\"3.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
             line_list.append(new_line)
-            parent_list["3.NA.NA.NA.NA.NA.NA.1"] = 1
+            parent_list["3.NA.NA.NA.NA.NA.NA.1"] = True
             # get tier index list
             aHeading = self.db.execQuery("""
             select tierindex, tiering from heading 
             where tierindex like %s 
-            and id in (select distinct headingid from topic)
             group by tierindex, tiering""",('%.NA.NA.NA.NA.NA.NA',))
         else:
             # we are not root node
@@ -352,7 +351,6 @@ class Wrapper(object):
                 , tiering
                 from heading
                 where tierindex=%s and tiering like %s 
-                and id in (select distinct headingid from topic)
                 group by tierindex, tiering
                 """,(tier_index,sub_tier))
             else:
@@ -377,7 +375,6 @@ class Wrapper(object):
                 or (tierindex like %s 
                 and tierindex != %s 
                 and tiering not like %s) 
-                and id in (select distinct headingid from topic)
                 group by tierindex, tiering
                 """,(tier_index, query_tier, tier_index, "sub%"))
 

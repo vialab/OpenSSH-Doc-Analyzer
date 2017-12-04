@@ -3,8 +3,8 @@ import sys
 sys.path.append("./static/py")
 import os
 import db
-import json
 import codecs
+import simplejson as json
 import cPickle as pickle
 import numpy as np
 import erudit_parser as erudit
@@ -16,6 +16,7 @@ import oht
 import re
 import nltk
 import time
+from sklearn.feature_extraction.text import CountVectorizer
 from lz4.frame import compress, decompress
 from flask import *
 from lxml import etree
@@ -34,7 +35,7 @@ results = db.execQuery("select lower(word) word, treetag from stopword where dat
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
-# tm = tm.TopicModel(stop_words=aStopWord)
+tm = tm.TopicModel(stop_words=aStopWord)
 # tm.loadModel()
 # tm.tfidf_vect.fit(tm.tf)
 # with open("./model/pkl/tm.pkl", "w+") as f:
@@ -46,6 +47,7 @@ strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
+    countKeywords()
     # tm.tfidf_vect.fit(tm.tf)
     # tm.saveModel()
     # saveStopWords()
@@ -129,6 +131,17 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
                     n += 1
     return redirect(url_for("index"))
 
+
+
+@app.route("/search", methods=["POST"])
+def search():
+    content = request.get_json()
+    aRankList = corpus.matchTopicList(content["data"], 10)
+    search = getSearchMetaInfo(aRankList)
+    return json.dumps(search)
+
+
+
 @app.route("/explore")
 @app.route("/explore/<heading_string>")
 def explore( heading_string=None ):
@@ -169,6 +182,8 @@ def explore( heading_string=None ):
         , search_result=search
     )
 
+
+
 @app.route("/analyzer")
 def analyzer():
     total_start = time.time()
@@ -179,6 +194,8 @@ def analyzer():
         , search_result=search
         , search_term=session["searchterm"]
         , key_term=session["keyterm"])
+
+
 
 @app.route("/oht")
 @app.route("/oht/<tier_index>")
@@ -191,6 +208,8 @@ def oht_csv(tier_index=None):
 
     csv = oht.getTierIndexChildren(tier_index)
     return Response(csv, mimetype="text/csv")
+
+
 
 def saveTFDF():
     tfdf = {}
@@ -212,7 +231,7 @@ def saveStopWords():
         pickle.dump(aStopWord, f)
 
 def inferTopicNames():
-    results = db.execQuery("select id from topic")
+    results = db.execQuery("select id from topic where headingid is null")
     for result in results:
         aHeading = oht.getTopicHeadingRankList(result[0])
         aTop = { "value":0, "id":None, "col":[] }
@@ -228,7 +247,6 @@ def inferTopicNames():
 
 
 def getSearchResults( strDocHashID=None ):
-    results = []
     if strDocHashID is None:
         if session["explore_list"]:
             str_topic = ",".join([str(topic) for topic in session["explore_list"]])
@@ -251,6 +269,10 @@ def getSearchResults( strDocHashID=None ):
         end = time.time()
         print("Found 10 results in %s seconds" % (end-start))
     
+    return getSearchMetaInfo(aRankList)
+
+def getSearchMetaInfo(aRankList):
+    results = []
     start = time.time()        
     for aDoc in aRankList:
         result = corpus.getDocumentInfo(aDoc[0])
@@ -306,7 +328,8 @@ def getSearchResults( strDocHashID=None ):
             doc["topiclist"].append(temp)
         
         doc["entitylist"] = []
-        aEntity = db.execQuery("select entity, txt from entity where documentid=%s and (entitytype='nomorg' or entitytype='nompers')", (doc["id"],))
+        aEntity = db.execQuery("""select entity, txt from entity where documentid=%s 
+            and (entitytype='nomorg' or entitytype='nompers')""", (doc["id"],))
 
         for entity in aEntity:
             temp = {}
@@ -431,6 +454,50 @@ def prePreProcessTextToDisk():
             for key in aData:
                 db.execUpdate("update document set cleanpath=%s where id=%s", (strCleanPath, key))
             aData = {}
+
+
+def countKeywords():
+    count_vect = CountVectorizer(max_df=CONST.TM_MAXDF, min_df=CONST.TM_MINDF
+                                , max_features=CONST.TM_FEATURES, stop_words=aStopWord, token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")")
+
+    dirPath = "./model/corps/"
+    for filename in os.listdir(dirPath):
+        if filename.endswith(".txt"): 
+            result = dirPath + filename
+
+            with codecs.open(result, encoding="utf-8") as json_file:
+                aData = json.load(json_file)
+
+            for key in aData:
+                try:
+                    tf = count_vect.fit_transform([aData[key]])
+                except:
+                    print key
+                    continue
+                keyword_list = []
+                
+                for word in count_vect.get_feature_names():
+                    keyword = db.execQuery("""
+                    select id from keyword where word=%s
+                    """, (word,))
+                    
+                    if len(keyword) == 0:
+                        db.execUpdate("""
+                        insert into keyword(word) values(%s);
+                        """, (word,))
+                        keyword = db.execQuery("""
+                        select id from keyword where word=%s
+                        """, (word,))
+                    keyword_list.append(keyword[0][0])
+
+                num_words = sum([freq for freq in tf.data])
+                for keyword_id, freq in zip(keyword_list, tf.data):
+                    dist = freq/float(num_words)
+                    db.execUpdate("""
+                    insert into dockeyword(documentid, keywordid, freq, dist)
+                    values(%s, %s, %s, %s)
+                    """, (key, keyword_id, freq, dist))
+
 
 
 if __name__ == "__main__":

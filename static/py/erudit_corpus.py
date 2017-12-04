@@ -11,9 +11,10 @@ def matchTopicList(topic_list, n=100):
     cursor = db.beginSession()
     result = db.execSessionQuery(cursor, """
     insert into search(querytype) values('topic');
+    """)
+    result = db.execSessionQuery(cursor, """
     select last_insert_id();
     """)
-
     search_id = result[0][0]
 
     for topic in topic_list:
@@ -32,19 +33,20 @@ def matchTopicList(topic_list, n=100):
         """, (search_id, weight, order, heading_id))
     
     return db.execProc("sp_searchtopic", (
-        CONST.DS_MAXTOPIC
+        search_id
+        , len(topic_list)
         , CONST.DS_PENALTY
-        , search_id
         , n
     ))
+
 
 
 def match(dochash_id, n=100):
     """ Find closest matching docs using ranked weighted penalty distance """
     return db.execProc("sp_searchdoc", (
-        CONST.DS_MAXTOPIC
+        dochash_id        
+        , CONST.DS_MAXTOPIC
         , CONST.DS_PENALTY
-        , dochash_id
         , n
     ))
     

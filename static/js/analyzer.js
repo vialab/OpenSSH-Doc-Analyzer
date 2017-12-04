@@ -52,11 +52,7 @@ $("#search-dialog").on("click", function() {
 $("#add-term").on("click", function() {
     // draw the search term to dom
     drawSearchTerm("1.NA.NA.NA.NA.NA.NA.1", 181456, "The world", 0);
-    // re-instantiate sortable (drag and drop) dom elements
-    $("#search-term-box").sortable("destroy");
-    $("#search-term-box").sortable({
-        items: ".term-container"
-    });
+    
     // open up search dialog to new term
     var idx = $(".term-container").length-1;
     if(idx < 0) idx = 0;
@@ -193,6 +189,58 @@ function search() {
             "order": i+1
         });
     });
+
+    $.ajax({
+        url: "search"
+        , contentType: "application/json"
+        , data: JSON.stringify({ "data":heading_list })
+        , dataType: "json"
+        , type: "POST"
+        , success: function(data) {
+            showSearchResults(data);
+        }
+    });
+}
+
+// format and display search results
+function showSearchResults( data ) {
+    $("#search-result-container .doc").remove();
+    for(i in data) {
+        var $format = $("<div class='doc'> \
+            <h3>ARTICLE</h3>\
+            <div class='doc-title'></div>\
+            <div class='doc-author'></div>\
+            <div class='doc-cite'></div>\
+            <h3>TOPICS</h3>\
+            <ul class='doc-term' id='doc-topic'></ul>\
+            <h3>PEOPLE</h3>\
+            <ul class='doc-term' id='doc-people'></ul>\
+            <h3>ORGANIZATIONS</h3>\
+            <ul class='doc-term' id='doc-org'></ul>\
+        </div>");
+
+        var doc = data[i];
+        $format.attr("id", doc.id);
+        $("#search-result-container").append($format);
+        var $container = $(".doc#" + doc.id);
+        $(".doc-title", $container).html( doc.title );
+        $(".doc-author", $container).html( doc.author );
+        $(".doc-cite", $container).html( doc.citation );
+        
+        // insert topics
+        for(y in doc.topiclist) {
+            var topic = doc.topiclist[y];
+            if(topic.dist < 0.1) continue;
+            var dist = topic.dist * 100;
+            var $docterm = $("<li><a id='" + topic.id 
+                + "' onclick='drawSearchTerm(\"" + topic.tier_index 
+                + "\", \"" + topic.heading_id + "\",\"" + topic.heading 
+                + "\");' class='search-term'>" + topic.thematicheading 
+                + " | " + topic.heading + " ( " + dist.toFixed(2) 
+                + " % )</a></li>");
+            $("#doc-topic", $container).append($docterm);
+        }
+    }
 }
 
 // set weight slider bar to a specific value
