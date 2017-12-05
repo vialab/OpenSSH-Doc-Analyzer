@@ -41,6 +41,19 @@ def matchTopicList(topic_list, n=100):
 
 
 
+def matchKeyword(keyword_list):
+    keywords = "|".join(keyword_list)
+    return db.execQuery("""
+        select d.documentid
+        , sum(d.freq) score 
+        from dockeyword d
+        left join keyword k on k.id=d.keywordid
+        where k.word REGEXP %s
+        group by d.documentid
+        """, (keywords,))
+
+
+
 def match(dochash_id, n=100):
     """ Find closest matching docs using ranked weighted penalty distance """
     return db.execProc("sp_searchdoc", (
