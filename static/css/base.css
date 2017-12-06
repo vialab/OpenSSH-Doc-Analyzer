@@ -10,7 +10,8 @@ body div.navbar {
 
 #search-result-container, #add-term, #search-box
 , #search-box table, #search-dialog, #search-dialog-title
-, #search-dialog svg, #search-dialog .slider, .term-container { 
+, #search-dialog svg, #search-dialog .slider, .term-container
+, #search-keyword-dialog { 
     -webkit-transition: all 0.2s ease;
     transition: all 0.2s ease;
 }
@@ -76,6 +77,16 @@ ul.doc-term li {
     z-index: 2;
     background-color: white;
     border-top: 1px solid lightgray;
+}
+
+#search-keyword-box {
+    position: absolute;
+    top: -50px;
+}
+
+#search-keyword-box #search-keyword {
+    height: 50px;
+    min-width: 250px;
 }
 
 #search-term-box {
@@ -263,7 +274,7 @@ text {
     stroke-width: 1.2px;
 }
 
-#search-dialog {
+#search-dialog, #search-keyword-dialog {
     position: fixed;
     top: 0;
     left: 0;

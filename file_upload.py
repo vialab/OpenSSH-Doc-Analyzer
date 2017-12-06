@@ -47,7 +47,7 @@ strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
-    countKeywords()
+    # countKeywords()
     # tm.tfidf_vect.fit(tm.tf)
     # tm.saveModel()
     # saveStopWords()

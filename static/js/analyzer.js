@@ -1,4 +1,4 @@
-var searching = true, peeking = false; // toggle modes
+var searching = true, peeking = false, keyword_searching = true; // toggle modes
 var target = ""; // retain which element we are editting
 var target_parent = ""; // element parent
 var target_index = ""; // element tier index
@@ -62,20 +62,40 @@ $("#add-term").on("click", function() {
 // if we resize the screen, close the search dialog and adjust elements
 $(window).on("resize", function() {
     searching = true;
+    keyword_searching = true;
     toggleSearchDialog();
+    toggleKeywordDialog();
+});
+
+$("#search-keyword").on("input", function() {
+    if(!keyword_searching) {
+        if($(this).val() != "") {
+            toggleKeywordDialog();            
+        }
+    } else {
+        if($(this).val() == "") {
+            toggleKeywordDialog();
+        }
+    }
 });
 
 $(document).keyup(function(e) {
     // doesn't matter if search dialog closed
-    if(!searching) {        
+    if(!searching && !keyword_searching) {        
         return;
     }
     if (e.keyCode === 27) { // ESC key
-        toggleSearchDialog();
+        if(searching) {
+            toggleSearchDialog();            
+        }
+        if(keyword_searching) {
+            toggleKeywordDialog();
+        }
     }
 });
 
 $(document).ready(function() {
+    toggleKeywordDialog();
     toggleSearchDialog();
     // instantiate drag and drop elems
     $("#search-term-box").sortable({
@@ -89,6 +109,20 @@ function deleteTerm(self) {
     $(self).parent().remove();
     if(searching) {
         toggleSearchDialog();
+    }
+}
+
+// open or close keyword search dialog
+function toggleKeywordDialog() {
+    if(keyword_searching) {
+        $("#search-keyword-dialog").css("left", -$(window).width()-75);
+        keyword_searching = false;
+    } else {
+        if(searching) {
+            toggleSearchDialog();
+        }
+        $("#search-keyword-dialog").css("left", 0);
+        keyword_searching = true;
     }
 }
 
@@ -110,6 +144,9 @@ function toggleSearchDialog() {
         peeking = false;
         $(".term-container").removeClass("selected");    
     } else {
+        if(keyword_searching) {
+            toggleKeywordDialog();
+        }
         // need to open
         $("#search-dialog").css("left", 0);
         $("#search-result-container").css({
@@ -226,7 +263,7 @@ function showSearchResults( data ) {
         $(".doc-title", $container).html( doc.title );
         $(".doc-author", $container).html( doc.author );
         $(".doc-cite", $container).html( doc.citation );
-        
+
         // insert topics
         for(y in doc.topiclist) {
             var topic = doc.topiclist[y];
