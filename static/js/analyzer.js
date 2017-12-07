@@ -2,6 +2,7 @@ var searching = true, peeking = false, keyword_searching = true; // toggle modes
 var target = ""; // retain which element we are editting
 var target_parent = ""; // element parent
 var target_index = ""; // element tier index
+var typed_interval; // interval that listens for last keypress
 
 // whenever a vis is clicked, open up our search dialog
 $(document).on("click", ".term-vis svg", function() {
@@ -68,15 +69,29 @@ $(window).on("resize", function() {
 });
 
 $("#search-keyword").on("input", function() {
+    var keyword = $(this).val();
     if(!keyword_searching) {
-        if($(this).val() != "") {
-            toggleKeywordDialog();            
+        if(keyword != "") {
+            toggleKeywordDialog();
+        } else {
+            return;
         }
     } else {
-        if($(this).val() == "") {
+        if(keyword == "") {
             toggleKeywordDialog();
+            return;
         }
     }
+    setKeyword(keyword);    
+    // wait one second until after the person is done typing
+    // before running the request
+    if(typed_interval) {
+        clearInterval(typed_interval);
+    }
+    typed_interval = setTimeout(function() {
+        $("#search-keyword-container .keyword-container").remove();
+        getKeywordList(keyword);
+    }, 1000);
 });
 
 $(document).keyup(function(e) {
@@ -103,6 +118,45 @@ $(document).ready(function() {
     });
     $("#weight-slider").slider();
 });
+
+// fetch keyword list from server and display results
+function getKeywordList(keyword) {
+    console.log(keyword);
+    $.ajax({
+        url: "searchkeyword"
+        , contentType: "application/json"
+        , data: JSON.stringify({ "data":keyword })
+        , dataType: "json"
+        , type: "POST"
+        , success: function(data) {
+            showKeywordResults(data);
+        }
+    });
+}
+
+// display a set of keywords in keyword dialog
+function showKeywordResults(data) {
+    for(i in data) {
+        var clean_tier_index = data[i][4].replace(/\./g, "-");
+        // create the container and add to dom
+        var $box = $("<div class='keyword-container' id='keyword-" 
+                + clean_tier_index + "'>\
+            <div class='keyword-heading'>" + data[i][1] + "</div>\
+            <div class='keyword-vis' id='keyword-vis-" 
+                + clean_tier_index + "'></div>\
+        </div>");
+        $(".custom-keyword-container").after($box);
+        // draw the mini-vis to the dom element
+        createNewVis("#search-keyword-container"
+        , "keyword-vis-"+clean_tier_index, "/oht/", data[i][4]
+        , 100, 100, 1, false, false, false, data[i][0]);
+    }
+}
+
+// set custom keyword option in keyword dialog
+function setKeyword(keyword) {
+    $(".custom-keyword-container .keyword-heading").html(keyword);
+}
 
 // delete a search term from dom
 function deleteTerm(self) {

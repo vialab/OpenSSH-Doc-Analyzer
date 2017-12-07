@@ -128,6 +128,22 @@ class Wrapper(object):
 
 
 
+    def matchKeyword(self, keyword):
+        """ Returns a list of headings that have a matching keyword """
+        return self.db.execQuery("""
+        select distinct h.id
+            , h.heading
+            , h.fr_heading
+            , th.fr_thematicheading
+            , concat(h.tierindex, case when h.tiering is not null then concat('.', h.tiering) else '' end)
+        from word w
+        left join heading h on h.id=w.headingid
+        left join thematicheading th on th.id=h.thematicheadingid
+        where w.word like %s
+        limit 10
+        """, ("%" + keyword + "%",))
+
+
     def getWordList(self, strWord, pos=None, lang="en"):
         """ Returns a list of word objects that matches """
         if lang not in self.ALLOWED_LANG:

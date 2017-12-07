@@ -142,6 +142,14 @@ def search():
 
 
 
+@app.route("/searchkeyword", methods=["POST"])
+def searchkeyword():
+    content = request.get_json()
+    search = oht.matchKeyword(content["data"])
+    return json.dumps(search)
+
+
+
 @app.route("/explore")
 @app.route("/explore/<heading_string>")
 def explore( heading_string=None ):
