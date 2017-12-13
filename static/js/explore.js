@@ -20,6 +20,10 @@ var stratify = d3.stratify()
     .id(function(d) { return d.name; })
     .parentId(function(d) { return d.parent; });
 
+// queue of visualizations to request
+var hook_busy = false;
+var vis_queue = [];
+
 // draw outline on hovered circled and its ancestors
 function hovered(hover) {
     return function(d) {
@@ -57,7 +61,6 @@ function createNewVis(svg_path, svg_id, path, id, width, height, weight
                     , cb_keyword) {
     svg_id = svg_id.replace(/\./g, "-");
     var svg = null;
-    
     if($(svg_path + " #"+svg_id).length > 0) {
         // if path exists, select the svg that is there
         svg = d3.select(svg_path + " #"+svg_id);
@@ -76,9 +79,25 @@ function createNewVis(svg_path, svg_id, path, id, width, height, weight
     
     var pack = d3.pack().size([width-5, height-5]).padding(padding);
     
-    // draw the circle pack
-    update(svg, pack, path, id, change_focus, add_label, add_event
+    if(hook_busy) {
+        // queue this request and wait for others to finish first
+        var temp = {
+            "svg":svg
+            , "pack":pack
+            , "path":path
+            , "id":id
+            , "change_focus":change_focus
+            , "add_label":add_label
+            , "add_event":add_event
+            , "heading_id":heading_id
+            , "cb_keyword":cb_keyword
+        }
+        vis_queue.push(temp);
+    } else {
+        // draw the circle pack
+        update(svg, pack, path, id, change_focus, add_label, add_event
             , heading_id, cb_keyword);
+    }
 }
 
 // update a vis with new tier index
@@ -86,7 +105,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                 , add_event=true, heading_id, cb_keyword) {
 
     var url_path = path + id;
-    
+    hook_busy = true;
     // get the new tier nodes from the server
     d3.csv(url_path, function(error, data) {
         if (error) throw error;
@@ -118,7 +137,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                     + (!d.children ? " node--leaf" 
                         : d.depth ? "" : " node--root"); })
             .each(function(d) { d.name = this; });
-        
+            
         // add click events if required
         if(add_event) {
             node.on("mouseover", hovered(true))
@@ -175,7 +194,19 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         if(change_focus) {
             focus_id = id;            
         }
+
+        processNextUpdateRequest();
     });
+}
+
+function processNextUpdateRequest() {
+    if(vis_queue.length > 0) {
+        var temp = vis_queue.pop();
+        update(temp.svg, temp.pack, temp.path, temp.id, temp.change_focus
+            , temp.add_label, temp.add_event, temp.heading_id, temp.cb_keyword);
+    } else {
+        hook_busy = false;
+    }
 }
 
 // don't show children nodes but save them as meta info
