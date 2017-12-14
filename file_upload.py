@@ -16,6 +16,7 @@ import oht
 import re
 import nltk
 import time
+from pathlib2 import Path
 from sklearn.feature_extraction.text import CountVectorizer
 from lz4.frame import compress, decompress
 from flask import *
@@ -31,7 +32,8 @@ app.config['SESSION_TYPE'] = 'filesystem'
 oht = oht.Wrapper()
 db = db.Database()
 aStopWord = []
-results = db.execQuery("select lower(word) word, treetag from stopword where dataset=%s", ("adam2",))
+results = db.execQuery("select lower(word) word, treetag from stopword where dataset=%s"
+    , ("adam2",))
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
@@ -89,7 +91,9 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
                     session["topicdist"][int(result[2])] = float(result[1])
             else:
                 db.execUpdate("insert into dochash(hashkey) values(%s)", (strHash,))
-                session["dochashid"] = db.execQuery("select id from dochash where hashkey=%s order by created desc limit 1", (strHash,))[0][0]
+                session["dochashid"] = db.execQuery("""
+                    select id from dochash where hashkey=%s 
+                    order by created desc limit 1""", (strHash,))[0][0]
                 strClean = tm.processText(strText.decode("utf8"), is_clean=False)
                 session["topicdist"] = tm.transform(strClean).tolist()
                 for rank,topic_idx in enumerate(np.array(session["topicdist"])[0].argsort()[::-1]):
@@ -111,7 +115,8 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
                 , t.topicname
                 , h.fr_heading
                 , th.fr_thematicheading
-                , concat(h.tierindex, case when h.tiering is not null then concat('.', h.tiering) else '' end)
+                , concat(h.tierindex, case when h.tiering is not null 
+                    then concat('.', h.tiering) else '' end)
                 , t.headingid
                 from topic t 
                 left join heading h on h.id=t.headingid
@@ -136,7 +141,7 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
 @app.route("/search", methods=["POST"])
 def search():
     content = request.get_json()
-    aRankList = corpus.matchTopicList(content["data"], 10)
+    aRankList = corpus.matchTopicList(content["heading_list"], 10)
     search = getSearchMetaInfo(aRankList)
     return json.dumps(search)
 
@@ -225,7 +230,8 @@ def saveTFDF():
         tfdf = pickle.load(f)
     
     for word in tfdf:
-        db.execUpdate("insert into tfdf(word, freq, docfreq) values(%s, %s, %s)", (word, tfdf[word]["tf"], tfdf[word]["df"]))
+        db.execUpdate("insert into tfdf(word, freq, docfreq) values(%s, %s, %s)"
+            , (word, tfdf[word]["tf"], tfdf[word]["df"]))
 
 def saveStopWords():
     aStopWord = []
@@ -251,7 +257,8 @@ def inferTopicNames():
             elif aHeading[key] == aTop["value"]:
                 aTop["col"].append(key)
         strCol = ",".join(str(key) for key in aTop["col"])
-        db.execUpdate("update topic set headingid=%s, infername=%s where id=%s", (aTop["id"], strCol, result[0]))
+        db.execUpdate("update topic set headingid=%s, infername=%s where id=%s"
+            , (aTop["id"], strCol, result[0]))
 
 
 def getSearchResults( strDocHashID=None ):
@@ -315,7 +322,8 @@ def getSearchMetaInfo(aRankList):
         doc["cossim"] = result[12]
         aTopicDist = db.execQuery("""
         select t.topicname, t.id, d.dist, h.fr_heading, th.fr_thematicheading
-            , concat(h.tierindex, case when h.tiering is not null then concat('.', h.tiering) else '' end)
+            , concat(h.tierindex, case when h.tiering is not null 
+                then concat('.', h.tiering) else '' end)
             , t.headingid
         from doctopic d 
         left join topic t on t.id=d.topicid
@@ -352,9 +360,14 @@ def getSearchMetaInfo(aRankList):
 
 
 def transformDocumentToModel(nSampleSize=100):
-    """ Save top 10 topics per document as well as a compressed version of all topic distributions
-    - Run cosin sim on top 10 topics and then run cosin similarity on topic distribution """
-    results = db.execQuery("select distinct cleanpath from document where cleanpath is not null")
+    """ Save top 10 topics per document as well as a compressed version of 
+    all topic distributions - Run cosin sim on top 10 topics and then run 
+    cosin similarity on topic distribution """
+
+    results = db.execQuery("""
+        select distinct cleanpath from document 
+        where cleanpath is not null
+    """)
     
     n = 0
     for result in results:
@@ -383,7 +396,8 @@ def transformDocumentToModel(nSampleSize=100):
                     select %s, id, %s, %s from topic where topicname=%s;"""
                     , (key, topic_dist[0][topic_idx], rank, str(topic_idx)) )
 
-            db.execUpdate("update document set transformdt=CURRENT_TIMESTAMP where id=%s", (key,))
+            db.execUpdate("""update document set 
+                transformdt=CURRENT_TIMESTAMP where id=%s""", (key,))
             n += 1
             if n == nSampleSize:
                 break
@@ -398,7 +412,8 @@ def savePreProcessedList():
         aSavedFile = pickle.load(f)
 
     for aFile in aSavedFile:
-        db.execUpdate("update document set cleanpath=%s where id=%s", (aFile.values()[0],aFile.keys()[0]))
+        db.execUpdate("update document set cleanpath=%s where id=%s"
+            , (aFile.values()[0],aFile.keys()[0]))
         
 
 def runTopicModel(nSampleSize=1000):
@@ -437,14 +452,17 @@ def prePreProcessTextToDisk():
         tm.aStopWord = pickle.load(f)
 
     results = db.execQuery("""
-        select max(cast(replace(replace(cleanpath,'./model/corps/', ''), '.txt', '') as UNSIGNED)) lastfile 
+        select max(cast(replace(replace(cleanpath,'./model/corps/', '')
+            , '.txt', '') as UNSIGNED)) lastfile 
         from document""")
     if len(results) > 0:
         nDoc = int(results[0][0])
     else:
         nDoc = 0
 
-    results = db.execQuery("select id, path from document where dataset='erudit' and cleanpath is null")
+    results = db.execQuery("""
+        select id, path from document 
+        where dataset='erudit' and cleanpath is null""")
     aData = {}
 
     for result in results:
@@ -460,13 +478,15 @@ def prePreProcessTextToDisk():
             strCleanPath = "./model/corps/" + str(nDoc) + ".txt"
             cm.saveUTF8ToDisk(strCleanPath, json.dumps(aData))
             for key in aData:
-                db.execUpdate("update document set cleanpath=%s where id=%s", (strCleanPath, key))
+                db.execUpdate("update document set cleanpath=%s where id=%s"
+                , (strCleanPath, key))
             aData = {}
 
 
 def countKeywords():
     count_vect = CountVectorizer(max_df=CONST.TM_MAXDF, min_df=CONST.TM_MINDF
-                                , max_features=CONST.TM_FEATURES, stop_words=aStopWord, token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")")
+                    , max_features=CONST.TM_FEATURES, stop_words=aStopWord
+                    , token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")")
 
     dirPath = "./model/corps/"
     for filename in os.listdir(dirPath):
@@ -505,7 +525,6 @@ def countKeywords():
                     insert into dockeyword(documentid, keywordid, freq, dist)
                     values(%s, %s, %s, %s)
                     """, (key, keyword_id, freq, dist))
-
 
 
 if __name__ == "__main__":

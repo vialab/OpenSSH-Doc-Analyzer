@@ -108,6 +108,11 @@ ul.doc-term li {
     white-space: normal;
 }
 
+.term-container.custom-keyword {
+    width: 100px;
+    height: 100px;
+}
+
 #add-term {
     width: 80px;
     height: 80px;
@@ -188,7 +193,8 @@ ul.doc-term li {
     margin: 10px;
 }
 
-.term-heading, .custom-keyword-container .keyword-heading, .keyword-container .keyword-heading {
+.term-heading, .custom-keyword-container .keyword-heading
+, .keyword-container .keyword-heading, .custom-keyword-heading {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -197,6 +203,10 @@ ul.doc-term li {
     padding: 5px;
     pointer-events: none;
     text-transform: uppercase;
+}
+
+.custom-keyword-heading {
+    color: black;
 }
 
 .keyword-heading {

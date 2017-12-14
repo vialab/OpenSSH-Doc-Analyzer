@@ -159,6 +159,11 @@ function showKeywordResults(data) {
         , data[i][4], 100, 100, 1, false, false, false, data[i][0]);
     }
 
+    $(".custom-keyword-container").on("click", function() {
+        drawKeyword($(".keyword-heading").html());
+        toggleKeywordDialog();
+    });
+
     $(".keyword-container").on("click", function() {
         var heading_text = $(".keyword-heading", this).html();
         var heading_id = $(this).attr("heading-id");
@@ -286,19 +291,30 @@ function saveSelection($container, heading_id, weight, name) {
 // take saved dom elements and get new document results
 function search() {
     var heading_list = [];
+    var keyword_list = [];
     // loop through search terms in dom
     $(".term-container").each(function(i) {
-        heading_list.push( {
-            "heading_id": $(".term-heading-id", $(this)).val(),
-            "weight": $(".term-heading-weight", $(this)).val(),
-            "order": i+1
-        });
+        if($(this).hasClass("custom-keyword")) {
+            keyword_list.push( {
+                "keyword": $(".custom-keyword-heading", $(this)).html(),
+                "weight": $(".custom-keyword-weight", $(this)).val(),
+                "order": i+1
+            });
+        } else {
+            heading_list.push( {
+                "heading_id": $(".term-heading-id", $(this)).val(),
+                "weight": $(".term-heading-weight", $(this)).val(),
+                "order": i+1
+            });
+        }
     });
 
     $.ajax({
         url: "search"
         , contentType: "application/json"
-        , data: JSON.stringify({ "data":heading_list })
+        , data: JSON.stringify({ "heading_list":heading_list
+                , "keyword_list":keyword_list 
+            })
         , dataType: "json"
         , type: "POST"
         , success: function(data) {
