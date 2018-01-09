@@ -376,3 +376,28 @@ text {
     left: 50%;
     transform: translate(-50%, 0);
 }
+
+#keyword-search {
+    width: 100%;
+    height: 50px;
+    text-align: center;
+    margin-bottom: 50px;
+    box-shadow: 0px 2px 1px #eee;
+    background-color: white;
+    border: 1px solid #ddd;
+}
+
+#keyword-search::placeholder {
+    color: #eee;
+}
+
+#keyword-search:focus, #keyword-search:hover {
+    box-shadow: 0px 2px 2px #ddd;
+    outline: none;
+}
+
+#home-container h2 {
+    font-size: 25px;
+    text-transform: uppercase;
+    color: #eee;
+}

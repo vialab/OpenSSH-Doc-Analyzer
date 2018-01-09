@@ -3,18 +3,33 @@
 {% block title %}Doculyze | Upload{% endblock %}
 
 {% block page_content %}
-<div class="container-fluid">
+<div class="container-fluid" id="home-container">
     <div class="row">
         <div class="col-md-12">
-        <section>
-            <div id="dropzone">
-                <form action="/upload" class="dropzone needsclick dz-clickable" id="doc-upload">
-                    <div class="dz-message needsclick">
-                    Drop files here or click to upload.<br>
-                    </div>
-                </form>
+            <h2>Quick Search</h2>
+            <input id="keyword-search" type="text" placeholder="Keyword Search"/>
+        </div>
+        <div class="col-md-12">
+            <div id="search-results">
             </div>
-        </section>
+        </div>
+        <div class="col-md-12">
+            <div id="search-history">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Analyze Document</h2>
+            <section>
+                <div id="dropzone">
+                    <form action="/upload" class="dropzone needsclick dz-clickable" id="doc-upload">
+                        <div class="dz-message needsclick">
+                        Drop files here or click to upload.<br>
+                        </div>
+                    </form>
+                </div>
+            </section>
         </div>
     </div>
 </div>

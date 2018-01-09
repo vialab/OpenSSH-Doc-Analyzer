@@ -199,6 +199,8 @@ def explore( heading_string=None ):
 
 @app.route("/analyzer")
 def analyzer():
+    if "dochashid" not in session:
+        redirect(url_for("index"))
     total_start = time.time()
     search = getSearchResults(session["dochashid"])
     total_end = time.time()
