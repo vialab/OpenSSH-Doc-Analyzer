@@ -142,6 +142,10 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
 def search():
     content = request.get_json()
     aRankList = corpus.matchTopicList(content["heading_list"], 10)
+    if len(content["keyword_list"]) > 0:
+        aKeywordList = corpus.matchKeyword(
+            [k["keyword"] for k in content["keyword_list"]], 10)
+        aRankList += aKeywordList
     search = getSearchMetaInfo(aRankList)
     return json.dumps(search)
 
@@ -199,16 +203,25 @@ def explore( heading_string=None ):
 
 @app.route("/analyzer")
 def analyzer():
-    if "dochashid" not in session:
+    quick_search = request.args.get("quick_search")
+    if "dochashid" not in session and quick_search is None:
         redirect(url_for("index"))
     total_start = time.time()
-    search = getSearchResults(session["dochashid"])
+    
+    search = None
+    search_term = None
+    key_term = None
+    if quick_search is None:
+        search = getSearchResults(session["dochashid"])
+        search_term = session["searchterm"]
+        key_term = session["keyterm"]
+    
     total_end = time.time()
     print("Total Time: %s seconds" % (total_end-total_start))
     return render_template("analyzer.html"
         , search_result=search
-        , search_term=session["searchterm"]
-        , key_term=session["keyterm"])
+        , search_term=search_term
+        , key_term=key_term)
 
 
 

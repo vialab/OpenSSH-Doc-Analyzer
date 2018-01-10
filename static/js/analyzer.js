@@ -68,7 +68,7 @@ $(window).on("resize", function() {
     toggleKeywordDialog();
 });
 
-$("#search-keyword").on("input click", function() {
+$("#search-keyword, #search-keyword-home").on("input click", function() {
     var keyword = $(this).val();
     $(".no-keyword").hide();    
     if(!keyword_searching) {
@@ -91,8 +91,28 @@ $("#search-keyword").on("input click", function() {
         $("#search-keyword-container .keyword-container").remove();
         clearInterval(typed_interval);
     }
+
+    var cb_keyword = function() {
+        var heading_text = $(".keyword-heading", this).html();
+        var heading_id = $(this).attr("heading-id");
+        var tier_index = $(this).attr("tier-index");
+        drawSearchTerm(tier_index, heading_id, heading_text, 0);
+    };
+    
+    if($(this).attr("id") == "search-keyword-home") {
+        cb_keyword = function() {
+            window.location.href = "/analyzer?quick_search=" 
+                + $(".keyword-heading", this).html() + "&heading_id="
+                + $(this).attr("heading-id") + "&tier_index="
+                + $(this).attr("tier-index");
+        };
+        $(".custom-keyword-container").on("click", function() {
+            window.location.href = "/analyzer?quick_search=" + keyword;
+        });
+    }
+
     typed_interval = setTimeout(function() {
-        getKeywordList(keyword);
+        getKeywordList(keyword, cb_keyword);
     }, 1000);
 });
 
@@ -119,10 +139,21 @@ $(document).ready(function() {
         items: ".term-container"
     });
     $("#weight-slider").slider();
+    var quick_search = getParameterByName("quick_search");
+    var heading_id = getParameterByName("heading_id");
+    var tier_index = getParameterByName("tier_index");
+    if(quick_search) {
+        if(heading_id) {
+            drawSearchTerm(tier_index, heading_id, quick_search, 0);
+        } else {
+            drawKeyword(quick_search);
+        }
+        search();        
+    }
 });
 
 // fetch keyword list from server and display results
-function getKeywordList(keyword) {
+function getKeywordList(keyword, cb_keyword) {
     $.ajax({
         url: "searchkeyword"
         , contentType: "application/json"
@@ -130,13 +161,13 @@ function getKeywordList(keyword) {
         , dataType: "json"
         , type: "POST"
         , success: function(data) {
-            showKeywordResults(data);
+            showKeywordResults(data, cb_keyword);
         }
     });
 }
 
 // display a set of keywords in keyword dialog
-function showKeywordResults(data) {
+function showKeywordResults(data, cb_keyword) {
     $(".load-keyword").hide();
     if(data.length == 0) {
         $(".no-keyword").show();    
@@ -164,12 +195,7 @@ function showKeywordResults(data) {
         toggleKeywordDialog();
     });
 
-    $(".keyword-container").on("click", function() {
-        var heading_text = $(".keyword-heading", this).html();
-        var heading_id = $(this).attr("heading-id");
-        var tier_index = $(this).attr("tier-index");
-        drawSearchTerm(tier_index, heading_id, heading_text, 0);
-    });
+    $(".keyword-container").on("click", cb_keyword);
 }
 
 // set custom keyword option in keyword dialog

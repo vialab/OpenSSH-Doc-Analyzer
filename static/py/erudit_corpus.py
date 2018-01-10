@@ -41,7 +41,7 @@ def matchTopicList(topic_list, n=100):
 
 
 
-def matchKeyword(keyword_list):
+def matchKeyword(keyword_list, n=100):
     keywords = "|".join(keyword_list)
     return db.execQuery("""
         select d.documentid
@@ -50,7 +50,8 @@ def matchKeyword(keyword_list):
         left join keyword k on k.id=d.keywordid
         where k.word REGEXP %s
         group by d.documentid
-        """, (keywords,))
+        limit %s
+        """, (keywords,n))
 
 
 
