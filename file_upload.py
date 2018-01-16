@@ -12,6 +12,7 @@ import erudit_corpus as corpus
 import topic_model as tm
 import common as cm
 import constants as CONST
+import pickle_session as ps
 import oht
 import re
 import nltk
@@ -27,6 +28,7 @@ app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = CONST.UPLOAD_FOLDER
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
+app.session_interface = ps.PickleSessionInterface("./app_session")
 
 # Common variables
 oht = oht.Wrapper()
@@ -80,17 +82,18 @@ def upload():
             aHash = db.execQuery("""select d.id, udt.dist, t.topicname from dochash d
 inner join userdoctopic udt on udt.dochashid=d.id
 inner join topic t on t.id=udt.topicid
-where d.created > DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL -1 DAY)
-and d.hashkey=%s order by t.topicname""", (strHash,))
+where d.hashkey=%s order by cast(t.topicname as UNSIGNED) asc""", (strHash,))
 
             if len(aHash) > 0:
                 session["dochashid"] = aHash[0][0]
-                session["topicdist"] = []
-                session["topicdist"].append([0] * len(aHash))
+                topic_dist = []
                 for result in aHash:
-                    session["topicdist"][int(result[2])] = float(result[1])
+                    topic_dist.append(float(result[1]))
+                session["topicdist"] = topic_dist
             else:
-                db.execUpdate("insert into dochash(hashkey) values(%s)", (strHash,))
+                user_ip = request.environ["REMOTE_ADDR"]
+                db.execUpdate("insert into dochash(userip, hashkey) values(%s, %s)"
+                    , (user_ip, strHash))
                 session["dochashid"] = db.execQuery("""
                     select id from dochash where hashkey=%s 
                     order by created desc limit 1""", (strHash,))[0][0]
@@ -100,40 +103,11 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
                     db.execUpdate("""insert into userdoctopic(dochashid, topicid, dist, rank) 
                     select d.id, t.id, %s, %s from dochash d
                     left join topic t on t.topicname=%s 
-                    where d.created > DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL -1 DAY)
-                    and d.hashkey=%s order by d.created desc"""
+                    where d.hashkey=%s order by d.created desc"""
                     , (session["topicdist"][0][topic_idx], (rank+1), topic_idx, strHash))
             
-            session["keyterm"] = []
-            session["searchterm"] = {}
-            
-            n = 0
-            for topic_idx in np.array(session["topicdist"])[0].argsort()[::-1][:CONST.DS_MAXTERM]:
-                # if session["topicdist"][0][topic_idx] > CONST.DS_MINSIG:
-                term = {}
-                topic = db.execQuery("""select t.id
-                , t.topicname
-                , h.fr_heading
-                , th.fr_thematicheading
-                , concat(h.tierindex, case when h.tiering is not null 
-                    then concat('.', h.tiering) else '' end)
-                , t.headingid
-                from topic t 
-                left join heading h on h.id=t.headingid
-                left join thematicheading th on th.id=h.thematicheadingid
-                where t.topicname=%s""", (str(topic_idx),))
-                term["id"] = topic[0][0]
-                term["name"] = topic[0][1]
-                term["dist"] = session["topicdist"][0][topic_idx]
-                term["heading"] = topic[0][2]
-                term["thematicheading"] = topic[0][3]
-                term["tier_index"] = topic[0][4]
-                term["heading_id"] = topic[0][5]
-                session["keyterm"].append(term)
-
-                if n < CONST.DS_MAXTERM and session["topicdist"][0][topic_idx] > 0.1:
-                    session["searchterm"][topic[0][0]] = term
-                    n += 1
+            session["keyterm"] = oht.getTopicHeadingList(session["topicdist"])
+            session["searchterm"] = [term for term in session["keyterm"] if term["dist"] > 0.1]
     return redirect(url_for("index"))
 
 
@@ -141,11 +115,35 @@ and d.hashkey=%s order by t.topicname""", (strHash,))
 @app.route("/search", methods=["POST"])
 def search():
     content = request.get_json()
-    aRankList = corpus.matchTopicList(content["heading_list"], 10)
+    user_ip = request.environ["REMOTE_ADDR"]
+
+    aTopicList = []
+    query_topic = ""
+    if len(content["heading_list"]) > 0:
+        aTopicList = [h["heading_id"] for h in content["heading_list"]]
+        query_topic = "|".join(aTopicList)
+
+    aKeywordList = []
+    query_keyword = ""
     if len(content["keyword_list"]) > 0:
-        aKeywordList = corpus.matchKeyword(
-            [k["keyword"] for k in content["keyword_list"]], 10)
-        aRankList += aKeywordList
+        aKeywordList = [k["keyword"] for k in content["keyword_list"]]
+        query_keyword = "|".join(aKeywordList)
+
+    cursor = db.beginSession()
+    result = db.execSessionQuery(cursor, """
+    insert into search(ipaddr, headinglist, keywordlist)
+    values(%s, %s, %s);
+    """, (user_ip, query_topic, query_keyword))
+
+    result = db.execSessionQuery(cursor, """
+    select last_insert_id();
+    commit;
+    """, close_cursor=True)
+    search_id = result[0][0]
+
+    aRankList = corpus.matchTopicList(search_id, content["heading_list"], 10)
+    aRankList += corpus.matchKeyword(search_id, aKeywordList, 10)
+
     search = getSearchMetaInfo(aRankList)
     return json.dumps(search)
 
@@ -204,8 +202,9 @@ def explore( heading_string=None ):
 @app.route("/analyzer")
 def analyzer():
     quick_search = request.args.get("quick_search")
-    if "dochashid" not in session and quick_search is None:
-        redirect(url_for("index"))
+    if ("dochashid" not in session and quick_search is None) or len(session)==0:
+        return redirect(url_for("index"))
+        
     total_start = time.time()
     
     search = None
@@ -238,6 +237,29 @@ def oht_csv(tier_index=None):
     return Response(csv, mimetype="text/csv")
 
 
+@app.route("/history")
+def history():
+    search_list = db.execQuery("""
+    select keywordlist
+    , headinglist
+    from search
+    where ipaddr=%s
+    order by created desc
+    limit 5
+    """, (user_ip,))
+
+    doc_list = db.execQuery("""
+    select id
+    from dochash d
+    """)
+
+
+def recoverDocument(dochash_id):
+    """ Recover a document that was uploaded by a user """
+    session["dochashid"] = dochash_id
+    session["searchterm"]
+    session["keyterm"]
+    return redirect(url_for("analyzer"))
 
 def saveTFDF():
     tfdf = {}
@@ -292,7 +314,7 @@ def getSearchResults( strDocHashID=None ):
 
             aRankList = db.execQuery(str_query)
         else:
-            redirect(url_for("index"))
+            return redirect(url_for("index"))
     else:
         start = time.time()
         aRankList = corpus.match(strDocHashID, 10)

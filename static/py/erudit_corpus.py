@@ -6,22 +6,15 @@ from lz4.frame import compress, decompress
 
 db = db.Database()
 
-def matchTopicList(topic_list, n=100):
+def matchTopicList(search_id, topic_list, n=100):
     """ Match an array of selected topics to the corpus """
-    cursor = db.beginSession()
-    result = db.execSessionQuery(cursor, """
-    insert into search(querytype) values('topic');
-    """)
-    result = db.execSessionQuery(cursor, """
-    select last_insert_id();
-    """)
-    search_id = result[0][0]
-
+    if len(topic_list) == 0:
+        return []
     for topic in topic_list:
         heading_id = topic["heading_id"]
         weight = topic["weight"]
         order = topic["order"]
-        db.execSessionQuery(cursor, """ 
+        db.execUpdate("""
         insert into topicsearch(searchid, topicid, dist, rank)
         select %s
         , id
@@ -41,7 +34,15 @@ def matchTopicList(topic_list, n=100):
 
 
 
-def matchKeyword(keyword_list, n=100):
+def matchKeyword(search_id, keyword_list, n=100):
+    if len(keyword_list) == 0:
+        return ()
+    for keyword in keyword_list:
+        db.execUpdate("""
+        insert into keywordsearch(searchid, keyword, dist, rank)
+        values(%s, %s, %s, %s)
+        """, (keyword))
+
     keywords = "|".join(keyword_list)
     return db.execQuery("""
         select d.documentid

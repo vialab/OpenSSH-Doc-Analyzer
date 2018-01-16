@@ -86,8 +86,8 @@
 <script src="{{ url_for('static', filename='js/explore.js') }}"></script>
 <script>
     {% if search_term %}
-    {% for key in search_term %}
-    drawSearchTerm("{{search_term[key]['tier_index']|safe}}", "{{ search_term[key]['heading_id'] }}", "{{ search_term[key]['heading']|safe }}", 0);
+    {% for term in search_term %}
+    drawSearchTerm("{{term['tier_index']|safe}}", "{{ term['heading_id'] }}", "{{ term['heading']|safe }}", 0);
     {% endfor %}
     {% endif %}
 </script>

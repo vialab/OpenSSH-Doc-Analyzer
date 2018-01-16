@@ -478,3 +478,29 @@ class Wrapper(object):
 
             sub_tier = str(last_idx)
         return tier, sub_tier
+
+
+    def getTopicHeadingList(self, topic_list):
+        search_term = []
+        for idx, dist in enumerate(topic_list):
+            term = {}
+            topic = self.db.execQuery("""select t.id
+            , t.topicname
+            , h.fr_heading
+            , th.fr_thematicheading
+            , concat(h.tierindex, case when h.tiering is not null 
+                then concat('.', h.tiering) else '' end)
+            , t.headingid
+            from topic t 
+            left join heading h on h.id=t.headingid
+            left join thematicheading th on th.id=h.thematicheadingid
+            where t.topicname=%s order by cast(topicname as UNSIGNED) asc""", (idx,))
+            term["id"] = topic[0][0]
+            term["name"] = topic[0][1]
+            term["dist"] = dist
+            term["heading"] = topic[0][2]
+            term["thematicheading"] = topic[0][3]
+            term["tier_index"] = topic[0][4]
+            term["heading_id"] = topic[0][5]
+            search_term.append(term)
+        return search_term
