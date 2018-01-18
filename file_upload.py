@@ -92,19 +92,21 @@ where d.hashkey=%s order by cast(t.topicname as UNSIGNED) asc""", (strHash,))
                 session["topicdist"] = topic_dist
             else:
                 user_ip = request.environ["REMOTE_ADDR"]
-                db.execUpdate("insert into dochash(userip, hashkey) values(%s, %s)"
-                    , (user_ip, strHash))
+                doc_name = file.filename
+                db.execUpdate("""insert into dochash(ipaddr, hashkey, docname) 
+                values(%s, %s, %s)""", (user_ip, strHash, doc_name))
                 session["dochashid"] = db.execQuery("""
                     select id from dochash where hashkey=%s 
                     order by created desc limit 1""", (strHash,))[0][0]
                 strClean = tm.processText(strText.decode("utf8"), is_clean=False)
-                session["topicdist"] = tm.transform(strClean).tolist()
-                for rank,topic_idx in enumerate(np.array(session["topicdist"])[0].argsort()[::-1]):
+                topic_dist = tm.transform(strClean).tolist()
+                session["topicdist"] = topic_dist
+                for rank,topic_idx in enumerate(np.array(topic_dist)[0].argsort()[::-1]):
                     db.execUpdate("""insert into userdoctopic(dochashid, topicid, dist, rank) 
                     select d.id, t.id, %s, %s from dochash d
                     left join topic t on t.topicname=%s 
                     where d.hashkey=%s order by d.created desc"""
-                    , (session["topicdist"][0][topic_idx], (rank+1), topic_idx, strHash))
+                    , (topic_dist[0][topic_idx], (rank+1), topic_idx, strHash))
             
             session["keyterm"] = oht.getTopicHeadingList(session["topicdist"])
             session["searchterm"] = [term for term in session["keyterm"] if term["dist"] > 0.1]
@@ -202,6 +204,9 @@ def explore( heading_string=None ):
 @app.route("/analyzer")
 def analyzer():
     quick_search = request.args.get("quick_search")
+    dochash_id = request.args.get("dochashid")
+    if dochash_id is not None:
+        recoverDocument(dochash_id)
     if ("dochashid" not in session and quick_search is None) or len(session)==0:
         return redirect(url_for("index"))
         
@@ -239,27 +244,65 @@ def oht_csv(tier_index=None):
 
 @app.route("/history")
 def history():
-    search_list = db.execQuery("""
+    user_ip = request.environ["REMOTE_ADDR"]
+    results = db.execQuery("""
     select keywordlist
     , headinglist
+    , created
     from search
     where ipaddr=%s
     order by created desc
     limit 5
     """, (user_ip,))
+    keyword_list = []
+    for result in results:
+        temp = {}
+        temp["keywords"] = result[0].split("|")
+        temp["headings"] = result[1].split("|")
+        temp["date"] = result[2]
+        keyword_list.append(temp)
 
-    doc_list = db.execQuery("""
-    select id
+    results = db.execQuery("""
+    select id, docname, created
     from dochash d
-    """)
+    where ipaddr=%s
+    order by created desc
+    limit 5
+    """, (user_ip,))
+    doc_list = []
+    for result in results:
+        temp = {}
+        temp["dochashid"] = result[0]
+        temp["name"] = result[1]
+        temp["date"] = result[2]
+        doc_list.append(temp)
+
+    history = {
+        "searches": keyword_list
+        , "documents": doc_list
+    }
+    return jsonify(history)
+
 
 
 def recoverDocument(dochash_id):
     """ Recover a document that was uploaded by a user """
     session["dochashid"] = dochash_id
-    session["searchterm"]
-    session["keyterm"]
+
+    aHash = db.execQuery("""select d.id, udt.dist, t.topicname from dochash d
+inner join userdoctopic udt on udt.dochashid=d.id
+inner join topic t on t.id=udt.topicid
+where d.id=%s order by cast(t.topicname as UNSIGNED) asc""", (dochash_id,))
+
+    topic_dist = []
+    for result in aHash:
+        topic_dist.append(float(result[1]))
+    session["topicdist"] = topic_dist
+    keyterm = oht.getTopicHeadingList(session["topicdist"])
+    session["keyterm"] = keyterm
+    session["searchterm"] = [term for term in keyterm if term["dist"] > 0.1]
     return redirect(url_for("analyzer"))
+
 
 def saveTFDF():
     tfdf = {}

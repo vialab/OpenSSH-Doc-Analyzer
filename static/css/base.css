@@ -136,7 +136,8 @@ ul.doc-term li {
     font-size: 64px;
 }
 
-.custom-keyword-container, .keyword-container, .load-keyword {
+.custom-keyword-container, .keyword-container, .load-keyword
+,.recent-doc {
     position: relative;
     width: 100px;
     height: 100px;
@@ -400,4 +401,16 @@ text {
     font-size: 25px;
     text-transform: uppercase;
     color: #eee;
+}
+
+#search-list, #doc-list {
+    padding: 0 30px;
+}
+
+.recent-doc {
+    background: #eee;
+}
+
+.recent-doc .term-heading {
+    color: black;
 }

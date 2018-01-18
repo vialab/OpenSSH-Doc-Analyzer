@@ -56,6 +56,11 @@ function clicked(cb_keyword) {
 }
 
 // create a circle pack vis at a designated DOM path
+// args:
+// svg_path - path to the parent where SVG is to exist
+// svg_id   - id of the svg
+// path     - base URL for data requet
+// id       - tier-index
 function createNewVis(svg_path, svg_id, path, id, width, height, weight
                     , change_focus=true, add_label=true, add_event=true, heading_id
                     , cb_keyword) {
