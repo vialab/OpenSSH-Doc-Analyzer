@@ -16,12 +16,23 @@ $(document).ready(function() {
 });
 
 function showSearchHistory(data) {
-    console.log(data);
     for(var i=0; i < data.searches.length; i++) {
-        $("#search-list").append("<div class='recent-doc' data-dochashid='" 
-        + data.searches[i].dochashid + "'><div class='term-heading'>" 
-        + data.searches[i].name + "</div>\
-        </div>");
+        var search_id = data.searches[i].search_id;
+        $("#search-list").append("<div class='recent-search' data-searchid='" 
+            + search_id + "'></div>");
+            
+        for(var k=0; k < data.searches[i].terms.length; k++) {
+            var search_term = "";
+            if(data.searches[i].terms[k].keyword) {
+                search_term = data.searches[i].terms[k].keyword;
+            } else {
+                search_term = data.searches[i].terms[k].headingid;                
+            }
+            $("#search-list .recent-search[data-searchid='" + search_id + "']")
+                .append("<div class='recent-doc'><div class='term-heading'>" 
+                    + search_term + "</div>\
+                    </div>");
+        }
     }
 
     for(var i=0; i < data.documents.length; i++) {
@@ -33,5 +44,9 @@ function showSearchHistory(data) {
 
     $("#doc-list .recent-doc").on("click", function() {
         window.location.href = "/analyzer?dochashid=" + $(this).data("dochashid");
+    });
+
+    $("#search-list .recent-search").on("click", function() {
+        window.location.href = "/analyzer?searchid=" + $(this).data("searchid");
     });
 }

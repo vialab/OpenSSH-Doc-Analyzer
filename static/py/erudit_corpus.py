@@ -37,11 +37,6 @@ def matchTopicList(search_id, topic_list, n=100):
 def matchKeyword(search_id, keyword_list, n=100):
     if len(keyword_list) == 0:
         return ()
-    for keyword in keyword_list:
-        db.execUpdate("""
-        insert into keywordsearch(searchid, keyword, dist, rank)
-        values(%s, %s, %s, %s)
-        """, (keyword))
 
     keywords = "|".join(keyword_list)
     return db.execQuery("""

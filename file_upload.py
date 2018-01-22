@@ -119,29 +119,33 @@ def search():
     content = request.get_json()
     user_ip = request.environ["REMOTE_ADDR"]
 
-    aTopicList = []
-    query_topic = ""
-    if len(content["heading_list"]) > 0:
-        aTopicList = [h["heading_id"] for h in content["heading_list"]]
-        query_topic = "|".join(aTopicList)
-
-    aKeywordList = []
-    query_keyword = ""
-    if len(content["keyword_list"]) > 0:
-        aKeywordList = [k["keyword"] for k in content["keyword_list"]]
-        query_keyword = "|".join(aKeywordList)
-
     cursor = db.beginSession()
     result = db.execSessionQuery(cursor, """
-    insert into search(ipaddr, headinglist, keywordlist)
-    values(%s, %s, %s);
-    """, (user_ip, query_topic, query_keyword))
+    insert into search(ipaddr)
+    values(%s);
+    """, (user_ip,))
 
     result = db.execSessionQuery(cursor, """
     select last_insert_id();
     commit;
     """, close_cursor=True)
     search_id = result[0][0]
+
+    aTopicList = []
+    if len(content["heading_list"]) > 0:
+        for h in content["heading_list"]:
+            aTopicList.append(h["heading_id"])
+            db.execQuery("""insert into searchterm(searchid, headingid, weight, rank)
+            values(%s, %s, %s, %s); commit;"""
+            ,(search_id, h["heading_id"], h["weight"], h["order"]))
+
+    aKeywordList = []
+    if len(content["keyword_list"]) > 0:
+        for k in content["keyword_list"]:
+            aKeywordList.append(k["keyword"])
+            db.execQuery("""insert into searchterm(searchid, keyword, weight, rank)
+            values(%s, %s, %s, %s); commit;"""
+            , (search_id, k["keyword"], k["weight"], k["order"]))
 
     aRankList = corpus.matchTopicList(search_id, content["heading_list"], 10)
     aRankList += corpus.matchKeyword(search_id, aKeywordList, 10)
@@ -205,9 +209,15 @@ def explore( heading_string=None ):
 def analyzer():
     quick_search = request.args.get("quick_search")
     dochash_id = request.args.get("dochashid")
+    search_id = request.args.get("searchid")
+
     if dochash_id is not None:
         recoverDocument(dochash_id)
-    if ("dochashid" not in session and quick_search is None) or len(session)==0:
+    if search_id is not None:
+        recoverSearch(search_id)
+
+    if ("dochashid" not in session and quick_search is None 
+            and "searchid" not in session) or len(session)==0:
         return redirect(url_for("index"))
         
     total_start = time.time()
@@ -246,21 +256,32 @@ def oht_csv(tier_index=None):
 def history():
     user_ip = request.environ["REMOTE_ADDR"]
     results = db.execQuery("""
-    select keywordlist
-    , headinglist
+    select id
     , created
     from search
     where ipaddr=%s
     order by created desc
     limit 5
     """, (user_ip,))
-    keyword_list = []
+    search_list = []
     for result in results:
         temp = {}
-        temp["keywords"] = result[0].split("|")
-        temp["headings"] = result[1].split("|")
-        temp["date"] = result[2]
-        keyword_list.append(temp)
+        temp["search_id"] = result[0]
+        temp["date"] = result[1]
+        temp["terms"] = []
+
+        term_list = db.execQuery("""select headingid, keyword, weight, rank 
+        from searchterm where searchid=%s order by rank""", (result[0],))
+        for term in term_list:
+            t = {}
+            if term[0] is not None:
+                t["headingid"] = term[0]
+            else:
+                t["keyword"] = term[1]
+            t["weight"] = term[2]
+            t["order"] = term[3]
+            temp["terms"].append(t)
+        search_list.append(temp)
 
     results = db.execQuery("""
     select id, docname, created
@@ -278,7 +299,7 @@ def history():
         doc_list.append(temp)
 
     history = {
-        "searches": keyword_list
+        "searches": search_list
         , "documents": doc_list
     }
     return jsonify(history)
@@ -302,6 +323,10 @@ where d.id=%s order by cast(t.topicname as UNSIGNED) asc""", (dochash_id,))
     session["keyterm"] = keyterm
     session["searchterm"] = [term for term in keyterm if term["dist"] > 0.1]
     return redirect(url_for("analyzer"))
+
+
+def recoverSearch(search_id):
+    """ Recover a set of search terms that was previously used by user """
 
 
 def saveTFDF():

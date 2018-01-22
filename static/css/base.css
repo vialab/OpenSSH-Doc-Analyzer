@@ -414,3 +414,12 @@ text {
 .recent-doc .term-heading {
     color: black;
 }
+
+.recent-search {
+    height: 130px;
+    cursor: pointer;
+}
+
+.recent-search:hover {
+    background-color: #efefef;
+}
