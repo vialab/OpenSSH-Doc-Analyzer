@@ -439,6 +439,8 @@ text {
     height: 130px;
     cursor: pointer;
     opacity: 0.2;
+    overflow: hidden;
+    min-width: 130px;
 }
 
 .recent-search:hover, .recent-doc:hover {
@@ -449,8 +451,14 @@ text {
 
 .recent-search .search-date {
     position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
+    padding: 5px;
+    right: 0;
     color: #aaa;
+    text-transform: uppercase;
+    z-index: 1;
+}
+
+.recent-search:hover .search-date {
+    background-color: #ddd;
+    color: gray;
 }

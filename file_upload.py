@@ -262,7 +262,7 @@ def history():
     user_ip = request.environ["REMOTE_ADDR"]
     results = db.execQuery("""
     select id
-    , created
+    , DATE_FORMAT(created, '%%m/%%d/%%Y %%H:%%i')
     from search
     where ipaddr=%s
     order by created desc
@@ -300,7 +300,8 @@ def history():
         search_list.append(temp)
 
     results = db.execQuery("""
-    select id, docname, created
+    select id, docname
+    , DATE_FORMAT(created, '%%m/%%d/%%Y %%H:%%i')
     from dochash d
     where ipaddr=%s
     order by created desc
