@@ -9,4 +9,5 @@ sproc/**
 *.csv
 app_session/**
 *.txt
+**/.DS_Store
 .DS_Store
