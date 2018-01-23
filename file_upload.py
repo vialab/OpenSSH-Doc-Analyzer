@@ -118,34 +118,41 @@ where d.hashkey=%s order by cast(t.topicname as UNSIGNED) asc""", (strHash,))
 def search():
     content = request.get_json()
     user_ip = request.environ["REMOTE_ADDR"]
+    search_id = None
 
-    cursor = db.beginSession()
-    result = db.execSessionQuery(cursor, """
-    insert into search(ipaddr)
-    values(%s);
-    """, (user_ip,))
+    if "search_id" in content:
+        search_id = content["search_id"]
+    
+    if search_id is None:
+        cursor = db.beginSession()
+        result = db.execSessionQuery(cursor, """
+        insert into search(ipaddr)
+        values(%s);
+        """, (user_ip,))
 
-    result = db.execSessionQuery(cursor, """
-    select last_insert_id();
-    commit;
-    """, close_cursor=True)
-    search_id = result[0][0]
+        result = db.execSessionQuery(cursor, """
+        select last_insert_id();
+        commit;
+        """, close_cursor=True)
+        search_id = result[0][0]
 
     aTopicList = []
     if len(content["heading_list"]) > 0:
         for h in content["heading_list"]:
             aTopicList.append(h["heading_id"])
-            db.execQuery("""insert into searchterm(searchid, headingid, weight, rank)
-            values(%s, %s, %s, %s); commit;"""
-            ,(search_id, h["heading_id"], h["weight"], h["order"]))
+            if "search_id" not in content:
+                db.execQuery("""insert into searchterm(searchid, headingid, weight, rank)
+                values(%s, %s, %s, %s); commit;"""
+                ,(search_id, h["heading_id"], h["weight"], h["order"]))
 
     aKeywordList = []
     if len(content["keyword_list"]) > 0:
         for k in content["keyword_list"]:
             aKeywordList.append(k["keyword"])
-            db.execQuery("""insert into searchterm(searchid, keyword, weight, rank)
-            values(%s, %s, %s, %s); commit;"""
-            , (search_id, k["keyword"], k["weight"], k["order"]))
+            if "search_id" not in content:
+                db.execQuery("""insert into searchterm(searchid, keyword, weight, rank)
+                values(%s, %s, %s, %s); commit;"""
+                , (search_id, k["keyword"], k["weight"], k["order"]))
 
     aRankList = corpus.matchTopicList(search_id, content["heading_list"], 10)
     aRankList += corpus.matchKeyword(search_id, aKeywordList, 10)
@@ -207,17 +214,15 @@ def explore( heading_string=None ):
 
 @app.route("/analyzer")
 def analyzer():
-    quick_search = request.args.get("quick_search")
+    quick_search = request.args.get("quicksearch")
     dochash_id = request.args.get("dochashid")
     search_id = request.args.get("searchid")
 
     if dochash_id is not None:
         recoverDocument(dochash_id)
-    if search_id is not None:
-        recoverSearch(search_id)
 
     if ("dochashid" not in session and quick_search is None 
-            and "searchid" not in session) or len(session)==0:
+            and search_id is None):
         return redirect(url_for("index"))
         
     total_start = time.time()
@@ -225,7 +230,7 @@ def analyzer():
     search = None
     search_term = None
     key_term = None
-    if quick_search is None:
+    if quick_search is None and search_id is None:
         search = getSearchResults(session["dochashid"])
         search_term = session["searchterm"]
         key_term = session["keyterm"]
@@ -270,12 +275,23 @@ def history():
         temp["date"] = result[1]
         temp["terms"] = []
 
-        term_list = db.execQuery("""select headingid, keyword, weight, rank 
-        from searchterm where searchid=%s order by rank""", (result[0],))
+        term_list = db.execQuery("""select st.headingid
+    , st.keyword
+    , st.weight
+    , st.rank 
+    , concat(h.tierindex, '.', h.tiering)
+    , h.heading
+    from searchterm st
+    left join search s on s.id=st.searchid
+    left join heading h on h.id=st.headingid
+    where st.searchid=%s 
+    order by st.rank""", (result[0],))
         for term in term_list:
             t = {}
             if term[0] is not None:
-                t["headingid"] = term[0]
+                t["heading_id"] = term[0]
+                t["tier_index"] = term[4]
+                t["heading"] = term[5]
             else:
                 t["keyword"] = term[1]
             t["weight"] = term[2]
@@ -306,6 +322,43 @@ def history():
 
 
 
+@app.route("/recoversearch/<search_id>")
+def recoverSearch(search_id):
+    """ Recover a set of search terms that was previously used by user """
+    search_term = []    
+    user_ip = request.environ["REMOTE_ADDR"]
+
+    # get results and authenticate with ipaddress
+    term_list = db.execQuery("""select st.headingid
+    , st.keyword
+    , st.weight
+    , st.rank 
+    , concat(h.tierindex, '.', h.tiering)
+    , h.heading
+    from searchterm st
+    left join search s on s.id=st.searchid
+    left join heading h on h.id=st.headingid
+    where st.searchid=%s and s.ipaddr=%s
+    order by st.rank""", (search_id,user_ip))
+
+    # correct ip address?
+    if len(term_list) > 0:
+        for term in term_list:
+            t = {}
+            if term[0] is not None:
+                t["heading_id"] = term[0]
+                t["tier_index"] = term[4]
+                t["heading"] = term[5]
+            else:
+                t["keyword"] = term[1]
+            t["weight"] = term[2]
+            t["order"] = term[3]
+            search_term.append(t)
+    
+    return jsonify(search_term)
+
+
+
 def recoverDocument(dochash_id):
     """ Recover a document that was uploaded by a user """
     session["dochashid"] = dochash_id
@@ -323,11 +376,7 @@ where d.id=%s order by cast(t.topicname as UNSIGNED) asc""", (dochash_id,))
     session["keyterm"] = keyterm
     session["searchterm"] = [term for term in keyterm if term["dist"] > 0.1]
     return redirect(url_for("analyzer"))
-
-
-def recoverSearch(search_id):
-    """ Recover a set of search terms that was previously used by user """
-
+    
 
 def saveTFDF():
     tfdf = {}

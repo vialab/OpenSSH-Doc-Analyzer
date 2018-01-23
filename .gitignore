@@ -6,3 +6,6 @@ static/py/dbconfig.py
 **/*.pyc
 model/**
 sproc/**
+*.csv
+app_session/**
+*.txt

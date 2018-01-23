@@ -101,13 +101,13 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
     
     if($(this).attr("id") == "search-keyword-home") {
         cb_keyword = function() {
-            window.location.href = "/analyzer?quick_search=" 
-                + $(".keyword-heading", this).html() + "&heading_id="
-                + $(this).attr("heading-id") + "&tier_index="
+            window.location.href = "/analyzer?quicksearch=" 
+                + $(".keyword-heading", this).html() + "&headingid="
+                + $(this).attr("heading-id") + "&tierindex="
                 + $(this).attr("tier-index");
         };
         $(".custom-keyword-container").on("click", function() {
-            window.location.href = "/analyzer?quick_search=" + keyword;
+            window.location.href = "/analyzer?quicksearch=" + keyword;
         });
     }
 
@@ -139,9 +139,10 @@ $(document).ready(function() {
         items: ".term-container"
     });
     $("#weight-slider").slider();
-    var quick_search = getParameterByName("quick_search");
-    var heading_id = getParameterByName("heading_id");
-    var tier_index = getParameterByName("tier_index");
+    var search_id = getParameterByName("searchid");
+    var quick_search = getParameterByName("quicksearch");
+    var heading_id = getParameterByName("headingid");
+    var tier_index = getParameterByName("tierindex");
     if(quick_search) {
         if(heading_id) {
             drawSearchTerm(tier_index, heading_id, quick_search, 0);
@@ -149,8 +150,31 @@ $(document).ready(function() {
             drawKeyword(quick_search);
         }
         search();        
+    } else if(search_id) {
+        recoverSearch(search_id);
     }
 });
+
+// fetch a previously used set of search terms and search again
+function recoverSearch(search_id) {
+    $.ajax({
+        url: "recoversearch/" + search_id
+        , type: "GET"
+        , contentType: "application/json"
+        , success: function(data) {
+            for(var i = 0; i < data.length; i++) {
+                var weight = parseInt(data[i].weight);
+                if(data[i].heading_id) {
+                    drawSearchTerm(data[i].tier_index
+                        , data[i].heading_id, data[i].heading, weight);   
+                } else {
+                    drawKeyword(data[i].keyword);
+                }
+            }
+            search(search_id);
+        }
+    });
+}
 
 // fetch keyword list from server and display results
 function getKeywordList(keyword, cb_keyword) {
@@ -315,32 +339,41 @@ function saveSelection($container, heading_id, weight, name) {
 }
 
 // take saved dom elements and get new document results
-function search() {
+function search(search_id) {
     var heading_list = [];
     var keyword_list = [];
+    var n = 0;
     // loop through search terms in dom
     $(".term-container").each(function(i) {
+        n++;
         if($(this).hasClass("custom-keyword")) {
             keyword_list.push( {
                 "keyword": $(".custom-keyword-heading", $(this)).html(),
-                "weight": $(".custom-keyword-weight", $(this)).val(),
+                "weight": $(".custom-keyword-weight", $(this)).val()-1,
                 "order": i+1
             });
         } else {
             heading_list.push( {
                 "heading_id": $(".term-heading-id", $(this)).val(),
-                "weight": $(".term-heading-weight", $(this)).val(),
+                "weight": $(".term-heading-weight", $(this)).val()-1,
                 "order": i+1
             });
         }
     });
+    data = { 
+        "heading_list":heading_list
+        , "keyword_list":keyword_list 
+    }
+    if(search_id) {
+        data["search_id"] = search_id;
+    }
+
+    if(n == 0) return;
 
     $.ajax({
         url: "search"
         , contentType: "application/json"
-        , data: JSON.stringify({ "heading_list":heading_list
-                , "keyword_list":keyword_list 
-            })
+        , data: JSON.stringify(data)
         , dataType: "json"
         , type: "POST"
         , success: function(data) {
