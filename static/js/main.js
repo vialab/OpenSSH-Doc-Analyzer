@@ -5,7 +5,9 @@ function addToSearch( topic_id, topic_name ) {
         return;
     } else {
         search_terms[topic_id] = topic_name;
-        $("#search-box table tbody").append("<tr><td>" + topic_name + "</td><td onclick='removeFromSearch(this, \""+topic_id+"\")'>x</td></tr>");
+        $("#search-box table tbody").append("<tr><td>" + topic_name 
+            + "</td><td onclick='removeFromSearch(this, \"" 
+            + topic_id+"\")'>x</td></tr>");
         $("#search-box").addClass("slategray");
     }
 }
@@ -36,6 +38,8 @@ function removeFromSearch(elem, topic_id ) {
 //     window.location.href = url;
 // }
 
+
+// get a query string parameter value by it's name
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");

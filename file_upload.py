@@ -50,7 +50,6 @@ with open("./model/pkl/tm.pkl", "r") as f:
 strPath = "/Users/jayrsawal/Documents"
 
 
-
 @app.route("/")
 def index():
     """ Home page """
@@ -67,7 +66,6 @@ def index():
     # saveTFDF()
     # oht.writeHierarchyToCSV()
     return render_template("index.html")
-
 
 
 @app.route("/upload", methods=["GET","POST"])
@@ -125,7 +123,6 @@ where d.hashkey=%s order by cast(t.topicname as UNSIGNED) asc""", (strHash,))
     return redirect(url_for("index"))
 
 
-
 @app.route("/search", methods=["POST"])
 def search():
     """ Web hook for document search """
@@ -138,12 +135,13 @@ def search():
         search_id = content["search_id"]
     # if not a previous search, save this search to search history
     if search_id is None:
+        # use session based queries
         cursor = db.beginSession()
         result = db.execSessionQuery(cursor, """
         insert into search(ipaddr)
         values(%s);
         """, (user_ip,))
-
+        # get last inserted record in session
         result = db.execSessionQuery(cursor, """
         select last_insert_id();
         commit;
@@ -180,14 +178,12 @@ def search():
     return json.dumps(search)
 
 
-
 @app.route("/searchkeyword", methods=["POST"])
 def searchkeyword():
     """ Web hook for searching OHT for matching topics on keywords """
     content = request.get_json()
     search = oht.matchKeyword(content["data"])
     return json.dumps(search)
-
 
 
 @app.route("/explore")
@@ -387,7 +383,7 @@ def recoverSearch(search_id):
             t["weight"] = term[2]
             t["order"] = term[3]
             search_term.append(t)
-    
+    # return json markup
     return jsonify(search_term)
 
 
