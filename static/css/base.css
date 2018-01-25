@@ -226,15 +226,12 @@ ul.doc-term li {
     z-index: 0;
 }
 
-.keyword-container:hover .keyword-heading {
-    color: black;
-}
-
 .custom-keyword-container:hover .keyword-heading {
     color: white;
 }
 
-.term-container:hover .term-heading, .recent-term .term-heading {
+.term-container:hover .term-heading, .recent-term .term-heading
+, .keyword-container:hover .keyword-heading {
     background-color: rgba(0, 100, 150, 0.5);
     color: white !important;
 }

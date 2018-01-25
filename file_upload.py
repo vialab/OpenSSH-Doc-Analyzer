@@ -49,8 +49,11 @@ with open("./model/pkl/tm.pkl", "r") as f:
     tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
 
+
+
 @app.route("/")
 def index():
+    """ Home page """
     # countKeywords()
     # tm.tfidf_vect.fit(tm.tf)
     # tm.saveModel()
@@ -65,32 +68,37 @@ def index():
     # oht.writeHierarchyToCSV()
     return render_template("index.html")
 
+
+
 @app.route("/upload", methods=["GET","POST"])
 def upload():
+    """ Document upload web hook """
     if request.method == 'POST':
         file = request.files['file']
+        # make sure upload is support file type
         if file and cm.isSupportedFile(file.filename):
             with open(file.filename, "r") as f:
                 strText = f.read()
             if strText == "":
-                return            
+                return
+            # remove stopwords
             strText = tm.removeStopWords(strText)
-
-            # Check if this file has already been modeled
+            # hash the text and look for any matches in db
             strHash = cm.getSHA256(strText)
-
             aHash = db.execQuery("""select d.id, udt.dist, t.topicname from dochash d
 inner join userdoctopic udt on udt.dochashid=d.id
 inner join topic t on t.id=udt.topicid
 where d.hashkey=%s order by cast(t.topicname as UNSIGNED) asc""", (strHash,))
 
             if len(aHash) > 0:
+                # we have a match - recover it
                 session["dochashid"] = aHash[0][0]
                 topic_dist = []
                 for result in aHash:
                     topic_dist.append(float(result[1]))
                 session["topicdist"] = topic_dist
             else:
+                # no match, save this to the db for future reference
                 user_ip = request.environ["REMOTE_ADDR"]
                 doc_name = file.filename
                 db.execUpdate("""insert into dochash(ipaddr, hashkey, docname) 
@@ -98,7 +106,9 @@ where d.hashkey=%s order by cast(t.topicname as UNSIGNED) asc""", (strHash,))
                 session["dochashid"] = db.execQuery("""
                     select id from dochash where hashkey=%s 
                     order by created desc limit 1""", (strHash,))[0][0]
+                # preprocess text
                 strClean = tm.processText(strText.decode("utf8"), is_clean=False)
+                # transform to topic model
                 topic_dist = tm.transform(strClean).tolist()
                 session["topicdist"] = topic_dist
                 for rank,topic_idx in enumerate(np.array(topic_dist)[0].argsort()[::-1]):
@@ -108,21 +118,25 @@ where d.hashkey=%s order by cast(t.topicname as UNSIGNED) asc""", (strHash,))
                     where d.hashkey=%s order by d.created desc"""
                     , (topic_dist[0][topic_idx], (rank+1), topic_idx, strHash))
             
-            session["keyterm"] = oht.getTopicHeadingList(session["topicdist"])
-            session["searchterm"] = [term for term in session["keyterm"] if term["dist"] > 0.1]
+            # add data to session for later
+            key_term = oht.getTopicHeadingList(session["topicdist"])
+            session["keyterm"] = key_term
+            session["searchterm"] = [term for term in key_term if term["dist"] > 0.1]
     return redirect(url_for("index"))
 
 
 
 @app.route("/search", methods=["POST"])
 def search():
+    """ Web hook for document search """
+    # accepts either a search_id, or a json list of headings/keywords
     content = request.get_json()
     user_ip = request.environ["REMOTE_ADDR"]
     search_id = None
-
+    
     if "search_id" in content:
         search_id = content["search_id"]
-    
+    # if not a previous search, save this search to search history
     if search_id is None:
         cursor = db.beginSession()
         result = db.execSessionQuery(cursor, """
@@ -138,6 +152,7 @@ def search():
 
     aTopicList = []
     if len(content["heading_list"]) > 0:
+        # get all heading ids
         for h in content["heading_list"]:
             aTopicList.append(h["heading_id"])
             if "search_id" not in content:
@@ -147,6 +162,7 @@ def search():
 
     aKeywordList = []
     if len(content["keyword_list"]) > 0:
+        # get all keywords
         for k in content["keyword_list"]:
             aKeywordList.append(k["keyword"])
             if "search_id" not in content:
@@ -154,9 +170,12 @@ def search():
                 values(%s, %s, %s, %s); commit;"""
                 , (search_id, k["keyword"], k["weight"], k["order"]))
 
+    # find matches in the corpus
+    # currently, topics and keyword matches are found separately
+    # concatenated and returned (will need to rework this)
     aRankList = corpus.matchTopicList(search_id, content["heading_list"], 10)
     aRankList += corpus.matchKeyword(search_id, aKeywordList, 10)
-
+    # attach meta info for display on the documents
     search = getSearchMetaInfo(aRankList)
     return json.dumps(search)
 
@@ -164,6 +183,7 @@ def search():
 
 @app.route("/searchkeyword", methods=["POST"])
 def searchkeyword():
+    """ Web hook for searching OHT for matching topics on keywords """
     content = request.get_json()
     search = oht.matchKeyword(content["data"])
     return json.dumps(search)
@@ -173,6 +193,7 @@ def searchkeyword():
 @app.route("/explore")
 @app.route("/explore/<heading_string>")
 def explore( heading_string=None ):
+    """ DEPRECATED - page for displaying all topics in topic model """
     if heading_string is None:
         search_query = None
         search = db.execQuery("""
@@ -186,15 +207,15 @@ def explore( heading_string=None ):
         """)
     else:
         heading_list = heading_string.split("+")
-        session["explore_list"] = []
+        explore_list = []
         for topic in heading_list:
             try:
-                session["explore_list"].append(int(topic))
+                explore_list.append(int(topic))
             except:
                 continue
         search = getSearchResults()
-
-        search_query = ",".join([str(topic) for topic in session["explore_list"]])
+        session["explore_list"] = explore_list
+        search_query = ",".join([str(topic) for topic in explore_list])
         name_list = db.execQuery("""
         select t.id
         , t.topicname
@@ -214,6 +235,12 @@ def explore( heading_string=None ):
 
 @app.route("/analyzer")
 def analyzer():
+    """ Web hook for main document analyzer page """
+    # we have 4 options here
+    # 0. Default - After uploading a file, go here to analyze
+    # 1. Quick Search - single keyword document search
+    # 2. Recover Document - Load a previously used document
+    # 3. Recover Search - Load a previously used search query
     quick_search = request.args.get("quicksearch")
     dochash_id = request.args.get("dochashid")
     search_id = request.args.get("searchid")
@@ -221,20 +248,21 @@ def analyzer():
     if dochash_id is not None:
         recoverDocument(dochash_id)
 
+    # nothing to load - return to home page
     if ("dochashid" not in session and quick_search is None 
             and search_id is None):
         return redirect(url_for("index"))
         
     total_start = time.time()
-    
     search = None
     search_term = None
-    key_term = None
+    key_term = None 
     if quick_search is None and search_id is None:
+        # if we are searching using a document - get results
         search = getSearchResults(session["dochashid"])
         search_term = session["searchterm"]
         key_term = session["keyterm"]
-    
+    # otherwise, our search will be done dynamically through client
     total_end = time.time()
     print("Total Time: %s seconds" % (total_end-total_start))
     return render_template("analyzer.html"
@@ -247,6 +275,7 @@ def analyzer():
 @app.route("/oht")
 @app.route("/oht/<tier_index>")
 def oht_csv(tier_index=None):
+    """ Web hook for retrieving OHT tree based off tier index """
     if tier_index is None:
         return Response(oht.csv(), mimetype="text/csv")
         
@@ -259,7 +288,9 @@ def oht_csv(tier_index=None):
 
 @app.route("/history")
 def history():
+    """ Web hook for retrieving search history on main page """
     user_ip = request.environ["REMOTE_ADDR"]
+    # get search queries
     results = db.execQuery("""
     select id
     , DATE_FORMAT(created, '%%m/%%d/%%Y %%H:%%i')
@@ -274,7 +305,7 @@ def history():
         temp["search_id"] = result[0]
         temp["date"] = result[1]
         temp["terms"] = []
-
+        # get terms used for this search
         term_list = db.execQuery("""select st.headingid
     , st.keyword
     , st.weight
@@ -298,7 +329,8 @@ def history():
             t["order"] = term[3]
             temp["terms"].append(t)
         search_list.append(temp)
-
+    
+    # get document queries
     results = db.execQuery("""
     select id, docname
     , DATE_FORMAT(created, '%%m/%%d/%%Y %%H:%%i')
@@ -314,7 +346,7 @@ def history():
         temp["name"] = result[1]
         temp["date"] = result[2]
         doc_list.append(temp)
-
+    # json markup
     history = {
         "searches": search_list
         , "documents": doc_list
@@ -362,8 +394,11 @@ def recoverSearch(search_id):
 
 def recoverDocument(dochash_id):
     """ Recover a document that was uploaded by a user """
+    ## In order for this to happen, we need to populate
+    # 1. session["topicdist"] - topic distribution
+    # 2. session["keyterm"] - Topic heading id matches based off topicdist
+    # 3. session["searchterm"] - filtered list of key terms
     session["dochashid"] = dochash_id
-
     aHash = db.execQuery("""select d.id, udt.dist, t.topicname from dochash d
 inner join userdoctopic udt on udt.dochashid=d.id
 inner join topic t on t.id=udt.topicid
@@ -376,50 +411,17 @@ where d.id=%s order by cast(t.topicname as UNSIGNED) asc""", (dochash_id,))
     keyterm = oht.getTopicHeadingList(session["topicdist"])
     session["keyterm"] = keyterm
     session["searchterm"] = [term for term in keyterm if term["dist"] > 0.1]
+    # redirect to analyzer for display
     return redirect(url_for("analyzer"))
     
 
-def saveTFDF():
-    tfdf = {}
-    with open("./model/pkl/tfdf2.pkl", "r") as f:
-        tfdf = pickle.load(f)
-    
-    for word in tfdf:
-        db.execUpdate("insert into tfdf(word, freq, docfreq) values(%s, %s, %s)"
-            , (word, tfdf[word]["tf"], tfdf[word]["df"]))
-
-def saveStopWords():
-    aStopWord = []
-    results = db.execQuery("select lower(word) word from stopword where dataset=%s", ("adam2",))
-    for result in results:
-        aStopWord.append(result[0].lower().strip())
-    if " " not in aStopWord:
-        aStopWord.append(u" ")
-    # aStopWord = set(aStopWord)
-    with open("./model/pkl/stopword.pkl", "w+") as f:
-        pickle.dump(aStopWord, f)
-
-def inferTopicNames():
-    results = db.execQuery("select id from topic where headingid is null")
-    for result in results:
-        aHeading = oht.getTopicHeadingRankList(result[0])
-        aTop = { "value":0, "id":None, "col":[] }
-        for key in aHeading:
-            if aHeading[key] > aTop["value"]:
-                aTop["value"] = aHeading[key]
-                aTop["id"] = key
-                aTop["col"] = []
-            elif aHeading[key] == aTop["value"]:
-                aTop["col"].append(key)
-        strCol = ",".join(str(key) for key in aTop["col"])
-        db.execUpdate("update topic set headingid=%s, infername=%s where id=%s"
-            , (aTop["id"], strCol, result[0]))
-
-
 def getSearchResults( strDocHashID=None ):
+    """ Get a list of documents and return it's meta-info  """
+    # could optionally use this for a dochash id as well
     if strDocHashID is None:
         if session["explore_list"]:
-            str_topic = ",".join([str(topic) for topic in session["explore_list"]])
+            explore_list = session["explore_list"]
+            str_topic = ",".join([str(topic) for topic in explore_list])
             str_query = """
                 select documentid
                 , sum(dist / """ + str(len(session["explore_list"])) + """) cossim
@@ -438,12 +440,15 @@ def getSearchResults( strDocHashID=None ):
         aRankList = corpus.match(strDocHashID, 10)
         end = time.time()
         print("Found 10 results in %s seconds" % (end-start))
-    
+    # return meta info
     return getSearchMetaInfo(aRankList)
 
+
 def getSearchMetaInfo(aRankList):
+    """ Get the meta info for a list of document ids """
     results = []
-    start = time.time()        
+    start = time.time()
+    # first get document info - author, title, etc.
     for aDoc in aRankList:
         result = corpus.getDocumentInfo(aDoc[0])
         resultlist = list(result[0])
@@ -453,6 +458,7 @@ def getSearchMetaInfo(aRankList):
     end = time.time()
     print("Retrieved meta info in %s seconds" % (end-start))
     
+    # create the markup to return and also pull topic distribution for doc
     search = []
     start = time.time()
     for result in results:
@@ -470,11 +476,9 @@ def getSearchMetaInfo(aRankList):
         doc["citation"] += ", pp. " + result[10]
         if result[11]:
             doc["citation"] += "-" + result[11]
-
         doc["topiclist"] = []
-        # if strDocHashID is not None:
-            # doc["cossim"] = corpus.calculateCosSim(strDocHashID, result[0])
         doc["cossim"] = result[12]
+        # get document distributions
         aTopicDist = db.execQuery("""
         select t.topicname, t.id, d.dist, h.fr_heading, th.fr_thematicheading
             , concat(h.tierindex, case when h.tiering is not null 
@@ -498,20 +502,63 @@ def getSearchMetaInfo(aRankList):
             temp["heading_id"] = topic[6]
             doc["topiclist"].append(temp)
         
+        # pull any named entities saved for this document
         doc["entitylist"] = []
         aEntity = db.execQuery("""select entity, txt from entity where documentid=%s 
             and (entitytype='nomorg' or entitytype='nompers')""", (doc["id"],))
-
         for entity in aEntity:
             temp = {}
             temp["type"] = result[0]
             temp["name"] = result[1]
             doc["entitylist"].append(temp)
-
         search.append(doc)
     end = time.time()
-    print("Calculated cosine similarity in %s seconds" % (end-start))
+    print("Got document meta info in %s seconds" % (end-start))
     return search
+
+
+
+
+############################## HELPER FUNCTIONS ##############################
+
+
+def saveTFDF():
+    tfdf = {}
+    with open("./model/pkl/tfdf2.pkl", "r") as f:
+        tfdf = pickle.load(f)
+    
+    for word in tfdf:
+        db.execUpdate("insert into tfdf(word, freq, docfreq) values(%s, %s, %s)"
+            , (word, tfdf[word]["tf"], tfdf[word]["df"]))
+
+
+def saveStopWords():
+    aStopWord = []
+    results = db.execQuery("select lower(word) word from stopword where dataset=%s", ("adam2",))
+    for result in results:
+        aStopWord.append(result[0].lower().strip())
+    if " " not in aStopWord:
+        aStopWord.append(u" ")
+    # aStopWord = set(aStopWord)
+    with open("./model/pkl/stopword.pkl", "w+") as f:
+        pickle.dump(aStopWord, f)
+
+
+def inferTopicNames():
+    results = db.execQuery("select id from topic where headingid is null")
+    for result in results:
+        aHeading = oht.getTopicHeadingRankList(result[0])
+        aTop = { "value":0, "id":None, "col":[] }
+        for key in aHeading:
+            if aHeading[key] > aTop["value"]:
+                aTop["value"] = aHeading[key]
+                aTop["id"] = key
+                aTop["col"] = []
+            elif aHeading[key] == aTop["value"]:
+                aTop["col"].append(key)
+        strCol = ",".join(str(key) for key in aTop["col"])
+        db.execUpdate("update topic set headingid=%s, infername=%s where id=%s"
+            , (aTop["id"], strCol, result[0]))
 
 
 def transformDocumentToModel(nSampleSize=100):
@@ -601,6 +648,7 @@ def runTopicModel(nSampleSize=1000):
             print str(e)
     # tm.writeModelToDB()
     # tm.saveModel()
+
 
 def prePreProcessTextToDisk():
     with open("./model/pkl/stopword.pkl", "r") as f:
