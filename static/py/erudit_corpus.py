@@ -1,19 +1,20 @@
 import db
 import constants as CONST
 import math
+import re
 from scipy import spatial
 from lz4.frame import compress, decompress
 
 db = db.Database()
 
-def matchTopicList(search_id, topic_list, n=100):
+def matchHeadingList(search_id, heading_list, n=100):
     """ Match an array of selected topics to the corpus """
-    if len(topic_list) == 0:
+    if len(heading_list) == 0:
         return []
-    for topic in topic_list:
-        heading_id = topic["heading_id"]
-        weight = topic["weight"]
-        order = topic["order"]
+    for heading in heading_list:
+        heading_id = heading["heading_id"]
+        weight = heading["weight"]
+        order = heading["order"]
         db.execUpdate("""
         insert into topicsearch(searchid, topicid, dist, rank)
         select %s
@@ -24,42 +25,39 @@ def matchTopicList(search_id, topic_list, n=100):
         where headingid=%s
         limit 1
         """, (search_id, weight, order, heading_id))
-    
-    return db.execProc("sp_searchtopic", (
-        search_id
-        , len(topic_list)
-        , CONST.DS_PENALTY
-        , n
-    ))
 
+    # parametize our list to use in where in clause
+    id_list = ",".join([int(heading["heading_id"]) for heading in heading_list])
+    return db.execQuery("""
+        select d.documentid, sum(d.tfidf)
+        from tfidf t
+        left join doctfidf d on d.termid=t.termid
+        where t.headingid in (%s)
+        group by d.documentid
+        order by sum(d.tfidf) desc
+        limit %s
+        """, (id_list,n))
 
 
 def matchKeyword(search_id, keyword_list, n=100):
     if len(keyword_list) == 0:
         return ()
 
-    keywords = "|".join(keyword_list)
+    # clean list of special characters
+    clean_list = []
+    for word in keyword_list:
+        clean_list.append(re.sub('[^A-Za-z0-9]+', '', word))
+    
+    keywords = "|".join(clean_list)
     return db.execQuery("""
         select d.documentid
-        , sum(d.freq) score 
-        from dockeyword d
-        left join keyword k on k.id=d.keywordid
-        where k.word REGEXP %s
+        , sum(d.tfidf) score 
+        from doctfidf d
+        where d.term REGEXP %s
         group by d.documentid
         limit %s
         """, (keywords,n))
 
-
-
-def match(dochash_id, n=100):
-    """ Find closest matching docs using ranked weighted penalty distance """
-    return db.execProc("sp_searchdoc", (
-        dochash_id        
-        , CONST.DS_MAXTOPIC
-        , CONST.DS_PENALTY
-        , n
-    ))
-    
 
 
 def getDocumentInfo(document_id):

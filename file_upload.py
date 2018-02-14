@@ -17,6 +17,7 @@ import oht
 import re
 import nltk
 import time
+import matplotlib.pyplot as plt
 from pathlib2 import Path
 from sklearn.feature_extraction.text import CountVectorizer
 from lz4.frame import compress, decompress
@@ -39,7 +40,7 @@ results = db.execQuery("select lower(word) word, treetag from stopword where dat
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
-tm = tm.TopicModel(stop_words=aStopWord)
+# tm = tm.TopicModel(stop_words=aStopWord)
 # tm.loadModel()
 # tm.tfidf_vect.fit(tm.tf)
 # with open("./model/pkl/tm.pkl", "w+") as f:
@@ -52,7 +53,6 @@ strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
-    """ Home page """
     # countKeywords()
     # tm.tfidf_vect.fit(tm.tf)
     # tm.saveModel()
@@ -66,6 +66,7 @@ def index():
     # saveTFDF()
     # oht.writeHierarchyToCSV()
     return render_template("index.html")
+
 
 
 @app.route("/upload", methods=["GET","POST"])
@@ -83,44 +84,44 @@ def upload():
             strText = tm.removeStopWords(strText)
             # hash the text and look for any matches in db
             strHash = cm.getSHA256(strText)
-            aHash = db.execQuery("""select d.id, udt.dist, t.topicname from dochash d
-inner join userdoctopic udt on udt.dochashid=d.id
-inner join topic t on t.id=udt.topicid
-where d.hashkey=%s order by cast(t.topicname as UNSIGNED) asc""", (strHash,))
+            aHash = db.execQuery("""
+                select d.id, t.termid, t.term, udf.tf, udf.idf, udf.tfidf 
+                from dochash d
+                left join userdoctfidf udt on udt.dochashid=d.id
+                left join tfidf t on t.id=udt.termid
+                where d.hashkey=%s""", (strHash,))
 
-            if len(aHash) > 0:
+            if len(aHash) > 1:
                 # we have a match - recover it
-                session["dochashid"] = aHash[0][0]
-                topic_dist = []
-                for result in aHash:
-                    topic_dist.append(float(result[1]))
-                session["topicdist"] = topic_dist
+                recoverDocumentTfidf(aHash[0][0])
             else:
                 # no match, save this to the db for future reference
                 user_ip = request.environ["REMOTE_ADDR"]
                 doc_name = file.filename
                 db.execUpdate("""insert into dochash(ipaddr, hashkey, docname) 
                 values(%s, %s, %s)""", (user_ip, strHash, doc_name))
-                session["dochashid"] = db.execQuery("""
+                dochash_id = db.execQuery("""
                     select id from dochash where hashkey=%s 
                     order by created desc limit 1""", (strHash,))[0][0]
+                session["dochashid"] = dochash_id
                 # preprocess text
-                strClean = tm.processText(strText.decode("utf8"), is_clean=False)
+                strClean = tm.preProcessText(strText.decode("utf8"))
                 # transform to topic model
-                topic_dist = tm.transform(strClean).tolist()
-                session["topicdist"] = topic_dist
-                for rank,topic_idx in enumerate(np.array(topic_dist)[0].argsort()[::-1]):
-                    db.execUpdate("""insert into userdoctopic(dochashid, topicid, dist, rank) 
-                    select d.id, t.id, %s, %s from dochash d
-                    left join topic t on t.topicname=%s 
-                    where d.hashkey=%s order by d.created desc"""
-                    , (topic_dist[0][topic_idx], (rank+1), topic_idx, strHash))
-            
+                tfidf_list = tm.transformTfidf(strClean).tolist()
+                session["tfidf"] = tfidf_list
+                for idx in tfidf_list:
+                    db.execUpdate("""
+                    insert into userdoctfidf(dochashid, termid, tf, idf, tfidf)
+                    values(%s, %s, %s, %s, %s);
+                    """, (dochash_id, term, tfidf_list[idx]["tf"], tfidf_list[idx]["idf"]
+                            , tfidf_list[idx]["tfidf"]))
+
             # add data to session for later
-            key_term = oht.getTopicHeadingList(session["topicdist"])
+            key_term = oht.getTfidfHeadingList(tfidf_list)
             session["keyterm"] = key_term
             session["searchterm"] = [term for term in key_term if term["dist"] > 0.1]
     return redirect(url_for("index"))
+
 
 
 @app.route("/search", methods=["POST"])
@@ -186,49 +187,6 @@ def searchkeyword():
     return json.dumps(search)
 
 
-@app.route("/explore")
-@app.route("/explore/<heading_string>")
-def explore( heading_string=None ):
-    """ DEPRECATED - page for displaying all topics in topic model """
-    if heading_string is None:
-        search_query = None
-        search = db.execQuery("""
-        select t.id
-        , t.topicname
-        , h.fr_heading
-        , th.fr_thematicheading 
-        from topic t 
-        left join heading h on h.id=t.headingid
-        left join thematicheading th on th.id=h.thematicheadingid
-        """)
-    else:
-        heading_list = heading_string.split("+")
-        explore_list = []
-        for topic in heading_list:
-            try:
-                explore_list.append(int(topic))
-            except:
-                continue
-        search = getSearchResults()
-        session["explore_list"] = explore_list
-        search_query = ",".join([str(topic) for topic in explore_list])
-        name_list = db.execQuery("""
-        select t.id
-        , t.topicname
-        , h.fr_heading
-        , th.fr_thematicheading 
-        from topic t 
-        left join heading h on h.id=t.headingid
-        left join thematicheading th on th.id=h.thematicheadingid
-        where t.id in (""" + search_query + ")")
-        search_query = " + ".join([name[2] for name in name_list])
-    return render_template("explore.html"
-        , search_query=search_query
-        , search_result=search
-    )
-
-
-
 @app.route("/analyzer")
 def analyzer():
     """ Web hook for main document analyzer page """
@@ -242,7 +200,7 @@ def analyzer():
     search_id = request.args.get("searchid")
 
     if dochash_id is not None:
-        recoverDocument(dochash_id)
+        recoverDocumentTfidf(dochash_id)
 
     # nothing to load - return to home page
     if ("dochashid" not in session and quick_search is None 
@@ -255,7 +213,7 @@ def analyzer():
     key_term = None 
     if quick_search is None and search_id is None:
         # if we are searching using a document - get results
-        search = getSearchResults(session["dochashid"])
+        search = getSearchResults(session["tfidf"])
         search_term = session["searchterm"]
         key_term = session["keyterm"]
     # otherwise, our search will be done dynamically through client
@@ -265,7 +223,6 @@ def analyzer():
         , search_result=search
         , search_term=search_term
         , key_term=key_term)
-
 
 
 @app.route("/oht")
@@ -387,57 +344,66 @@ def recoverSearch(search_id):
     return jsonify(search_term)
 
 
-
-def recoverDocument(dochash_id):
+def recoverDocumentTfidf(dochash_id, redirect=True):
     """ Recover a document that was uploaded by a user """
     ## In order for this to happen, we need to populate
-    # 1. session["topicdist"] - topic distribution
+    # 1. session["tfidf"] - topic distribution
     # 2. session["keyterm"] - Topic heading id matches based off topicdist
     # 3. session["searchterm"] - filtered list of key terms
     session["dochashid"] = dochash_id
-    aHash = db.execQuery("""select d.id, udt.dist, t.topicname from dochash d
-inner join userdoctopic udt on udt.dochashid=d.id
-inner join topic t on t.id=udt.topicid
-where d.id=%s order by cast(t.topicname as UNSIGNED) asc""", (dochash_id,))
+    aHash = db.execQuery("""
+        select t.termid, t.term, udf.tf, udf.idf, udf.tfidf 
+        from userdoctfidf udt on udt.dochashid=d.id
+        left join tfidf t on t.id=udt.termid
+        where udt.dochashid=%s""", (dochash_id,))
 
-    topic_dist = []
+    # we have a match - recover it
+    tfidf_list = {}
     for result in aHash:
-        topic_dist.append(float(result[1]))
-    session["topicdist"] = topic_dist
-    keyterm = oht.getTopicHeadingList(session["topicdist"])
+        term_idx = int(result[0])
+        tfidf_list[term_idx] = {}
+        tfidf_list[term_idx]["term"] = result[1]
+        tfidf_list[term_idx]["tf"] = result[2]
+        tfidf_list[term_idx]["idf"] = result[3]
+        tfidf_list[term_idx]["tfidf"] = result[4]
+    session["tfidf"] = tfidf_list
+
+    # get headings from oht
+    keyterm = oht.getTfidfHeadingList(session["tfidf"])
     session["keyterm"] = keyterm
     session["searchterm"] = [term for term in keyterm if term["dist"] > 0.1]
     # redirect to analyzer for display
-    return redirect(url_for("analyzer"))
-    
-
-def getSearchResults( strDocHashID=None ):
-    """ Get a list of documents and return it's meta-info  """
-    # could optionally use this for a dochash id as well
-    if strDocHashID is None:
-        if session["explore_list"]:
-            explore_list = session["explore_list"]
-            str_topic = ",".join([str(topic) for topic in explore_list])
-            str_query = """
-                select documentid
-                , sum(dist / """ + str(len(session["explore_list"])) + """) cossim
-                from doctopic
-                where topicid in (
-                """ + str_topic + """)
-                group by documentid 
-                order by sum(dist) desc
-                limit 10"""
-
-            aRankList = db.execQuery(str_query)
-        else:
-            return redirect(url_for("index"))
+    if redirect:
+        return redirect(url_for("analyzer"))
     else:
-        start = time.time()
-        aRankList = corpus.match(strDocHashID, 10)
-        end = time.time()
-        print("Found 10 results in %s seconds" % (end-start))
+        return tfidf_list
+
+
+
+def getSearchResults( tfidf_list ):
+    """ Get a list of documents and return it's meta-info  """
+    start = time.time()
+    aRankList = match(tfidf_list, 10)
+    end = time.time()
+    print("Found 10 results in %s seconds" % (end-start))
     # return meta info
     return getSearchMetaInfo(aRankList)
+
+
+
+def match(tfidf_list, n=100):
+    """ Find closest matching docs using tfidf score """
+    terms = ",".join([int(term) for term in tfidf_list])
+    return db.execQuery("""
+        select documentid
+        , sum(tfidf)
+        from doctfidf
+        where termid in %s
+        group by documentid
+        order by sum(tfidf)
+        limit %s
+        """,(terms,n))
+
 
 
 def getSearchMetaInfo(aRankList):

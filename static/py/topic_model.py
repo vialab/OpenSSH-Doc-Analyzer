@@ -47,7 +47,8 @@ class TopicModel(object):
             self.aStopWord.append(word.strip())
 
         self.count_vect = CountVectorizer(max_df=CONST.TM_MAXDF, min_df=CONST.TM_MINDF
-                                        , max_features=CONST.TM_FEATURES, stop_words=self.aStopWord, token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")")
+                                        , max_features=CONST.TM_FEATURES, stop_words=self.aStopWord)
+                                        # , token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")")
         self.tfidf_vect = TfidfTransformer()
 
 
@@ -274,6 +275,24 @@ class TopicModel(object):
         """ Fit a body of text to our topic model """
         tf = self.count_vect.transform([strText])
         return self.lda.transform(tf)
+
+    def transformTfidf(self, strText):
+        """ Fit a body of text to our tfidf vect """
+        tf = self.count_vect.transform([strText])
+        tfidf = self.tfidf.transform(tf)
+        vocab = tm.count_vect.get_feature_names()
+        # extract data into dict
+        tfidf_list = {}
+        for tf_idx, x in enumerate(tf.indices):
+            tfidf_list[x] = {}
+            tfidf_list[x]["term"] = vocab[x]
+            tfidf_list[x]["tf"] = tf.data[tf_idx]
+
+        for idf_idx, x in enumerate(tfidf.indices):
+            tfidf_list[x]["idf"] = tfidf.data[idf_idx]
+            tfidf_list[x]["tfidf"] = tfidf_list[x]["tf"] * tfidf_list[x]["tfidf"]
+
+        return tfidf_list
 
     def printTopWords(self, model, feature_names, n_top_words):
         """ Print the top N words from each topic in a model """

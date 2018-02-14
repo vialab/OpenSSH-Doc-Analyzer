@@ -480,6 +480,32 @@ class Wrapper(object):
         return tier, sub_tier
 
 
+    def getTfidfHeadingList(self, aTF):
+        search_term = []
+        for term in aTF:
+            aWord = {}
+            heading = self.db.execQuery("""select t.id
+            , t.termid
+            , h.fr_heading
+            , th.fr_thematicheading
+            , concat(h.tierindex, case when h.tiering is not null 
+                then concat('.', h.tiering) else '' end)
+            , t.headingid
+            from tfidf t 
+            left join heading h on h.id=t.headingid
+            left join thematicheading th on th.id=h.thematicheadingid
+            where t.termid=%s""", (term,))
+            aWord["id"] = heading[0][0]
+            aWord["name"] = heading[0][1]
+            aWord["dist"] = aTF[term]["tfidf"]
+            aWord["heading"] = heading[0][2]
+            aWord["thematicheading"] = heading[0][3]
+            aWord["tier_index"] = heading[0][4]
+            aWord["heading_id"] = heading[0][5]
+            search_term.append(aWord)
+        return search_term
+
+
     def getTopicHeadingList(self, topic_list):
         search_term = []
         for idx, dist in enumerate(topic_list):
