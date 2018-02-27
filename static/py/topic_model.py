@@ -280,7 +280,7 @@ class TopicModel(object):
         """ Fit a body of text to our tfidf vect """
         tf = self.count_vect.transform([strText])
         tfidf = self.tfidf.transform(tf)
-        vocab = tm.count_vect.get_feature_names()
+        vocab = self.count_vect.get_feature_names()
         # extract data into dict
         tfidf_list = {}
         for tf_idx, x in enumerate(tf.indices):
@@ -290,7 +290,7 @@ class TopicModel(object):
 
         for idf_idx, x in enumerate(tfidf.indices):
             tfidf_list[x]["idf"] = tfidf.data[idf_idx]
-            tfidf_list[x]["tfidf"] = tfidf_list[x]["tf"] * tfidf_list[x]["tfidf"]
+            tfidf_list[x]["tfidf"] = tfidf_list[x]["tf"] * tfidf_list[x]["idf"]
 
         return tfidf_list
 

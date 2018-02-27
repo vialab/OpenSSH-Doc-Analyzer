@@ -40,7 +40,7 @@ results = db.execQuery("select lower(word) word, treetag from stopword where dat
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
-# tm = tm.TopicModel(stop_words=aStopWord)
+tm = tm.TopicModel(stop_words=aStopWord)
 # tm.loadModel()
 # tm.tfidf_vect.fit(tm.tf)
 # with open("./model/pkl/tm.pkl", "w+") as f:
@@ -85,7 +85,7 @@ def upload():
             # hash the text and look for any matches in db
             strHash = cm.getSHA256(strText)
             aHash = db.execQuery("""
-                select d.id, t.termid, t.term, udf.tf, udf.idf, udf.tfidf 
+                select d.id, t.termid, t.word, udt.tf, udt.idf, udt.tfidf 
                 from dochash d
                 left join userdoctfidf udt on udt.dochashid=d.id
                 left join tfidf t on t.id=udt.termid
@@ -93,7 +93,7 @@ def upload():
 
             if len(aHash) > 1:
                 # we have a match - recover it
-                recoverDocumentTfidf(aHash[0][0])
+                tfidf = recoverDocumentTfidf(aHash[0][0])
             else:
                 # no match, save this to the db for future reference
                 user_ip = request.environ["REMOTE_ADDR"]
@@ -107,19 +107,19 @@ def upload():
                 # preprocess text
                 strClean = tm.preProcessText(strText.decode("utf8"))
                 # transform to topic model
-                tfidf_list = tm.transformTfidf(strClean).tolist()
-                session["tfidf"] = tfidf_list
-                for idx in tfidf_list:
+                tfidf = tm.transformTfidf(strClean)
+                session["tfidf"] = tfidf
+                for idx in tfidf:
                     db.execUpdate("""
                     insert into userdoctfidf(dochashid, termid, tf, idf, tfidf)
                     values(%s, %s, %s, %s, %s);
-                    """, (dochash_id, term, tfidf_list[idx]["tf"], tfidf_list[idx]["idf"]
-                            , tfidf_list[idx]["tfidf"]))
+                    """, (dochash_id, idx, tfidf[idx]["tf"], tfidf[idx]["idf"]
+                            , tfidf[idx]["tfidf"]))
 
             # add data to session for later
-            key_term = oht.getTfidfHeadingList(tfidf_list)
+            key_term = oht.getTfidfHeadingList(tfidf)
             session["keyterm"] = key_term
-            session["searchterm"] = [term for term in key_term if term["dist"] > 0.1]
+            session["searchterm"] = [term for term in key_term[:CONST.DS_MAXTOPIC]]
     return redirect(url_for("index"))
 
 
@@ -172,8 +172,8 @@ def search():
     # find matches in the corpus
     # currently, topics and keyword matches are found separately
     # concatenated and returned (will need to rework this)
-    aRankList = corpus.matchTopicList(search_id, content["heading_list"], 10)
-    aRankList += corpus.matchKeyword(search_id, aKeywordList, 10)
+    aRankList = corpus.matchHeadingList(content["heading_list"], 10)
+    aRankList += corpus.matchKeyword(aKeywordList, 10)
     # attach meta info for display on the documents
     search = getSearchMetaInfo(aRankList)
     return json.dumps(search)
@@ -183,7 +183,7 @@ def search():
 def searchkeyword():
     """ Web hook for searching OHT for matching topics on keywords """
     content = request.get_json()
-    search = oht.matchKeyword(content["data"])
+    search = oht.getKeywords(content["data"])
     return json.dumps(search)
 
 
@@ -352,38 +352,39 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
     # 3. session["searchterm"] - filtered list of key terms
     session["dochashid"] = dochash_id
     aHash = db.execQuery("""
-        select t.termid, t.term, udf.tf, udf.idf, udf.tfidf 
-        from userdoctfidf udt on udt.dochashid=d.id
-        left join tfidf t on t.id=udt.termid
-        where udt.dochashid=%s""", (dochash_id,))
+        select t.termid, t.word, udt.tf, udt.idf, udt.tfidf 
+        from userdoctfidf udt 
+        left join tfidf t on t.termid=udt.termid
+        where udt.dochashid=%s
+        limit 5""", (dochash_id,))
 
     # we have a match - recover it
-    tfidf_list = {}
+    tfidf = {}
     for result in aHash:
         term_idx = int(result[0])
-        tfidf_list[term_idx] = {}
-        tfidf_list[term_idx]["term"] = result[1]
-        tfidf_list[term_idx]["tf"] = result[2]
-        tfidf_list[term_idx]["idf"] = result[3]
-        tfidf_list[term_idx]["tfidf"] = result[4]
-    session["tfidf"] = tfidf_list
+        tfidf[term_idx] = {}
+        tfidf[term_idx]["term"] = result[1]
+        tfidf[term_idx]["tf"] = result[2]
+        tfidf[term_idx]["idf"] = result[3]
+        tfidf[term_idx]["tfidf"] = result[4]
+    session["tfidf"] = tfidf
 
     # get headings from oht
     keyterm = oht.getTfidfHeadingList(session["tfidf"])
     session["keyterm"] = keyterm
-    session["searchterm"] = [term for term in keyterm if term["dist"] > 0.1]
+    session["searchterm"] = [term for term in keyterm[:CONST.DS_MAXTOPIC]]
     # redirect to analyzer for display
     if redirect:
-        return redirect(url_for("analyzer"))
+        return False
     else:
-        return tfidf_list
+        return tfidf
 
 
 
-def getSearchResults( tfidf_list ):
+def getSearchResults( tfidf ):
     """ Get a list of documents and return it's meta-info  """
     start = time.time()
-    aRankList = match(tfidf_list, 10)
+    aRankList = match(tfidf, 10)
     end = time.time()
     print("Found 10 results in %s seconds" % (end-start))
     # return meta info
@@ -391,18 +392,18 @@ def getSearchResults( tfidf_list ):
 
 
 
-def match(tfidf_list, n=100):
+def match(tfidf, n=100):
     """ Find closest matching docs using tfidf score """
-    terms = ",".join([int(term) for term in tfidf_list])
+    terms = ",".join([str(term) for term in tfidf])
     return db.execQuery("""
         select documentid
         , sum(tfidf)
         from doctfidf
-        where termid in %s
+        where termid in (""" + terms + """)
         group by documentid
         order by sum(tfidf)
         limit %s
-        """,(terms,n))
+        """,(n,))
 
 
 
@@ -442,21 +443,21 @@ def getSearchMetaInfo(aRankList):
         doc["cossim"] = result[12]
         # get document distributions
         aTopicDist = db.execQuery("""
-        select t.topicname, t.id, d.dist, h.fr_heading, th.fr_thematicheading
+        select t.termid, d.word, d.tfidf, h.fr_heading, th.fr_thematicheading
             , concat(h.tierindex, case when h.tiering is not null 
                 then concat('.', h.tiering) else '' end)
             , t.headingid
-        from doctopic d 
-        left join topic t on t.id=d.topicid
+        from doctfidf d 
+        left join tfidf t on t.termid=d.termid
         left join heading h on h.id=t.headingid
         left join thematicheading th on th.id=h.thematicheadingid
         where d.documentid=%s
-        order by d.dist desc limit 10""", (doc["id"],))
+        order by d.tfidf desc limit 10""", (doc["id"],))
 
         for topic in aTopicDist:
             temp = {}
-            temp["name"] = topic[0]
-            temp["id"] = topic[1]
+            temp["id"] = topic[0]
+            temp["name"] = topic[1]
             temp["dist"] = topic[2]
             temp["heading"] = topic[3]
             temp["thematicheading"] = topic[4]
@@ -466,13 +467,13 @@ def getSearchMetaInfo(aRankList):
         
         # pull any named entities saved for this document
         doc["entitylist"] = []
-        aEntity = db.execQuery("""select entity, txt from entity where documentid=%s 
-            and (entitytype='nomorg' or entitytype='nompers')""", (doc["id"],))
-        for entity in aEntity:
-            temp = {}
-            temp["type"] = result[0]
-            temp["name"] = result[1]
-            doc["entitylist"].append(temp)
+        # aEntity = db.execQuery("""select entity, txt from entity where documentid=%s 
+        #     and (entitytype='nomorg' or entitytype='nompers')""", (doc["id"],))
+        # for entity in aEntity:
+        #     temp = {}
+        #     temp["type"] = result[0]
+        #     temp["name"] = result[1]
+        #     doc["entitylist"].append(temp)
         search.append(doc)
     end = time.time()
     print("Got document meta info in %s seconds" % (end-start))
@@ -506,10 +507,16 @@ def saveStopWords():
         pickle.dump(aStopWord, f)
 
 
+def inferTopic(tfidf):
+    # look up a list of words in OHT and place us somewhere
+    for key in tfidf:
+        word = tfidf[key]["word"]
+
+
 def inferTopicNames():
-    results = db.execQuery("select id from topic where headingid is null")
+    results = db.execQuery("select word, pos from tfidf where headingid is null")
     for result in results:
-        aHeading = oht.getTopicHeadingRankList(result[0])
+        aHeading = oht.getTfidfHeadingRankList(result[0])
         aTop = { "value":0, "id":None, "col":[] }
         for key in aHeading:
             if aHeading[key] > aTop["value"]:

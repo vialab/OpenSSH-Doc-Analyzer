@@ -7,24 +7,10 @@ from lz4.frame import compress, decompress
 
 db = db.Database()
 
-def matchHeadingList(search_id, heading_list, n=100):
+def matchHeadingList(heading_list, n=100):
     """ Match an array of selected topics to the corpus """
     if len(heading_list) == 0:
         return []
-    for heading in heading_list:
-        heading_id = heading["heading_id"]
-        weight = heading["weight"]
-        order = heading["order"]
-        db.execUpdate("""
-        insert into topicsearch(searchid, topicid, dist, rank)
-        select %s
-        , id
-        , %s
-        , %s
-        from topic 
-        where headingid=%s
-        limit 1
-        """, (search_id, weight, order, heading_id))
 
     # parametize our list to use in where in clause
     id_list = ",".join([int(heading["heading_id"]) for heading in heading_list])
@@ -39,24 +25,28 @@ def matchHeadingList(search_id, heading_list, n=100):
         """, (id_list,n))
 
 
-def matchKeyword(search_id, keyword_list, n=100):
+def matchKeyword(keyword_list, n=100):
     if len(keyword_list) == 0:
-        return ()
+        return []
 
     # clean list of special characters
     clean_list = []
     for word in keyword_list:
         clean_list.append(re.sub('[^A-Za-z0-9]+', '', word))
-    
-    keywords = "|".join(clean_list)
-    return db.execQuery("""
-        select d.documentid
-        , sum(d.tfidf) score 
+    # put them for regex search
+    keywords = " ".join(clean_list)
+    return db.execQuery("""select d.documentid
+        , sum(d.tfidf) score
         from doctfidf d
-        where d.term REGEXP %s
+        where d.termid in (
+            select termid
+            from tfidf 
+            where match(word) against(%s in boolean mode) 
+        )
         group by d.documentid
+        order by sum(d.tfidf) desc
         limit %s
-        """, (keywords,n))
+        """, (keywords, n))
 
 
 

@@ -52,7 +52,7 @@
             {% for topic in result["topiclist"] %}
             {% if topic['dist'] > 0.1 %}
             <li>
-                <a id="{{ topic['id'] }}" onclick="drawSearchTerm('{{ topic['tier_index']|safe }}', '{{ topic['heading_id']|safe }}', '{{ topic['heading']|safe }}', 0);" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{ topic["thematicheading"]|safe }} | {{ topic["heading"]|safe }} ( {{ (topic["dist"]*100)|round(2) }} % )</a>
+                <a id="{{ topic['id'] }}" onclick="drawSearchTerm('{{ topic['tier_index']|safe }}', '{{ topic['heading_id']|safe }}', '{{ topic['heading']|safe }}', 0);" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{ topic["name"]|safe }} ( {{ (topic["dist"]*100)|round(2) }} )</a>
             </li>
             {% endif %}
             {% endfor %}
@@ -87,7 +87,8 @@
 <script>
     {% if search_term %}
     {% for term in search_term %}
-    drawSearchTerm("{{term['tier_index']|safe}}", "{{ term['heading_id'] }}", "{{ term['heading']|safe }}", 0);
+    // drawSearchTerm("{{term['tier_index']|safe}}", "{{ term['heading_id'] }}", "{{ term['heading']|safe }}", 0);
+    drawKeyword("{{term['name']|safe}}");
     {% endfor %}
     {% endif %}
 </script>

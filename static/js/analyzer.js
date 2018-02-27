@@ -106,9 +106,6 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
                 + $(this).attr("heading-id") + "&tierindex="
                 + $(this).attr("tier-index");
         };
-        $(".custom-keyword-container").on("click", function() {
-            window.location.href = "/analyzer?quicksearch=" + keyword;
-        });
     }
 
     typed_interval = setTimeout(function() {
@@ -213,10 +210,15 @@ function showKeywordResults(data, cb_keyword) {
         createNewVis("#"+svg_path, "mini-"+clean_tier_index, "/oht/"
         , data[i][4], 100, 100, 1, false, false, false, data[i][0]);
     }
-
+    $(".custom-keyword-container").off("click");
     $(".custom-keyword-container").on("click", function() {
         drawKeyword($(".keyword-heading").html());
         toggleKeywordDialog();
+    });
+    
+    $(".custom-keyword-container.homepage").on("click", function() {
+        $(this).off("click");
+        window.location.href = "/analyzer?quicksearch=" + $(".keyword-heading", this).html();
     });
 
     $(".keyword-container").on("click", cb_keyword);
@@ -412,12 +414,18 @@ function showSearchResults( data ) {
             var topic = doc.topiclist[y];
             if(topic.dist < 0.1) continue;
             var dist = topic.dist * 100;
+            // var $docterm = $("<li><a id='" + topic.id 
+            //     + "' onclick='drawSearchTerm(\"" + topic.tier_index 
+            //     + "\", \"" + topic.heading_id + "\",\"" + topic.heading 
+            //     + "\");' class='search-term'>" + topic.thematicheading 
+            //     + " | " + topic.heading + " ( " + dist.toFixed(2) 
+            //     + " % )</a></li>");
             var $docterm = $("<li><a id='" + topic.id 
                 + "' onclick='drawSearchTerm(\"" + topic.tier_index 
                 + "\", \"" + topic.heading_id + "\",\"" + topic.heading 
-                + "\");' class='search-term'>" + topic.thematicheading 
-                + " | " + topic.heading + " ( " + dist.toFixed(2) 
-                + " % )</a></li>");
+                + "\");' class='search-term'>" + topic.name 
+                 + " ( " + dist
+                + " )</a></li>");
             $("#doc-topic", $container).append($docterm);
         }
     }

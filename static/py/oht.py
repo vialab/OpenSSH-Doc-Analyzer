@@ -126,9 +126,7 @@ class Wrapper(object):
     db = db.Database()
     ALLOWED_LANG = ["en", "fr"]
 
-
-
-    def matchKeyword(self, keyword):
+    def getKeywords(self, keyword, n=10):
         """ Returns a list of headings that have a matching keyword """
         return self.db.execQuery("""
         select distinct h.id
@@ -140,9 +138,8 @@ class Wrapper(object):
         left join heading h on h.id=w.headingid
         left join thematicheading th on th.id=h.thematicheadingid
         where w.word like %s
-        limit 10
-        """, ("%" + keyword + "%",))
-
+        limit %s
+        """, ("%" + keyword + "%", n))
 
     def getWordList(self, strWord, pos=None, lang="en"):
         """ Returns a list of word objects that matches """
@@ -175,6 +172,16 @@ class Wrapper(object):
             words.append(word)
 
         return words
+
+
+
+    def getTfidfHeadingRankList(self, word, pos):
+        """ Get all headings with a rank for a single term """
+        aHeading = {}
+        # results = self.db.execQuery("""
+
+        # """, (,))
+
 
 
     
@@ -469,8 +476,9 @@ class Wrapper(object):
                             return "", ""
                         start_na = True
                         last_idx = idx
+                    
                 # fill rest of tier index with NA if needed
-                if start_na or idx == len(root_tier)-1:
+                if start_na or idx+1 == len(root_tier)-1:
                     tier += "NA"
                 else:
                     # otherwise insert node
@@ -484,8 +492,8 @@ class Wrapper(object):
         search_term = []
         for term in aTF:
             aWord = {}
-            heading = self.db.execQuery("""select t.id
-            , t.termid
+            heading = self.db.execQuery("""select t.termid
+            , t.word
             , h.fr_heading
             , th.fr_thematicheading
             , concat(h.tierindex, case when h.tiering is not null 
