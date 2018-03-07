@@ -459,3 +459,7 @@ text {
     background-color: #ddd;
     color: gray;
 }
+
+.no-click {
+    color: rgba(100,100,100,0.25) !important;
+}

@@ -39,6 +39,24 @@
     </div>
     <button id="search-btn" onclick="search();">Search</button>
 </div>
+<div class="modal fade" id="modal-synset" tabindex="-1" role="dialog" aria-labelledby="modal-title-synset" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-title-synset">Heading Synset</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        <div class="modal-body" id="modal-body-synset">
+            
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>
 <div id="search-result-container">
     {% if search_result %}
         {% for result in search_result %}
@@ -47,17 +65,17 @@
             <div class="doc-title">{{ result["title"]|safe }}</div>
             <div class="doc-author">{{ result["author"]|safe }}</div>
             <div class="doc-cite">{{ result["citation"]|safe }}</div>
-            <h3>TOPICS</h3>
+            <h3>TOP KEYWORDS</h3>
             <ul class="doc-term" id="doc-topic">
             {% for topic in result["topiclist"] %}
             {% if topic['dist'] > 0.1 %}
             <li>
-                <a id="{{ topic['id'] }}" onclick="drawSearchTerm('{{ topic['tier_index']|safe }}', '{{ topic['heading_id']|safe }}', '{{ topic['heading']|safe }}', 0);" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{ topic["name"]|safe }} ( {{ (topic["dist"]*100)|round(2) }} )</a>
+                <a id="{{ topic['id'] }}" onclick="drawKeyword('{{ topic['name']|safe }}');" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{loop.index}}. {{ topic["name"]|safe }}</a>
             </li>
             {% endif %}
             {% endfor %}
             </ul>
-            <h3>PEOPLE</h3>
+            <h3>SEARCH TERMS</h3>
             <ul class="doc-term" id="doc-people">
             {% for entity in result["entitylist"] %}
             {% if entity["type"] == "nompers" %}                
@@ -66,16 +84,6 @@
             </li>
             {% endif %}
             {% endfor %}              
-            </ul>                
-            <h3>ORGANIZATIONS</h3>
-            <ul class="doc-term" id="doc-org">
-            {% for entity in result["entitylist"] %}
-            {% if entity["type"] == "nomorg" %}
-            <li>
-                <a class="search-term">{{ entity["name"]|safe }}</a>                    
-            </li>
-            {% endif %}
-            {% endfor %}
             </ul>
         </div>
         {% endfor %}
@@ -85,11 +93,17 @@
 {% block add_js %}
 <script src="{{ url_for('static', filename='js/explore.js') }}"></script>
 <script>
+    {% if tier_index %}
+        var home_tier = "{{tier_index}}";
+    {% else %}
+        var home_tier = "1.NA.NA.NA.NA.NA.NA.1";
+    {% endif %}
+
     {% if search_term %}
-    {% for term in search_term %}
-    // drawSearchTerm("{{term['tier_index']|safe}}", "{{ term['heading_id'] }}", "{{ term['heading']|safe }}", 0);
-    drawKeyword("{{term['name']|safe}}");
-    {% endfor %}
+        {% for term in search_term %}
+            // drawSearchTerm("{{term['tier_index']|safe}}", "{{ term['heading_id'] }}", "{{ term['heading']|safe }}", 0);
+            drawKeyword("{{term['name']|safe}}");
+        {% endfor %}
     {% endif %}
 </script>
 <script src="{{ url_for('static', filename='js/analyzer.js') }}"></script>

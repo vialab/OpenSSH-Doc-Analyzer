@@ -25,9 +25,10 @@ $(document).on("click", ".term-vis svg", function() {
     // draw vis of current tier in search dialog
     var vis_height = $(window).height()-$("#search-term-container").height()-120;
     var heading_id = $(".term-heading-id", $parent).val();
+
     createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
         , target_index, $("#search-dialog").width()-2, vis_height, 1
-        , true, true, true, heading_id, keywordClicked);
+        , true, true, true, heading_id, headingClicked);
 
     // set up the weight slider bar to match selection
     var weight = $(".term-heading-weight", $parent).val();
@@ -51,13 +52,31 @@ $("#search-dialog").on("click", function() {
 
 // add a new term
 $("#add-term").on("click", function() {
-    // draw the search term to dom
-    drawSearchTerm("1.NA.NA.NA.NA.NA.NA.1", 181456, "The world", 0);
+    // draw vis of current tier in search dialog
+    var vis_height = $(window).height()-$("#search-term-container").height()-120;
+    createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
+        , home_tier, $("#search-dialog").width()-2, vis_height, 1
+        , true, true, true, null, headingClicked
+        // function(d) {
+        //     drawSearchTerm(d.data.parent, d.data.heading_id, d.data.name, 0);
+        //     toggleSearchDialog();            
+        // }
+    );
+
+    // set up the weight slider bar to match selection
+    setWeightValue(1);
+    $("#search-dialog .slider").css("bottom"
+        , $("#search-term-container").height() + 15);
     
+    searching = false;
+    toggleSearchDialog();
+
+    // draw the search term to dom
+    // drawSearchTerm("1.NA.NA.NA.NA.NA.NA.1", 181456, "The world", 0);
     // open up search dialog to new term
-    var idx = $(".term-container").length-1;
-    if(idx < 0) idx = 0;
-    $($(".term-container svg")[idx]).click();
+    // var idx = $(".term-container").length-1;
+    // if(idx < 0) idx = 0;
+    // $($(".term-container svg")[idx]).click();
 });
 
 // if we resize the screen, close the search dialog and adjust elements
@@ -135,6 +154,7 @@ $(document).ready(function() {
     $("#search-term-box").sortable({
         items: ".term-container"
     });
+    $("#modal-synset").modal({show:false});
     $("#weight-slider").slider();
     var search_id = getParameterByName("searchid");
     var quick_search = getParameterByName("quicksearch");
@@ -311,6 +331,32 @@ function togglePeek() {
 }
 
 // what happens when a keyword is clicked in search dialog vis
+function headingClicked(d) {
+    $.ajax({
+        type: "GET"
+        , url: "/oht/synset/" + d.data.heading_id
+        , success: function(data) {
+            // clear modal
+            $("#modal-body-synset").html("");
+            // add new keywords from synset
+            for(var i = 0; i < data.length; i ++) {
+                var html = "<div class='term-container text-center";
+                if(data[i]["enable"]) {
+                    html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\");'";
+                } else {
+                    html += " no-click'";
+                }
+                html += ">" + data[i]["name"] + "</div>";
+                $("#modal-body-synset").append(html);
+            }
+            // set title and go
+            $("#modal-title-synset").html(d.data.name);
+            $("#modal-synset").modal("show");
+        }
+    });
+}
+
+// what happens when a keyword is clicked in search dialog vis
 function keywordClicked(d) {
     var new_tier_index = d.data.parent;
     var $target = $("#"+target, "#"+target_parent);
@@ -393,12 +439,10 @@ function showSearchResults( data ) {
             <div class='doc-title'></div>\
             <div class='doc-author'></div>\
             <div class='doc-cite'></div>\
-            <h3>TOPICS</h3>\
+            <h3>TOP KEYWORDS</h3>\
             <ul class='doc-term' id='doc-topic'></ul>\
-            <h3>PEOPLE</h3>\
+            <h3>SEARCH TERMS</h3>\
             <ul class='doc-term' id='doc-people'></ul>\
-            <h3>ORGANIZATIONS</h3>\
-            <ul class='doc-term' id='doc-org'></ul>\
         </div>");
 
         var doc = data[i];
@@ -410,6 +454,7 @@ function showSearchResults( data ) {
         $(".doc-cite", $container).html( doc.citation );
 
         // insert topics
+        var n = 0;
         for(y in doc.topiclist) {
             var topic = doc.topiclist[y];
             if(topic.dist < 0.1) continue;
@@ -421,11 +466,9 @@ function showSearchResults( data ) {
             //     + " | " + topic.heading + " ( " + dist.toFixed(2) 
             //     + " % )</a></li>");
             var $docterm = $("<li><a id='" + topic.id 
-                + "' onclick='drawSearchTerm(\"" + topic.tier_index 
-                + "\", \"" + topic.heading_id + "\",\"" + topic.heading 
-                + "\");' class='search-term'>" + topic.name 
-                 + " ( " + dist
-                + " )</a></li>");
+                + "' onclick='drawKeyword(\"" + topic.name
+                + "\");' class='search-term'>" + (++n) + ". "+ topic.name 
+                + "</a></li>");
             $("#doc-topic", $container).append($docterm);
         }
     }

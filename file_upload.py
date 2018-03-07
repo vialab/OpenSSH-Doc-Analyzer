@@ -32,7 +32,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.session_interface = ps.PickleSessionInterface("./app_session")
 
 # Common variables
-oht = oht.Wrapper()
+oht_wrapper = oht.Wrapper()
 db = db.Database()
 aStopWord = []
 results = db.execQuery("select lower(word) word, treetag from stopword where dataset=%s"
@@ -64,7 +64,7 @@ def index():
     # savePreProcessedList()
     # transformDocumentToModel(5000)
     # saveTFDF()
-    # oht.writeHierarchyToCSV()
+    # oht_wrapper.writeHierarchyToCSV()
     return render_template("index.html")
 
 
@@ -117,9 +117,11 @@ def upload():
                             , tfidf[idx]["tfidf"]))
 
             # add data to session for later
-            key_term = oht.getTfidfHeadingList(tfidf)
+            key_term = oht_wrapper.getTfidfHeadingList(tfidf)
             session["keyterm"] = key_term
-            session["searchterm"] = [term for term in key_term[:CONST.DS_MAXTOPIC]]
+            search_term = [term for term in key_term[:CONST.DS_MAXTOPIC]]
+            session["searchterm"] = search_term
+            session["tierindex"] = oht_wrapper.getTierIndexIntersection(search_term)
     return redirect(url_for("index"))
 
 
@@ -183,7 +185,7 @@ def search():
 def searchkeyword():
     """ Web hook for searching OHT for matching topics on keywords """
     content = request.get_json()
-    search = oht.getKeywords(content["data"])
+    search = oht_wrapper.getKeywords(content["data"])
     return json.dumps(search)
 
 
@@ -210,19 +212,22 @@ def analyzer():
     total_start = time.time()
     search = None
     search_term = None
-    key_term = None 
+    key_term = None
+    tier_index = None
     if quick_search is None and search_id is None:
         # if we are searching using a document - get results
         search = getSearchResults(session["tfidf"])
         search_term = session["searchterm"]
         key_term = session["keyterm"]
+        tier_index = session["tierindex"]
     # otherwise, our search will be done dynamically through client
     total_end = time.time()
     print("Total Time: %s seconds" % (total_end-total_start))
     return render_template("analyzer.html"
         , search_result=search
         , search_term=search_term
-        , key_term=key_term)
+        , key_term=key_term
+        , tier_index=tier_index)
 
 
 @app.route("/oht")
@@ -230,13 +235,30 @@ def analyzer():
 def oht_csv(tier_index=None):
     """ Web hook for retrieving OHT tree based off tier index """
     if tier_index is None:
-        return Response(oht.csv(), mimetype="text/csv")
+        return Response(oht_wrapper.csv(), mimetype="text/csv")
         
     if len(tier_index.split(".")) < 7 and tier_index != "root":
         abort(404)
 
-    csv = oht.getTierIndexChildren(tier_index)
+    csv = oht_wrapper.getTierIndexChildren(tier_index)
     return Response(csv, mimetype="text/csv")
+
+
+@app.route("/oht/synset/<heading_id>")
+def oht_synset(heading_id):
+    """ Web hook for retrieving a word heading synset """
+    heading = oht.Heading(heading_id)
+    words = heading.Synset()
+    word_list = []
+    for word in words:
+        temp = {}
+        temp["id"] = word["word"].id
+        temp["name"] = word["word"].fr
+        temp["pos"] = word["word"].pos
+        if word["enable"]:
+            temp["enable"] = 1
+        word_list.append(temp)
+    return jsonify(word_list)
 
 
 @app.route("/history")
@@ -370,9 +392,11 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
     session["tfidf"] = tfidf
 
     # get headings from oht
-    keyterm = oht.getTfidfHeadingList(session["tfidf"])
-    session["keyterm"] = keyterm
-    session["searchterm"] = [term for term in keyterm[:CONST.DS_MAXTOPIC]]
+    key_term = oht_wrapper.getTfidfHeadingList(session["tfidf"])
+    search_term = [term for term in keyterm[:CONST.DS_MAXTOPIC]]
+    session["keyterm"] = key_term
+    session["searchterm"] = search_term
+    session["tierindex"] = oht_wrapper.getTierIndexIntersection(search_term)
     # redirect to analyzer for display
     if redirect:
         return False
@@ -452,7 +476,7 @@ def getSearchMetaInfo(aRankList):
         left join heading h on h.id=t.headingid
         left join thematicheading th on th.id=h.thematicheadingid
         where d.documentid=%s
-        order by d.tfidf desc limit 10""", (doc["id"],))
+        order by d.tfidf desc limit %s""", (doc["id"],CONST.DS_MAXTOPIC))
 
         for topic in aTopicDist:
             temp = {}
@@ -516,7 +540,7 @@ def inferTopic(tfidf):
 def inferTopicNames():
     results = db.execQuery("select word, pos from tfidf where headingid is null")
     for result in results:
-        aHeading = oht.getTfidfHeadingRankList(result[0])
+        aHeading = oht_wrapper.getTopicHeadingRankList(result[0])
         aTop = { "value":0, "id":None, "col":[] }
         for key in aHeading:
             if aHeading[key] > aTop["value"]:

@@ -6,7 +6,8 @@ ALLOWED_EXTENSIONS = set(["txt", "pdf"])
 DS_MINSIG = 0.05 # significance threshold for topic distribution (MAX 1.0)
 DS_MAXTERM = 10 # number of prioritized terms
 DS_PENALTY = 10 # penalty parameter (RWPD) for non matching topics
-DS_MAXTOPIC = 3 # number of topics to recognize
+DS_MAXTOPIC = 5 # number of topics to recognize
+
 
 # Topic model constants
 TM_TOPICS = 1000

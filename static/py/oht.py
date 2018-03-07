@@ -66,12 +66,18 @@ class Heading(object):
     def Synset(self):
         """ Returns list of words categorized within current heading """
         results = self.db.execQuery("""
-            select w.id 
-            from word w 
-            where w.headingid=%s""", (self.id,))
+            select w.id, wc.id
+            from word w
+            left join word_cache wc on wc.wordid=w.id
+            where w.headingid=%s
+            order by wc.id""", (self.id,))
         words = []
         for result in results:
-            word = Word(result[0])
+            if result[1]:
+                bEnable = True
+            else:
+                bEnable = False
+            word = { "word":Word(result[0]), "enable": bEnable }
             words.append(word)
         return words
 
@@ -126,6 +132,9 @@ class Wrapper(object):
     db = db.Database()
     ALLOWED_LANG = ["en", "fr"]
 
+    def __init__(self):
+        self.db.execProc("sp_tfidf_cache")
+
     def getKeywords(self, keyword, n=10):
         """ Returns a list of headings that have a matching keyword """
         return self.db.execQuery("""
@@ -172,16 +181,6 @@ class Wrapper(object):
             words.append(word)
 
         return words
-
-
-
-    def getTfidfHeadingRankList(self, word, pos):
-        """ Get all headings with a rank for a single term """
-        aHeading = {}
-        # results = self.db.execQuery("""
-
-        # """, (,))
-
 
 
     
@@ -320,6 +319,7 @@ class Wrapper(object):
             aHeading = self.db.execQuery("""
             select tierindex, tiering from heading 
             where tierindex like %s 
+            and id in (select distinct headingid from tfidf_cache)
             group by tierindex, tiering""",('%.NA.NA.NA.NA.NA.NA',))
         else:
             # we are not root node
@@ -374,6 +374,7 @@ class Wrapper(object):
                 , tiering
                 from heading
                 where tierindex=%s and tiering like %s 
+                and id in (select distinct headingid from tfidf_cache)
                 group by tierindex, tiering
                 """,(tier_index,sub_tier))
             else:
@@ -394,10 +395,11 @@ class Wrapper(object):
                 select tierindex
                 , tiering
                 from heading
-                where (tierindex=%s) 
+                where ((tierindex=%s) 
                 or (tierindex like %s 
                 and tierindex != %s 
-                and tiering not like %s) 
+                and tiering not like %s))
+                and id in (select distinct headingid from tfidf_cache)
                 group by tierindex, tiering
                 """,(tier_index, query_tier, tier_index, "sub%"))
 
@@ -421,7 +423,7 @@ class Wrapper(object):
 
         return csv
 
-
+    
 
     def getHeadingCSVList(self, parent_list):
         """ Convert array of headings into a CSV """
@@ -440,6 +442,7 @@ class Wrapper(object):
             , concat(tierindex,'.',tiering) parent
             from heading
             where tierindex=%s and tiering=%s
+            and id in (select distinct headingid from tfidf_cache)
             """, (tier_index,root_tier))
             # append all nodes to csv
             for result in aHeading:
@@ -514,27 +517,19 @@ class Wrapper(object):
         return search_term
 
 
-    def getTopicHeadingList(self, topic_list):
-        search_term = []
-        for idx, dist in enumerate(topic_list):
-            term = {}
-            topic = self.db.execQuery("""select t.id
-            , t.topicname
-            , h.fr_heading
-            , th.fr_thematicheading
-            , concat(h.tierindex, case when h.tiering is not null 
-                then concat('.', h.tiering) else '' end)
-            , t.headingid
-            from topic t 
-            left join heading h on h.id=t.headingid
-            left join thematicheading th on th.id=h.thematicheadingid
-            where t.topicname=%s order by cast(topicname as UNSIGNED) asc""", (idx,))
-            term["id"] = topic[0][0]
-            term["name"] = topic[0][1]
-            term["dist"] = dist
-            term["heading"] = topic[0][2]
-            term["thematicheading"] = topic[0][3]
-            term["tier_index"] = topic[0][4]
-            term["heading_id"] = topic[0][5]
-            search_term.append(term)
-        return search_term
+    def getTierIndexIntersection(self, search_term):
+        aHeading = {}
+        top_freq = 0
+        top_tier = ""
+        for term in search_term:
+            key = term["tier_index"]
+            if key in aHeading:
+                aHeading[key] += 1
+            else:
+                aHeading[key] = 1
+            
+            if aHeading[key] > top_freq:
+                top_freq = aHeading[key]
+                top_index = key
+
+        return top_index
