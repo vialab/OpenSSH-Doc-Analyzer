@@ -70,7 +70,7 @@ class Heading(object):
             from word w
             left join word_cache wc on wc.wordid=w.id
             where w.headingid=%s
-            order by wc.id""", (self.id,))
+            order by wc.id desc""", (self.id,))
         words = []
         for result in results:
             if result[1]:
@@ -420,7 +420,6 @@ class Wrapper(object):
         
         csv += self.sortHierarchy(line_list) # sort references in our csv
         csv += self.getHeadingCSVList(parent_list) # now append all children
-
         return csv
 
     
