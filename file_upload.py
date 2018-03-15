@@ -46,8 +46,8 @@ tm = tm.TopicModel(stop_words=aStopWord)
 # with open("./model/pkl/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
 tm = None
-with open("./model/pkl/tm.pkl", "r") as f:
-    tm = pickle.load(f)
+# with open("./model/pkl/tm.pkl", "r") as f:
+    # tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
 
 
@@ -249,15 +249,22 @@ def oht_synset(heading_id):
     """ Web hook for retrieving a word heading synset """
     heading = oht.Heading(heading_id)
     words = heading.Synset()
-    word_list = []
-    for word in words:
-        temp = {}
-        temp["id"] = word["word"].id
-        temp["name"] = word["word"].fr
-        temp["pos"] = word["word"].pos
-        if word["enable"]:
-            temp["enable"] = 1
-        word_list.append(temp)
+    word_list = filterHeadingList(words)
+    return jsonify(word_list)
+
+
+@app.route("/oht/directory/<heading_id>")
+def oht_directory(heading_id):
+    """ Retrieve parent, adjacent, and children headings """
+    heading = oht.Heading(heading_id)
+    words = heading.Synset()
+    hyper = heading.Hypernym()
+    hypo = heading.Hyponym()
+    cohypo = heading.Cohyponym()
+    word_list = {}
+    word_list["hyper"] = filterHeadingList(hyper)
+    word_list["hypo"] = filterHeadingList(hypo)
+    word_list["cohypo"] = filterHeadingList(cohypo)
     return jsonify(word_list)
 
 
@@ -343,10 +350,16 @@ def recoverSearch(search_id):
     , st.rank 
     , concat(h.tierindex, '.', h.tiering)
     , h.heading
+    , w.headingid
+    , h2.tierindex
     from searchterm st
     left join search s on s.id=st.searchid
     left join heading h on h.id=st.headingid
+    left join word w on w.fr_translation = st.keyword
+    left join heading h2 on h2.id=w.headingid
     where st.searchid=%s and s.ipaddr=%s
+    and (st.headingid in (select headingid from tfidf_cache) 
+		or w.headingid in (select headingid from tfidf_cache))
     order by st.rank""", (search_id,user_ip))
 
     # correct ip address?
@@ -359,11 +372,17 @@ def recoverSearch(search_id):
                 t["heading"] = term[5]
             else:
                 t["keyword"] = term[1]
+                t["heading_id"] = term[6]
+                t["tier_index"] = term[7]
             t["weight"] = term[2]
             t["order"] = term[3]
             search_term.append(t)
+    data = {
+        "content": search_term,
+        "tier_index": oht_wrapper.getTierIndexIntersection(search_term)
+    }
     # return json markup
-    return jsonify(search_term)
+    return jsonify(data)
 
 
 def recoverDocumentTfidf(dochash_id, redirect=True):
@@ -504,6 +523,19 @@ def getSearchMetaInfo(aRankList):
     return search
 
 
+
+def filterHeadingList(words):
+    """ Filter a list of words for client side use """
+    heading_list = []
+    for word in words:
+        temp = {}
+        temp["id"] = word["word"].id
+        temp["name"] = word["word"].fr
+        temp["pos"] = word["word"].pos
+        if word["enable"]:
+            temp["enable"] = 1
+        heading_list.append(temp)
+    return heading_list
 
 
 ############################## HELPER FUNCTIONS ##############################

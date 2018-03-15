@@ -82,7 +82,6 @@ class Heading(object):
         return words
 
 
-
     def Hypernym(self):
         """ Returns a list of heading objects that are parent 
             to current heading """
@@ -97,16 +96,16 @@ class Heading(object):
             strIndex+=".NA"
 
         results = self.db.execQuery("""
-            select id 
+            select id
             from heading 
-            where tierindex=%s""", (strIndex,))
+            where tierindex=%s and tiering not like 'sub%%'
+            and id in (select distinct headingid from tfidf_cache)
+            """, (strIndex,))
         headings = []
         for result in results:
             heading = Heading(result[0])
             headings.append(heading)
-
         return headings
-
 
 
     def Hyponym(self):
@@ -115,13 +114,29 @@ class Heading(object):
         results = self.db.execQuery("""
             select id 
             from heading 
-            where tierindex=%s 
-            and subcat is not null """,(self.tierindex,))
+            where tierindex=%s and tiering not like 'sub%%'
+            and id in (select distinct headingid from tfidf_cache)
+            """,(self.tierindex,))
         headings = []
         for result in results:
             heading = Heading(result[0])
             headings.append(heading)
+        return headings
 
+
+    def Cohyponym(self):
+        """ Returns a list of heading objects that are adjacent
+            to the current heading """
+        results = self.db.execQuery("""
+            select id
+            from heading
+            where tierindex=%s and id != %s
+            and id in (select distinct headingid from tfidf_cache)
+            """, (self.tierindex,self.id))
+        headings = []
+        for result in results:
+            heading = Heading(result[0])
+            headings.append(heading)
         return headings
 
 
@@ -260,7 +275,7 @@ class Wrapper(object):
 
                 if parent_node[2].rstrip() == "\"\"":
                     # we are root
-                    first_idx = 0
+                    pass
                 else:
                     # find first reference of this parent node
                     for idx, parent in enumerate(new_list):
@@ -295,24 +310,22 @@ class Wrapper(object):
         csv = "\"heading_id\",\"name\",\"parent\",\"size\",\"keyword\"\n"
         parent_list = {}        
         line_list = []
+        # set "root" as top of hierarchy
+        new_line = "\"root\",\"root\",\"\",,\n"
+        line_list.append(new_line)
+        parent_list["root"] = False      
         # if we are looking for the root
         if root=="root":
-            new_line = "\"" + root + "\",\"" + root + "\",\"\",,\n"
-            line_list.append(new_line)
-            parent_list[root] = False
             # include all three root categories, the mind
-            new_line = "\"1.NA.NA.NA.NA.NA.NA.1\"\
-                ,\"1.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            new_line = "\"1.NA.NA.NA.NA.NA.NA.1\",\"1.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
             line_list.append(new_line)
             parent_list["1.NA.NA.NA.NA.NA.NA.1"] = True
             # the earth
-            new_line = "\"2.NA.NA.NA.NA.NA.NA.1\"\
-                ,\"2.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            new_line = "\"2.NA.NA.NA.NA.NA.NA.1\",\"2.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
             line_list.append(new_line)
             parent_list["2.NA.NA.NA.NA.NA.NA.1"] = True
             # society
-            new_line = "\"3.NA.NA.NA.NA.NA.NA.1\"\
-                ,\"3.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            new_line = "\"3.NA.NA.NA.NA.NA.NA.1\",\"3.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
             line_list.append(new_line)
             parent_list["3.NA.NA.NA.NA.NA.NA.1"] = True
             # get tier index list
@@ -325,12 +338,7 @@ class Wrapper(object):
             # we are not root node
             tier = root.split(".")
             tier_index = ".".join(t for t in tier[:7])
-            sub_tier = ".".join(t for t in tier[7:])
-            
-            # set "root" as top of hierarchy
-            new_line = "\"root\",\"root\",\"\",,\n"
-            line_list.append(new_line)
-            parent_list["root"] = False          
+            sub_tier = ".".join(t for t in tier[7:])    
             
             # then get parents of parents till we reach root            
             curr_node = root
@@ -451,7 +459,7 @@ class Wrapper(object):
                     + "\",\"10\",\"1\"\n"
         return csv
 
-
+    
 
     def getParentTier(self, root):
         """ Get parent tier of tier index """
@@ -490,6 +498,45 @@ class Wrapper(object):
         return tier, sub_tier
 
 
+    def getFirstChildTier(self, root):
+        """ Get child tier of current tier index """
+        root_tier = root.split(".")[:7]
+        tier = ""
+        start_na = False
+        last_index = 1
+        if root_tier[-1] != "NA":
+            # we are already at the deepest level
+            return ".".join(root_tier)
+        elif root == "root": 
+            return "1.NA.NA.NA.NA.NA.NA"
+        else:
+            # we need to build a tier for search query
+            for idx, t in enumerate(root_tier):
+                if idx > 0:
+                    tier += "."
+                # look for where NA's first start
+                if root_tier[idx] == "NA" and not start_na:
+                    # found first NA so make it wild card
+                    start_na = True
+                    tier += "%"
+                    last_index = idx+1
+                else:
+                    # otherwise insert node
+                    tier += t
+        t = "t"+str(last_index)
+        results = self.db.execQuery("""
+        select tierindex, t6
+        from heading
+        where tierindex like %s
+        and """ + t +  """!= 'NA'
+        order by cast(""" + t + """ as UNSIGNED)
+        limit 1""", (tier,))
+        if len(results) > 0:
+            return results[0][0]
+        else:
+            return root
+
+
     def getTfidfHeadingList(self, aTF):
         search_term = []
         for term in aTF:
@@ -521,7 +568,7 @@ class Wrapper(object):
         top_freq = 0
         top_tier = ""
         for term in search_term:
-            key = term["tier_index"]
+            key = term["heading_id"]
             if key in aHeading:
                 aHeading[key] += 1
             else:
@@ -529,6 +576,10 @@ class Wrapper(object):
             
             if aHeading[key] > top_freq:
                 top_freq = aHeading[key]
-                top_index = key
-
-        return top_index
+                top_heading = key
+                top_index = term["tier_index"]
+        tier_index = {}
+        tier_index["home"] = top_index
+        tier_index["parent"] = self.getParentTier(top_index)[0]
+        tier_index["child"] = self.getFirstChildTier(top_index)
+        return tier_index

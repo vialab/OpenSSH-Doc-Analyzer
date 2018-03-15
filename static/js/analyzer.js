@@ -3,6 +3,20 @@ var target = ""; // retain which element we are editting
 var target_parent = ""; // element parent
 var target_index = ""; // element tier index
 var typed_interval; // interval that listens for last keypress
+var vis_width = $("#search-dialog").width()-2;
+// color scale for depth
+var child_color = d3.scaleLinear()
+    .domain([-2, 4])
+    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
+var current_color = d3.scaleLinear()
+    .domain([0, 6])
+    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
+var parent_color = d3.scaleLinear()
+    .domain([2, 8])
+    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
 
 // whenever a vis is clicked, open up our search dialog
 $(document).on("click", ".term-vis svg", function() {
@@ -23,12 +37,12 @@ $(document).on("click", ".term-vis svg", function() {
     target_parent = $(this).parent().attr("id");
     target_index = $(this).attr("tier-index");
     // draw vis of current tier in search dialog
-    var vis_height = $(window).height()-$("#search-term-container").height()-120;
+    var vis_height = $(window).height()-$("#search-term-container").height();
     var heading_id = $(".term-heading-id", $parent).val();
 
     createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
-        , target_index, $("#search-dialog").width()-2, vis_height, 1
-        , true, true, true, heading_id, headingClicked);
+        , target_index, vis_width, vis_height, 1
+        , true, true, true, heading_id, current_color, headingClicked);
 
     // set up the weight slider bar to match selection
     var weight = $(".term-heading-weight", $parent).val();
@@ -55,14 +69,18 @@ $("#add-term").on("click", function() {
     // draw vis of current tier in search dialog
     var vis_height = $(window).height()-$("#search-term-container").height()-120;
     createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
-        , home_tier, $("#search-dialog").width()-2, vis_height, 1
-        , true, true, true, null, headingClicked
-        // function(d) {
-        //     drawSearchTerm(d.data.parent, d.data.heading_id, d.data.name, 0);
-        //     toggleSearchDialog();            
-        // }
+        , parent_tier, vis_width, vis_height/4, 1
+        , true, true, true, null, parent_color, headingClicked
     );
-
+    createNewVis("#search-dialog", "search-dialog-vis-parent", "/oht/"
+        , home_tier, vis_width, vis_height/2, 1
+        , true, true, true, null, current_color, headingClicked
+    );
+    createNewVis("#search-dialog", "search-dialog-vis-child", "/oht/"
+        , child_tier, vis_width, vis_height/4, 1
+        , true, true, true, null, child_color, headingClicked
+    );
+    // getOhtDirectory();
     // set up the weight slider bar to match selection
     setWeightValue(1);
     $("#search-dialog .slider").css("bottom"
@@ -172,20 +190,38 @@ $(document).ready(function() {
     }
 });
 
+
+function getOhtDirectory(heading_id=181456) {
+    $.ajax({
+        url: "oht/directory/" + heading_id
+        , type: "GET"
+        , contentType: "application/json"
+        , success: function(data) {
+            
+        }
+    });
+}
+
 // fetch a previously used set of search terms and search again
 function recoverSearch(search_id) {
     $.ajax({
         url: "recoversearch/" + search_id
         , type: "GET"
         , contentType: "application/json"
-        , success: function(data) {
+        , success: function(content) {
+            var tiers = content["tier_index"];
+            home_tier = tiers.home;
+            parent_tier = tiers.parent;
+            child_tier = tiers.child;
+            console.log(tiers);
+            var data = content["content"];
             for(var i = 0; i < data.length; i++) {
                 var weight = parseInt(data[i].weight);
-                if(data[i].heading_id) {
-                    drawSearchTerm(data[i].tier_index
-                        , data[i].heading_id, data[i].heading, weight);   
-                } else {
+                if(data[i].keyword) {
                     drawKeyword(data[i].keyword);
+                } else {
+                    drawSearchTerm(data[i].tier_index
+                        , data[i].heading_id, data[i].heading, weight);
                 }
             }
             search(search_id);
@@ -228,7 +264,8 @@ function showKeywordResults(data, cb_keyword) {
         $(".custom-keyword-container").after($box);
         // draw the mini-vis to the dom element
         createNewVis("#"+svg_path, "mini-"+clean_tier_index, "/oht/"
-        , data[i][4], 100, 100, 1, false, false, false, data[i][0]);
+            , data[i][4], 100, 100, 1, false, false, false
+            , data[i][0], current_color);
     }
     $(".custom-keyword-container").off("click");
     $(".custom-keyword-container").on("click", function() {
@@ -292,6 +329,7 @@ function toggleSearchDialog() {
         if(keyword_searching) {
             toggleKeywordDialog();
         }
+        toggleCarousel();
         // need to open
         $("#search-dialog").css("left", 0);
         $("#search-result-container").css({
@@ -302,6 +340,36 @@ function toggleSearchDialog() {
         });
         searching = true;
     }
+}
+
+// instantiate slick carousel
+function toggleCarousel() {
+    try { $('#search-carousel').slick("unslick"); } catch(e) {}
+    $('#search-carousel').slick({
+        centerMode: true,
+        centerPadding: '60px',
+        slidesToShow: 3,
+        responsive: [
+        {
+            breakpoint: 768,
+            settings: {
+            arrows: true,
+            centerMode: true,
+            centerPadding: '40px',
+            slidesToShow: 3
+            }
+        },
+        {
+            breakpoint: 480,
+            settings: {
+            arrows: true,
+            centerMode: true,
+            centerPadding: '40px',
+            slidesToShow: 1
+            }
+        }
+        ]
+    });
 }
 
 // Toggle document result view during search
@@ -371,7 +439,7 @@ function keywordClicked(d) {
     // draw the mini-vis to the dom element
     createNewVis("#search-term-box #"+target_parent, target, "/oht/"
         , new_tier_index, vis_size, vis_size, weight
-        , false, false, false, d.data.heading_id);
+        , false, false, false, d.data.heading_id, current_color);
 
     $target.attr("tier-index", new_tier_index);
 

@@ -332,12 +332,12 @@ text {
     position: fixed;
     top: 0;
     left: 0;
-    padding-top: 75px;
+    padding: 75px 0 200px 0;
     width: 95vw;
     height: 100vh;
     background-color: white;
     z-index: 1;
-    overflow: hidden;
+    overflow: scroll;
     border-right: 1px solid lightgray;
 }
 
@@ -366,6 +366,7 @@ text {
 
 #search-dialog svg {
     background-color: white;
+    /* margin-left: 5%; */
 }
 
 .highlight {
@@ -462,4 +463,45 @@ text {
 
 .no-click {
     color: rgba(100,100,100,0.25) !important;
+}
+
+#search-carousel {
+    width: 50%;
+    margin: 0 auto;
+    background: rgba(50,50,50,0.5);
+}
+
+#search-body {
+    position: relative;
+    width: 50%;
+    margin: 0 auto;
+    background: rgba(150,150,150,0.5);
+    padding: 0 15px 0 15px;
+}
+
+#parent-list.top, #parent-list.bottom {
+    height: 100px;
+    background: rgba(50,50,50,0.5);
+}
+
+#synset-list {
+    text-align: center;
+    padding: 30px 15px;
+}
+
+#parent-list.top {
+    
+}
+
+#parent-list.bottom {
+    
+}
+
+.slick-arrow {
+    background: rgba(50,50,50,0.5) !important;
+}
+
+.slick-list {
+    height: 50px;
+    line-height: 50px;
 }

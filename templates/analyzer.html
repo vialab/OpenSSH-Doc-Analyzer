@@ -7,8 +7,8 @@
 {% block page_content %}
 <div id="search-dialog">
     <div id="search-dialog-title"></div>
-    <input id="weight-slider" type="text" data-slider-ticks="[1,2,3,4,5]" data-slider-ticks-snap-bounds="30"
-        data-slider-tooltip="hide">
+    <!-- <input id="weight-slider" type="text" data-slider-ticks="[1,2,3,4,5]" data-slider-ticks-snap-bounds="30"
+        data-slider-tooltip="hide"> -->
     <button class="close" onclick="toggleSearchDialog();">
         <span>&times;</span>
     </button>
@@ -94,9 +94,13 @@
 <script src="{{ url_for('static', filename='js/explore.js') }}"></script>
 <script>
     {% if tier_index %}
-        var home_tier = "{{tier_index}}";
+        var parent_tier = "{{tier_index['parent']}}";
+        var home_tier = "{{tier_index['current']}}";
+        var child_tier = "{{tier_index['child']}}";
     {% else %}
+        var parent_tier = "root";
         var home_tier = "1.NA.NA.NA.NA.NA.NA.1";
+        var child_tier = "1.1.NA.NA.NA.NA.NA.1";
     {% endif %}
 
     {% if search_term %}
