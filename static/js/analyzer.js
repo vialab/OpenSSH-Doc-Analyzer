@@ -4,17 +4,20 @@ var target_parent = ""; // element parent
 var target_index = ""; // element tier index
 var typed_interval; // interval that listens for last keypress
 var vis_width = $("#search-dialog").width()-2;
+var selected_heading = "";
 // color scale for depth
 var child_color = d3.scaleLinear()
-    .domain([-2, 4])
+    .domain([-3, 9])
     .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
     .interpolate(d3.interpolateHcl);
 var current_color = d3.scaleLinear()
     .domain([0, 6])
     .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
     .interpolate(d3.interpolateHcl);
+// var fader = function(color) { return d3.interpolateRgb(color, "#fff")(0.5); },
+//     current_color = d3.scaleOrdinal(d3.schemeCategory20.map(fader));
 var parent_color = d3.scaleLinear()
-    .domain([2, 8])
+    .domain([3, 15])
     .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
     .interpolate(d3.interpolateHcl);
 
@@ -68,18 +71,22 @@ $("#search-dialog").on("click", function() {
 $("#add-term").on("click", function() {
     // draw vis of current tier in search dialog
     var vis_height = $(window).height()-$("#search-term-container").height()-120;
-    createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
-        , parent_tier, vis_width, vis_height/4, 1
-        , true, true, true, null, parent_color, headingClicked
-    );
+    d3.select("#search-dialog-vis").remove();
+    d3.select("#search-dialog-vis-parent").remove();
+    d3.select("#search-dialog-vis-child").remove();
+    // createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
+    //     , parent_tier, vis_width, vis_height/4, 1
+    //     , true, true, true, null, parent_color, headingClicked
+    // );
     createNewVis("#search-dialog", "search-dialog-vis-parent", "/oht/"
-        , home_tier, vis_width, vis_height/2, 1
+        , home_tier, vis_width, vis_height, 1
         , true, true, true, null, current_color, headingClicked
     );
-    createNewVis("#search-dialog", "search-dialog-vis-child", "/oht/"
-        , child_tier, vis_width, vis_height/4, 1
-        , true, true, true, null, child_color, headingClicked
-    );
+    // if(child_tier != "" && child_tier != home_tier) {
+    //     createNewVis("#search-dialog", "search-dialog-vis-child", "/oht/"
+    //         , child_tier, vis_width, vis_height/4, 1
+    //         , true, true, true, null, child_color, headingClicked);
+    // }
     // getOhtDirectory();
     // set up the weight slider bar to match selection
     setWeightValue(1);
@@ -213,7 +220,6 @@ function recoverSearch(search_id) {
             home_tier = tiers.home;
             parent_tier = tiers.parent;
             child_tier = tiers.child;
-            console.log(tiers);
             var data = content["content"];
             for(var i = 0; i < data.length; i++) {
                 var weight = parseInt(data[i].weight);
@@ -420,6 +426,22 @@ function headingClicked(d) {
             // set title and go
             $("#modal-title-synset").html(d.data.name);
             $("#modal-synset").modal("show");
+            $("#modal-tier-index").val(d.data.parent);
+            selected_heading = d.data.heading_id;
+        }
+    });
+}
+
+// what happens when a heading is selected to be the main node
+function reorderVis() {
+    $.ajax({
+        type:"GET"
+        , url: "/oht/tier/" + $("#modal-tier-index").val()
+        , success: function(data) {
+            home_tier = data.home;
+            parent_tier = data.parent;
+            child_tier = data.child;
+            $("#add-term").click();
         }
     });
 }
@@ -460,7 +482,7 @@ function search(search_id) {
     var keyword_list = [];
     var n = 0;
     // loop through search terms in dom
-    $(".term-container").each(function(i) {
+    $("#search-term-box .term-container").each(function(i) {
         n++;
         if($(this).hasClass("custom-keyword")) {
             keyword_list.push( {

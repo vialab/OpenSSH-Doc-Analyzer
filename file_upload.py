@@ -268,6 +268,11 @@ def oht_directory(heading_id):
     return jsonify(word_list)
 
 
+@app.route("/oht/tier/<tier_index>")
+def oht_tier(tier_index):
+    return jsonify(oht_wrapper.getTierIndexTrio(tier_index))
+
+
 @app.route("/history")
 def history():
     """ Web hook for retrieving search history on main page """
@@ -340,47 +345,27 @@ def history():
 @app.route("/recoversearch/<search_id>")
 def recoverSearch(search_id):
     """ Recover a set of search terms that was previously used by user """
-    search_term = []    
     user_ip = request.environ["REMOTE_ADDR"]
-
     # get results and authenticate with ipaddress
-    term_list = db.execQuery("""select st.headingid
+    results = db.execQuery("""select st.headingid
     , st.keyword
     , st.weight
     , st.rank 
     , concat(h.tierindex, '.', h.tiering)
     , h.heading
     , w.headingid
-    , h2.tierindex
+    , concat(h2.tierindex, '.', h2.tiering)
     from searchterm st
     left join search s on s.id=st.searchid
     left join heading h on h.id=st.headingid
     left join word w on w.fr_translation = st.keyword
     left join heading h2 on h2.id=w.headingid
+    left join tfidf_heading th on th.wordid=w.id
     where st.searchid=%s and s.ipaddr=%s
     and (st.headingid in (select headingid from tfidf_cache) 
 		or w.headingid in (select headingid from tfidf_cache))
     order by st.rank""", (search_id,user_ip))
-
-    # correct ip address?
-    if len(term_list) > 0:
-        for term in term_list:
-            t = {}
-            if term[0] is not None:
-                t["heading_id"] = term[0]
-                t["tier_index"] = term[4]
-                t["heading"] = term[5]
-            else:
-                t["keyword"] = term[1]
-                t["heading_id"] = term[6]
-                t["tier_index"] = term[7]
-            t["weight"] = term[2]
-            t["order"] = term[3]
-            search_term.append(t)
-    data = {
-        "content": search_term,
-        "tier_index": oht_wrapper.getTierIndexIntersection(search_term)
-    }
+    data = oht_wrapper.aggregateByRelevance(results)
     # return json markup
     return jsonify(data)
 

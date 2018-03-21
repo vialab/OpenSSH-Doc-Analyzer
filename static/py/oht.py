@@ -161,7 +161,7 @@ class Wrapper(object):
         from word w
         left join heading h on h.id=w.headingid
         left join thematicheading th on th.id=h.thematicheadingid
-        where w.word like %s
+        where w.word like %s and h.id in (select headingid from tfidf_cache)
         limit %s
         """, ("%" + keyword + "%", n))
 
@@ -302,135 +302,150 @@ class Wrapper(object):
                     parent_idx -= 1
 
         return "".join(new_list)
-
-
+            
 
     def getTierIndexChildren(self, root):
         """ Get all immediate sub categories and tier below without subs """
-        csv = "\"heading_id\",\"name\",\"parent\",\"size\",\"keyword\"\n"
+        csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier")
         parent_list = {}        
         line_list = []
         # set "root" as top of hierarchy
-        new_line = "\"root\",\"root\",\"\",,\n"
+        new_line = self.getCSVLine("root","root", tier="-1")
         line_list.append(new_line)
-        parent_list["root"] = False      
+        parent_list["root"] = False
         # if we are looking for the root
         if root=="root":
             # include all three root categories, the mind
-            new_line = "\"1.NA.NA.NA.NA.NA.NA.1\",\"1.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            new_line = self.getCSVLine("1.NA.NA.NA.NA.NA.NA","1.NA.NA.NA.NA.NA.NA","root")
             line_list.append(new_line)
-            parent_list["1.NA.NA.NA.NA.NA.NA.1"] = True
+            parent_list["1.NA.NA.NA.NA.NA.NA"] = True
             # the earth
-            new_line = "\"2.NA.NA.NA.NA.NA.NA.1\",\"2.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            new_line = self.getCSVLine("2.NA.NA.NA.NA.NA.NA","2.NA.NA.NA.NA.NA.NA","root")
             line_list.append(new_line)
-            parent_list["2.NA.NA.NA.NA.NA.NA.1"] = True
+            parent_list["2.NA.NA.NA.NA.NA.NA"] = True
             # society
-            new_line = "\"3.NA.NA.NA.NA.NA.NA.1\",\"3.NA.NA.NA.NA.NA.NA.1\",\"root\",,\n"
+            new_line = self.getCSVLine("3.NA.NA.NA.NA.NA.NA","3.NA.NA.NA.NA.NA.NA","root")
             line_list.append(new_line)
-            parent_list["3.NA.NA.NA.NA.NA.NA.1"] = True
+            parent_list["3.NA.NA.NA.NA.NA.NA"] = True
             # get tier index list
             aHeading = self.db.execQuery("""
-            select tierindex, tiering from heading 
+            select tierindex
+            , tiering 
+            case when t2='NA' then '1'
+                    when t3='NA' then '2'
+                    when t4='NA' then '3'
+                    when t5='NA' then '4'
+                    when t6='NA' then '5'
+                    when t7='NA' then '6'
+                    else 0 end
+            from heading 
             where tierindex like %s 
             and id in (select distinct headingid from tfidf_cache)
-            group by tierindex, tiering""",('%.NA.NA.NA.NA.NA.NA',))
+            group by tierindex, tiering, case when t2='NA' then '1'
+                    when t3='NA' then '2'
+                    when t4='NA' then '3'
+                    when t5='NA' then '4'
+                    when t6='NA' then '5'
+                    when t7='NA' then '6'
+                    else 0 end""",('%.NA.NA.NA.NA.NA.NA',))
         else:
             # we are not root node
             tier = root.split(".")
             tier_index = ".".join(t for t in tier[:7])
-            sub_tier = ".".join(t for t in tier[7:])    
-            
-            # then get parents of parents till we reach root            
-            curr_node = root
-            at_root = False
-            at_first = True
-            while not at_root:
-                # get immediate parent of this node
-                temp_root, temp_sub = self.getParentTier(curr_node)
-                if temp_root == "":
-                    temp_tier = "root"
-                    at_root = True
-                else:
-                    temp_tier = temp_root + "." + temp_sub
+            parent_tier, sub = self.getParentTier(tier_index)
+            sub_tier = ".".join(t for t in tier[7:])
 
-                # now append node to csv
-                new_line = "\"" + curr_node \
-                    + "\",\"" + curr_node \
-                    + "\",\"" + temp_tier \
-                    + "\",,\n"
-                line_list.append(new_line)
-                parent_list[curr_node] = at_first
-                
-                if at_first:
-                    # save most immediate parent for later
-                    parent_root = temp_root
-                    parent_sub = temp_sub
-                    parent_tier = temp_tier
-                    at_first = False
-                
-                curr_node = temp_tier
-            
-            # now get sibling nodes of selected tier
-            if "sub" in sub_tier:
-                # ensure we are of type sub.n
-                if sub_tier.count(".") > 1:
-                    sub_tier = sub_tier.rsplit(".", 1)[0]
-                sub_tier += "%"
-                # get nodes around this sub node
+            # get all related headings (parent, sibling, children)
+            child_tier = ""
+            na_found = False
+            for idx, t in enumerate(tier[:7]):
+                if idx > 0:
+                    child_tier += "."
+                if (not na_found and t == "NA"):
+                    child_tier += "%"
+                    na_found = True
+                    continue
+                child_tier += t
+            if parent_tier == "":
                 aHeading = self.db.execQuery("""
                 select tierindex
                 , tiering
+                , case when t2='NA' then '1'
+                    when t3='NA' then '2'
+                    when t4='NA' then '3'
+                    when t5='NA' then '4'
+                    when t6='NA' then '5'
+                    when t7='NA' then '6'
+                    else 0 end
                 from heading
-                where tierindex=%s and tiering like %s 
+                where (tierindex=%s or tierindex like %s or (tierindex like %s))
                 and id in (select distinct headingid from tfidf_cache)
-                group by tierindex, tiering
-                """,(tier_index,sub_tier))
+                group by tierindex, tiering, case when t2='NA' then '1'
+                    when t3='NA' then '2'
+                    when t4='NA' then '3'
+                    when t5='NA' then '4'
+                    when t6='NA' then '5'
+                    when t7='NA' then '6'
+                    else 0 end
+                """,(tier_index, "%.NA.NA.NA.NA.NA.NA", child_tier))
             else:
-                # go up one node
-                query_tier = ""
-                na_found = False
-                for idx, t in enumerate(tier[:7]):
-                    if idx > 0:
-                        query_tier += "."
-                    if (not na_found and t == "NA") \
-                            or (idx == 6 and not na_found):
-                        query_tier += "%"
-                        na_found = True
-                        continue
-                    query_tier += t
-                # and search for anything around that node
                 aHeading = self.db.execQuery("""
                 select tierindex
                 , tiering
+                , case when t2='NA' then '1'
+                    when t3='NA' then '2'
+                    when t4='NA' then '3'
+                    when t5='NA' then '4'
+                    when t6='NA' then '5'
+                    when t7='NA' then '6'
+                    else 0 end
                 from heading
-                where ((tierindex=%s) 
-                or (tierindex like %s 
-                and tierindex != %s 
-                and tiering not like %s))
+                where (tierindex=%s or tierindex=%s or (tierindex like %s))
                 and id in (select distinct headingid from tfidf_cache)
-                group by tierindex, tiering
-                """,(tier_index, query_tier, tier_index, "sub%"))
+                group by tierindex, tiering, case when t2='NA' then '1'
+                    when t3='NA' then '2'
+                    when t4='NA' then '3'
+                    when t5='NA' then '4'
+                    when t6='NA' then '5'
+                    when t7='NA' then '6'
+                    else 0 end
+                """,(tier_index, parent_tier, child_tier))
 
         # for all the headings found
         for result in aHeading:
-            tier_index = result[0] + "." + result[1]
+            tier_index = result[0]+'.'+result[1]
             # make sure their parents exist in our CSV
             while tier_index not in parent_list:
-                parent_tier, parent_sub = self.getParentTier(tier_index)
-                parent_index = parent_tier + "." + parent_sub
-                new_line = "\"" + tier_index \
-                    + "\",\"" + tier_index \
-                    + "\",\"" + parent_index \
-                    + "\",,\n"
+                parent_tier, sub = self.getParentTier(tier_index)
+                if parent_tier == "":                
+                    parent_tier = "root"
+                if sub != "":
+                    parent_tier = parent_tier + "." + sub
+                tier = -1
+                for t in parent_tier.split("."):
+                    if t == "NA":
+                        break
+                    tier += 1                    
+                new_line = self.getCSVLine(tier_index, tier_index, parent_tier, tier=str(tier))
                 line_list.append(new_line)
                 parent_list[tier_index] = True
-                tier_index = parent_index
-        
+                tier_index = parent_tier
+    
         csv += self.sortHierarchy(line_list) # sort references in our csv
         csv += self.getHeadingCSVList(parent_list) # now append all children
         return csv
 
-    
+
+    def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0"):
+        """ Helper function to standardize creating CSV lines """
+        new_line = "\"" + heading_id \
+            + "\",\"" + name \
+            + "\",\"" + parent \
+            + "\",\"" + size \
+            + "\",\"" + keyword \
+            + "\",\"" + tier + "\"\n"
+        return new_line
+
 
     def getHeadingCSVList(self, parent_list):
         """ Convert array of headings into a CSV """
@@ -447,32 +462,35 @@ class Wrapper(object):
             , heading
             , fr_heading
             , concat(tierindex,'.',tiering) parent
+            , case when t2='NA' then '1'
+                when t3='NA' then '2'
+                when t4='NA' then '3'
+                when t5='NA' then '4'
+                when t6='NA' then '5'
+                when t7='NA' then '6'
+                else 0 end
             from heading
             where tierindex=%s and tiering=%s
             and id in (select distinct headingid from tfidf_cache)
             """, (tier_index,root_tier))
             # append all nodes to csv
             for result in aHeading:
-                csv += "\"" + str(result[0]) \
-                    + "\",\"" + result[1] \
-                    + "\",\"" + result[3] \
-                    + "\",\"10\",\"1\"\n"
+                csv += self.getCSVLine(str(result[0]), result[1], result[3], "10", "1", result[4])
         return csv
 
     
 
     def getParentTier(self, root):
         """ Get parent tier of tier index """
+        if root == "":
+            return "root", ""
         root_tier = root.split(".")
-
-        if len(root_tier) == 10: # sub.n.n turns to sub.n
+        if len(root_tier) > 9: # sub.n.i turns to n
             tier = ".".join(t for t in root_tier[:7])
-            sub_tier = root_tier[7] + "." + root_tier[8]
-        elif len(root_tier) == 9: # sub.n turns to n
-            tier = ".".join(t for t in root_tier[:7])
-            sub_tier = root_tier[-1]
+            sub_tier = root_tier[8]
         else: # not sub cat - move tiers
             tier = ""
+            sub_tier = ""            
             start_na = False
             last_idx = 6
             # generate new tier index
@@ -493,14 +511,49 @@ class Wrapper(object):
                 else:
                     # otherwise insert node
                     tier += t
-
-            sub_tier = str(last_idx)
+        # recurse until we find closest tier we actually use
+        results = self.db.execQuery("""
+        select id from heading
+        where tierindex=%s
+        and id in (select id from tfidf_cache)
+        """, (tier,))
+        if len(results) == 0:
+            return self.getParentTier(tier)
         return tier, sub_tier
 
 
     def getFirstChildTier(self, root):
         """ Get child tier of current tier index """
         root_tier = root.split(".")[:7]
+        sub_tier = root.split(".")[7:]
+
+        if len(sub_tier) > 1:
+            # no children beyond this point
+            return ""
+        elif len(sub_tier) == 1:
+            # check for sub.sub children
+            sub_query = "sub." + sub_tier[0] + ".%"
+            results = self.db.execQuery("""
+            select tierindex, tiering
+            from heading
+            where tierindex = %s and tiering like %s
+            and id in (select id from tfidf_cache)
+            order by tiering, subcat
+            limit 1""", (".".join(root_tier),sub_query))
+            if len(results) > 0:
+                return results[0][0] + "." + results[0][1]
+        else:
+            results = self.db.execQuery("""
+            select tierindex, tiering
+            from heading
+            where tierindex = %s and tiering != ''
+            and id in (select id from tfidf_cache)
+            order by tiering, subcat
+            limit 1""", (root,))
+            if len(results) > 0:
+                return results[0][0] + "." + results[0][1]
+
+        # go down one root tier level
         tier = ""
         start_na = False
         last_index = 1
@@ -525,16 +578,16 @@ class Wrapper(object):
                     tier += t
         t = "t"+str(last_index)
         results = self.db.execQuery("""
-        select tierindex, t6
+        select tierindex, tiering
         from heading
         where tierindex like %s
         and """ + t +  """!= 'NA'
         order by cast(""" + t + """ as UNSIGNED)
         limit 1""", (tier,))
         if len(results) > 0:
-            return results[0][0]
+            return results[0][0] + "." + results[0][1]
         else:
-            return root
+            return ""
 
 
     def getTfidfHeadingList(self, aTF):
@@ -564,6 +617,7 @@ class Wrapper(object):
 
 
     def getTierIndexIntersection(self, search_term):
+        """ Given a list of headings, return closest common tier """
         aHeading = {}
         top_freq = 0
         top_tier = ""
@@ -578,8 +632,96 @@ class Wrapper(object):
                 top_freq = aHeading[key]
                 top_heading = key
                 top_index = term["tier_index"]
+        return self.getTierIndexTrio(top_index)
+
+    
+    def getTierIndexTrio(self, root_tier):
+        """ Given a tier index, also get its parent and immediate child """
         tier_index = {}
-        tier_index["home"] = top_index
-        tier_index["parent"] = self.getParentTier(top_index)[0]
-        tier_index["child"] = self.getFirstChildTier(top_index)
+        tier_index["home"] = root_tier
+        tier_index["parent"] = self.getParentTier(root_tier)
+        tier_index["child"] = self.getFirstChildTier(root_tier)
         return tier_index
+
+    
+    def getClosestHeading(self, root_tier, heading_list):
+        """ Given a list of headings, return the heading closest to given tier"""
+        root = root_tier.split(".")[:7]
+        top_score = -1.0
+        top_heading = None
+        for heading in heading_list:
+            heading_score = 0.0
+            tier = heading["tier_index"].split(".")[:7]
+            # calculate score, cascading tiers (e.g. point per matching tier)
+            for x, y in zip(root, tier):
+                if x == "NA" and y == "NA":
+                    # we are done here
+                    break
+                if x == "NA" or y == "NA":
+                    # penalize for being broader/narrower (top-bottom = -1)
+                    heading_score -= 0.2
+                
+                if x != y:
+                    # give partial marks proportional to difference
+                    ix = float(x)
+                    iy = float(y)
+                    heading_score += 1-abs(((ix-iy)/max(ix,iy)))
+                    break
+                heading_score += 1
+            # use this heading if better score
+            if heading_score > top_score:
+                top_heading = heading
+                top_score = heading_score
+        return top_heading, top_score
+
+
+    def aggregateByRelevance(self, results):
+        """ Based off a list of indistinct search terms, 
+            return most tightly related distinct set """
+        term_list = {}    
+        if len(results) > 0:
+            for term in results:
+                t = {}
+                if term[0] is not None:
+                    t["heading_id"] = term[0]
+                    t["tier_index"] = term[4]
+                    t["heading"] = term[5]
+                    t["word"] = term[5]
+                else:
+                    t["word"] = term[1]
+                    t["keyword"] = term[1]
+                    t["heading_id"] = term[6]
+                    t["tier_index"] = term[7]
+                t["weight"] = term[2]
+                t["order"] = term[3]
+                # save duplicates to an array
+                if t["word"] not in term_list:
+                    term_list[t["word"]] = [t]
+                else:
+                    term_list[t["word"]].append(t)
+
+        # only use most relevant headings and compare correlation
+        search_list = []
+        base_word = next(iter(term_list))
+        best_score = -1 # first one always wins incase of tie
+        # correlation will be based off the first keyword    
+        for term in term_list[base_word]:
+            total_score = 0
+            temp = [term]
+            # loop through rest of terms
+            for key in term_list:
+                if key == base_word:                
+                    continue
+                heading, score = self.getClosestHeading(term["tier_index"], term_list[key])
+                temp.append(heading)
+                total_score += score
+            # use this set of unique search terms if better correlation
+            if total_score > best_score:
+                best_score = total_score
+                search_list = temp
+
+        return {
+            "content": search_list,
+            "tier_index": self.getTierIndexIntersection(search_list)
+        }
+                

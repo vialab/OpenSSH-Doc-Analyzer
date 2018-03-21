@@ -13,7 +13,7 @@ def matchHeadingList(heading_list, n=100):
         return []
 
     # parametize our list to use in where in clause
-    id_list = ",".join([int(heading["heading_id"]) for heading in heading_list])
+    id_list = ",".join([heading["heading_id"] for heading in heading_list])
     return db.execQuery("""
         select d.documentid, sum(d.tfidf)
         from tfidf t

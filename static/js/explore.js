@@ -3,7 +3,7 @@ var focus_id = "";
 
 // set the dimensions and margins of the vis
 var margin = {top: 20, right: 90, bottom: 30, left: 90};
-var padding = 5;
+var padding = 15;
 var min_size = 100;
 var add_size = 50;
     
@@ -46,7 +46,7 @@ function clicked(cb_keyword) {
         .tile(d3.treemapResquarify)
         .size([width, height])
         .round(true)
-        .paddingInner(padding);
+        .padding(padding);
         
         // update the circle pack to show new tier
         update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, true
@@ -71,7 +71,7 @@ function createNewVis(svg_path, svg_id, path, id, width, height, weight
     } else {
         // otherwise, append an SVG to path
         svg = d3.select(svg_path).append("svg");
-        svg.append("g").attr("transform", "translate(2.5,2.5)");
+        svg.append("g").attr("transform", "translate(0,0)");
     }
     
     // set svg attributes
@@ -146,6 +146,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                 return "node" 
                     + (!d.children ? " node--leaf" 
                         : d.depth ? "" : " node--root"); })
+            .attr("tier-index", function(d) { return d.data.parent; })
             .each(function(d) { d.name = this; });
             
         // add click events if required
@@ -161,7 +162,11 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         .attr("id", function(d) { return d.data.id; })
         .attr("width", function(d) { return d.x1 - d.x0; })
         .attr("height", function(d) { return d.y1 - d.y0; })
-        .attr("fill", function(d) { return color(d.depth); });
+        .attr("fill", function(d) {
+            return color(parseInt(d.data.tier));
+        })
+        .style("stroke", "rgb(0,0,0)")
+        .style("stroke-width", 1);
 
         // draw labels to nodes if we need to
         if(add_label) {
@@ -175,9 +180,8 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                 .text(function(d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
                 .attr("x", function(d) { return (d.x1 - d.x0)/2; })
                 .attr("y", function(d) { return (d.y1 - d.y0)/2; })
-                .style("fill", function(d) { 
-                    return color(10); 
-                });
+                .style("fill", "black")
+                .call(wrap);
           
             // add a title for when a node is hovered
             node.append("title")
@@ -190,6 +194,31 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         }
 
         processNextUpdateRequest();
+    });
+}
+
+function wrap(text) {
+    text.each(function() {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.5, // ems
+            y = text.attr("y"),
+            width = text.attr("x"),
+            dy = 1.2,
+            tspan = text.text(null).append("tspan").attr("x", width).attr("y", y).attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan").attr("x", width).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+            }
+        }
     });
 }
 

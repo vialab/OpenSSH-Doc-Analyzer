@@ -41,6 +41,7 @@
 </div>
 <div class="modal fade" id="modal-synset" tabindex="-1" role="dialog" aria-labelledby="modal-title-synset" aria-hidden="true">
     <div class="modal-dialog" role="document">
+        <input type="hidden" id="modal-tier-index"/>
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modal-title-synset">Heading Synset</h5>
@@ -52,6 +53,7 @@
             
         </div>
         <div class="modal-footer">
+            <button id="modal-btn-reorder" onclick="reorderVis();" type="button" class="btn btn-secondary" data-dismiss="modal">Select as Main Node</button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
         </div>
