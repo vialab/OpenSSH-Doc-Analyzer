@@ -5,21 +5,6 @@ var target_index = ""; // element tier index
 var typed_interval; // interval that listens for last keypress
 var vis_width = $("#search-dialog").width()-2;
 var selected_heading = "";
-// color scale for depth
-var child_color = d3.scaleLinear()
-    .domain([-3, 9])
-    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
-    .interpolate(d3.interpolateHcl);
-var current_color = d3.scaleLinear()
-    .domain([0, 6])
-    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
-    .interpolate(d3.interpolateHcl);
-// var fader = function(color) { return d3.interpolateRgb(color, "#fff")(0.5); },
-//     current_color = d3.scaleOrdinal(d3.schemeCategory20.map(fader));
-var parent_color = d3.scaleLinear()
-    .domain([3, 15])
-    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
-    .interpolate(d3.interpolateHcl);
 
 // whenever a vis is clicked, open up our search dialog
 $(document).on("click", ".term-vis svg", function() {
@@ -45,7 +30,7 @@ $(document).on("click", ".term-vis svg", function() {
 
     createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
         , target_index, vis_width, vis_height, 1
-        , true, true, true, heading_id, current_color, headingClicked);
+        , true, true, true, heading_id, headingClicked);
 
     // set up the weight slider bar to match selection
     var weight = $(".term-heading-weight", $parent).val();
@@ -80,7 +65,7 @@ $("#add-term").on("click", function() {
     // );
     createNewVis("#search-dialog", "search-dialog-vis-parent", "/oht/"
         , home_tier, vis_width, vis_height, 1
-        , true, true, true, null, current_color, headingClicked
+        , true, true, true, null, headingClicked
     );
     // if(child_tier != "" && child_tier != home_tier) {
     //     createNewVis("#search-dialog", "search-dialog-vis-child", "/oht/"
@@ -271,7 +256,7 @@ function showKeywordResults(data, cb_keyword) {
         // draw the mini-vis to the dom element
         createNewVis("#"+svg_path, "mini-"+clean_tier_index, "/oht/"
             , data[i][4], 100, 100, 1, false, false, false
-            , data[i][0], current_color);
+            , data[i][0]);
     }
     $(".custom-keyword-container").off("click");
     $(".custom-keyword-container").on("click", function() {
@@ -461,7 +446,7 @@ function keywordClicked(d) {
     // draw the mini-vis to the dom element
     createNewVis("#search-term-box #"+target_parent, target, "/oht/"
         , new_tier_index, vis_size, vis_size, weight
-        , false, false, false, d.data.heading_id, current_color);
+        , false, false, false, d.data.heading_id);
 
     $target.attr("tier-index", new_tier_index);
 

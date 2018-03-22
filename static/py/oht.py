@@ -306,7 +306,7 @@ class Wrapper(object):
 
     def getTierIndexChildren(self, root):
         """ Get all immediate sub categories and tier below without subs """
-        csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier")
+        csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier", "cat")
         parent_list = {}        
         line_list = []
         # set "root" as top of hierarchy
@@ -315,16 +315,16 @@ class Wrapper(object):
         parent_list["root"] = False
         # if we are looking for the root
         if root=="root":
-            # include all three root categories, the mind
-            new_line = self.getCSVLine("1.NA.NA.NA.NA.NA.NA","1.NA.NA.NA.NA.NA.NA","root")
+            # include all three root categories, the earth
+            new_line = self.getCSVLine("1.NA.NA.NA.NA.NA.NA","1.NA.NA.NA.NA.NA.NA","root", cat="1")
             line_list.append(new_line)
             parent_list["1.NA.NA.NA.NA.NA.NA"] = True
-            # the earth
-            new_line = self.getCSVLine("2.NA.NA.NA.NA.NA.NA","2.NA.NA.NA.NA.NA.NA","root")
+            # the mind
+            new_line = self.getCSVLine("2.NA.NA.NA.NA.NA.NA","2.NA.NA.NA.NA.NA.NA","root", cat="2")
             line_list.append(new_line)
             parent_list["2.NA.NA.NA.NA.NA.NA"] = True
             # society
-            new_line = self.getCSVLine("3.NA.NA.NA.NA.NA.NA","3.NA.NA.NA.NA.NA.NA","root")
+            new_line = self.getCSVLine("3.NA.NA.NA.NA.NA.NA","3.NA.NA.NA.NA.NA.NA","root", cat="3")
             line_list.append(new_line)
             parent_list["3.NA.NA.NA.NA.NA.NA"] = True
             # get tier index list
@@ -347,7 +347,9 @@ class Wrapper(object):
                     when t5='NA' then '4'
                     when t6='NA' then '5'
                     when t7='NA' then '6'
-                    else 0 end""",('%.NA.NA.NA.NA.NA.NA',))
+                    else 0 end
+                , t1
+            """,('%.NA.NA.NA.NA.NA.NA',))
         else:
             # we are not root node
             tier = root.split(".")
@@ -377,6 +379,7 @@ class Wrapper(object):
                     when t6='NA' then '5'
                     when t7='NA' then '6'
                     else 0 end
+                , t1
                 from heading
                 where (tierindex=%s or tierindex like %s or (tierindex like %s))
                 and id in (select distinct headingid from tfidf_cache)
@@ -387,6 +390,7 @@ class Wrapper(object):
                     when t6='NA' then '5'
                     when t7='NA' then '6'
                     else 0 end
+                , t1
                 """,(tier_index, "%.NA.NA.NA.NA.NA.NA", child_tier))
             else:
                 aHeading = self.db.execQuery("""
@@ -399,6 +403,7 @@ class Wrapper(object):
                     when t6='NA' then '5'
                     when t7='NA' then '6'
                     else 0 end
+                , t1
                 from heading
                 where (tierindex=%s or tierindex=%s or (tierindex like %s))
                 and id in (select distinct headingid from tfidf_cache)
@@ -409,11 +414,13 @@ class Wrapper(object):
                     when t6='NA' then '5'
                     when t7='NA' then '6'
                     else 0 end
+                , t1
                 """,(tier_index, parent_tier, child_tier))
 
         # for all the headings found
         for result in aHeading:
             tier_index = result[0]+'.'+result[1]
+            cat = result[3]
             # make sure their parents exist in our CSV
             while tier_index not in parent_list:
                 parent_tier, sub = self.getParentTier(tier_index)
@@ -426,7 +433,7 @@ class Wrapper(object):
                     if t == "NA":
                         break
                     tier += 1                    
-                new_line = self.getCSVLine(tier_index, tier_index, parent_tier, tier=str(tier))
+                new_line = self.getCSVLine(tier_index, tier_index, parent_tier, tier=str(tier), cat=cat)
                 line_list.append(new_line)
                 parent_list[tier_index] = True
                 tier_index = parent_tier
@@ -436,14 +443,15 @@ class Wrapper(object):
         return csv
 
 
-    def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0"):
+    def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0", cat="0"):
         """ Helper function to standardize creating CSV lines """
         new_line = "\"" + heading_id \
             + "\",\"" + name \
             + "\",\"" + parent \
             + "\",\"" + size \
             + "\",\"" + keyword \
-            + "\",\"" + tier + "\"\n"
+            + "\",\"" + tier \
+            + "\",\"" + cat + "\"\n"
         return new_line
 
 
@@ -469,13 +477,21 @@ class Wrapper(object):
                 when t6='NA' then '5'
                 when t7='NA' then '6'
                 else 0 end
+            , tiering
+            , t1
             from heading
             where tierindex=%s and tiering=%s
             and id in (select distinct headingid from tfidf_cache)
             """, (tier_index,root_tier))
             # append all nodes to csv
             for result in aHeading:
-                csv += self.getCSVLine(str(result[0]), result[1], result[3], "10", "1", result[4])
+                try:
+                    tier = int(result[4])
+                    if "sub" in result[5]:
+                        tier += 1
+                except:
+                    tier = 0
+                csv += self.getCSVLine(str(result[0]), result[1], result[3], "10", "1", str(tier), result[6])
         return csv
 
     

@@ -3,7 +3,7 @@ var focus_id = "";
 
 // set the dimensions and margins of the vis
 var margin = {top: 20, right: 90, bottom: 30, left: 90};
-var padding = 15;
+var padding = 5;
 var min_size = 100;
 var add_size = 50;
     
@@ -17,6 +17,24 @@ var stratify = d3.stratify()
 // queue of visualizations to request
 var hook_busy = false;
 var vis_queue = [];
+
+// color scale for depth
+var world_color = d3.scaleLinear()
+    .domain([-2, 6])
+    .range(["hsl(132,80%,80%)", "hsl(202,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
+var mind_color = d3.scaleLinear()
+    .domain([-2, 6])
+    .range(["hsl(232,80%,80%)", "hsl(302,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
+var society_color = d3.scaleLinear()
+    .domain([-2, 6])
+    .range(["hsl(332,80%,80%)", "hsl(352,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
+var default_color = d3.scaleLinear()
+    .domain([0, 1])
+    .range(["#fff", "#fff"])
+    .interpolate(d3.interpolateHcl);
 
 // draw outline on hovered circled and its ancestors
 function hovered(hover) {
@@ -62,7 +80,7 @@ function clicked(cb_keyword) {
 // id       - tier-index
 function createNewVis(svg_path, svg_id, path, id, width, height, weight
                     , change_focus=true, add_label=true, add_event=true, heading_id
-                    , color, cb_keyword) {
+                    , cb_keyword) {
     svg_id = svg_id.replace(/\./g, "-");
     var svg = null;
     if($(svg_path + " #"+svg_id).length > 0) {
@@ -100,20 +118,19 @@ function createNewVis(svg_path, svg_id, path, id, width, height, weight
             , "add_label":add_label
             , "add_event":add_event
             , "heading_id":heading_id
-            , "color":color
             , "cb_keyword":cb_keyword
         }
         vis_queue.push(temp);
     } else {
         // draw the circle pack
         update(svg, pack, path, id, change_focus, add_label, add_event
-            , heading_id, color, cb_keyword);
+            , heading_id, cb_keyword);
     }
 }
 
 // update a vis with new tier index
 function update(svg, pack, path, id, change_focus=true, add_label=true
-                , add_event=true, heading_id, color, cb_keyword) {
+                , add_event=true, heading_id, cb_keyword) {
 
     var url_path = path + id;
     hook_busy = true;
@@ -162,9 +179,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         .attr("id", function(d) { return d.data.id; })
         .attr("width", function(d) { return d.x1 - d.x0; })
         .attr("height", function(d) { return d.y1 - d.y0; })
-        .attr("fill", function(d) {
-            return color(parseInt(d.data.tier));
-        })
+        .attr("fill", function(d) { return getColor(d); })
         .style("stroke", "rgb(0,0,0)")
         .style("stroke-width", 1);
 
@@ -227,7 +242,7 @@ function processNextUpdateRequest() {
         var temp = vis_queue.pop();
         update(temp.svg, temp.pack, temp.path, temp.id, temp.change_focus
             , temp.add_label, temp.add_event, temp.heading_id
-            , temp.color, temp.cb_keyword);
+            , temp.cb_keyword);
     } else {
         hook_busy = false;
     }
@@ -292,4 +307,25 @@ function resortable() {
     $("#search-term-box").sortable({
         items: ".term-container"
     });
+}
+
+function getColor(d) {
+    let category = 0;
+    if(typeof(d.data.cat) != "undefined") {
+        category = parseInt(d.data.cat);
+    }
+    switch(category) {
+        case 2: // the mind
+            return mind_color(d.data.tier);
+            break;
+        case 3: // society
+            return society_color(d.data.tier);
+            break;
+        case 1: // the world
+            return world_color(d.data.tier);
+            break;
+        default:
+            return default_color(d.data.tier);
+            break;
+    }
 }
