@@ -125,17 +125,25 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
         var heading_text = $(".keyword-heading", this).html();
         var heading_id = $(this).attr("heading-id");
         var tier_index = $(this).attr("tier-index");
-        drawSearchTerm(tier_index, heading_id, heading_text, 0);
+        // drawSearchTerm(tier_index, heading_id, heading_text, 0);
+        let d = {
+            "data": {
+                "parent":"",
+                "heading_id":heading_id,
+                "name": heading_text
+            }
+        };
+        headingClicked(d);
     };
     
-    if($(this).attr("id") == "search-keyword-home") {
-        cb_keyword = function() {
-            window.location.href = "/analyzer?quicksearch=" 
-                + $(".keyword-heading", this).html() + "&headingid="
-                + $(this).attr("heading-id") + "&tierindex="
-                + $(this).attr("tier-index");
-        };
-    }
+    // if($(this).attr("id") == "search-keyword-home") {
+    //     cb_keyword = function() {
+    //         window.location.href = "/analyzer?quicksearch=" 
+    //             + $(".keyword-heading", this).html() + "&headingid="
+    //             + $(this).attr("heading-id") + "&tierindex="
+    //             + $(this).attr("tier-index");
+    //     };
+    // }
 
     typed_interval = setTimeout(function() {
         getKeywordList(keyword, cb_keyword);
@@ -240,7 +248,7 @@ function showKeywordResults(data, cb_keyword) {
     if(data.length == 0) {
         $(".no-keyword").show();    
     }
-
+    console.log(data);
     for(i in data) {
         var clean_tier_index = data[i][4].replace(/\./g, "-");
         var svg_path = "keyword-vis-" + clean_tier_index;
@@ -390,7 +398,7 @@ function togglePeek() {
 }
 
 // what happens when a keyword is clicked in search dialog vis
-function headingClicked(d) {
+function headingClicked(d, quick_search=false) {
     $.ajax({
         type: "GET"
         , url: "/oht/synset/" + d.data.heading_id
@@ -401,7 +409,11 @@ function headingClicked(d) {
             for(var i = 0; i < data.length; i ++) {
                 var html = "<div class='term-container text-center";
                 if(data[i]["enable"]) {
-                    html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\");'";
+                    if(quick_search) {
+                        html += "' onclick='window.location.href=\"/analyzer?quicksearch=" + data[i]["id"] + "\"');'";
+                    } else {
+                        html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\");'";
+                    }
                 } else {
                     html += " no-click'";
                 }
@@ -412,6 +424,7 @@ function headingClicked(d) {
             $("#modal-title-synset").html(d.data.name);
             $("#modal-synset").modal("show");
             $("#modal-tier-index").val(d.data.parent);
+            $("#modal-heading-id").val(d.data.heading_id);
             selected_heading = d.data.heading_id;
         }
     });

@@ -115,7 +115,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "pythonPath": "${config:python.pythonPath}",
+            "pythonPath": "${workspaceRoot}/venv/bin",
             "program": "${workspaceRoot}/run.py",
             "cwd": "${workspaceRoot}",
             "env": {

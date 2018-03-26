@@ -3,7 +3,7 @@ var focus_id = "";
 
 // set the dimensions and margins of the vis
 var margin = {top: 20, right: 90, bottom: 30, left: 90};
-var padding = 5;
+var padding = 30;
 var min_size = 100;
 var add_size = 50;
     
@@ -11,7 +11,7 @@ var format = d3.format(",d");
 
 // hierarchical data conversion function from csv
 var stratify = d3.stratify()
-    .id(function(d) { return d.name; })
+    .id(function(d) { return d.heading_id; })
     .parentId(function(d) { return d.parent; });
 
 // queue of visualizations to request
@@ -25,11 +25,11 @@ var world_color = d3.scaleLinear()
     .interpolate(d3.interpolateHcl);
 var mind_color = d3.scaleLinear()
     .domain([-2, 6])
-    .range(["hsl(232,80%,80%)", "hsl(302,30%,40%)"])
+    .range(["hsl(182,80%,80%)", "hsl(252,30%,40%)"])
     .interpolate(d3.interpolateHcl);
 var society_color = d3.scaleLinear()
     .domain([-2, 6])
-    .range(["hsl(332,80%,80%)", "hsl(352,30%,40%)"])
+    .range(["hsl(212,80%,80%)", "hsl(302,30%,40%)"])
     .interpolate(d3.interpolateHcl);
 var default_color = d3.scaleLinear()
     .domain([0, 1])
@@ -61,10 +61,9 @@ function clicked(cb_keyword) {
         var height = $container.attr("height");
         // var pack = d3.pack().size([width, height]).padding(padding);  
         var pack = d3.treemap()
-        .tile(d3.treemapResquarify)
         .size([width, height])
-        .round(true)
-        .padding(padding);
+        .paddingOuter(padding)
+        .tile(d3.treemapBinary);
         
         // update the circle pack to show new tier
         update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, true
@@ -101,10 +100,9 @@ function createNewVis(svg_path, svg_id, path, id, width, height, weight
     
     // var pack = d3.pack().size([width-5, height-5]).padding(padding);
     var pack = d3.treemap()
-    .tile(d3.treemapResquarify)
     .size([width, height])
-    .round(true)
-    .paddingInner(padding);
+    .paddingOuter(padding)
+    .tile(d3.treemapBinary);
 
     
     if(hook_busy) {
@@ -140,7 +138,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         
         // convert the flat data into a hierarchy 
         var root = stratify(data)
-            .sum(function(d) { return d.size });
+            .sum(function(d) { return 10; });
     
         // assign the name to each node
         root.each(function(d) {
@@ -151,18 +149,13 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         // clear all previous data nodes
         var node = svg.select("g")
         .selectAll("g").remove();
-        
+        console.log(root.descendants());
         // create new data nodes to svg
         node = svg.select("g")
         .selectAll("g")
         .data(root.descendants())
         .enter().append("g")
-            .attr("transform", function(d) { return "translate(" + d.x0 + "," 
-                + d.y0 + ")"; })
-            .attr("class", function(d) { 
-                return "node" 
-                    + (!d.children ? " node--leaf" 
-                        : d.depth ? "" : " node--root"); })
+            .attr("transform", function(d) { return "translate(" + [d.x0, d.y0] + ")"; })
             .attr("tier-index", function(d) { return d.data.parent; })
             .each(function(d) { d.name = this; });
             
@@ -185,22 +178,40 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
 
         // draw labels to nodes if we need to
         if(add_label) {
-            var leaf = node.filter(function(d) { return d.data.keyword; });
+            // var leaf = node.filter(function(d) { return d.data.keyword; });
         //     leaf.append("clipPath")
         //     .attr("id", function(d) { return "clip-" + d.data.heading_id; })
         //   .append("use")
         //     .attr("xlink:href", function(d) { return "#" + d.data.heading_id; });
       
-            leaf.append("text")
-                .text(function(d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
-                .attr("x", function(d) { return (d.x1 - d.x0)/2; })
-                .attr("y", function(d) { return (d.y1 - d.y0)/2; })
-                .style("fill", "black")
+            node.append("text")
+                .text(function(d) { 
+                    if(d.data.keyword == "") {
+                        return d.data.th.split(/(?=[A-Z][^A-Z])/g)
+                    }
+                    return d.data.name.split(/(?=[A-Z][^A-Z])/g); 
+                })
+                .attr("dx", function(d) { return 5; })
+                .attr("dy", function(d) { return 15; })
+                .attr("box-width", function(d) {
+                    return d.x1 - d.x0;
+                })
+                .style("fill", function(d) {
+                    if(d.data.keyword != "") {
+                        return default_color(0);
+                    }
+                })
                 .call(wrap);
-          
+
             // add a title for when a node is hovered
             node.append("title")
-                .text(function(d) { return d.id; });
+                .text(function(d) {                     
+                    if(d.data.keyword == "") {
+                        return d.data.th.split(/(?=[A-Z][^A-Z])/g);
+                    }
+                    return d.data.name.split(/(?=[A-Z][^A-Z])/g);
+                }
+            );
         }
         
         // record change of tier index
@@ -215,15 +226,16 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
 function wrap(text) {
     text.each(function() {
         var text = d3.select(this),
-            words = text.text().split(/\s+/).reverse(),
+            words = text.text().trim().split(/[\s\/\\]+/).reverse(),
             word,
             line = [],
             lineNumber = 0,
             lineHeight = 1.5, // ems
-            y = text.attr("y"),
-            width = text.attr("x"),
-            dy = 1.2,
-            tspan = text.text(null).append("tspan").attr("x", width).attr("y", y).attr("dy", dy + "em");
+            dy = text.attr("dy"),
+            dx = text.attr("dx"),
+            em = 1.2,
+            width = text.attr("box-width")-padding,
+            tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", lineHeight + "em");
         while (word = words.pop()) {
             line.push(word);
             tspan.text(line.join(" "));
@@ -231,7 +243,7 @@ function wrap(text) {
                 line.pop();
                 tspan.text(line.join(" "));
                 line = [word];
-                tspan = text.append("tspan").attr("x", width).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                tspan = text.append("tspan").attr("x", 5).attr("y", y).attr("dy", ++lineNumber * lineHeight + em + "em").text(word);
             }
         }
     });
@@ -314,6 +326,11 @@ function getColor(d) {
     if(typeof(d.data.cat) != "undefined") {
         category = parseInt(d.data.cat);
     }
+
+    if($("#modal-heading-id").val() == d.data.heading_id) {
+        return default_color(0);
+    }
+
     switch(category) {
         case 2: // the mind
             return mind_color(d.data.tier);

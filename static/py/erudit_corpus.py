@@ -17,7 +17,7 @@ def matchHeadingList(heading_list, n=100):
     return db.execQuery("""
         select d.documentid, sum(d.tfidf)
         from tfidf t
-        left join doctfidf d on d.termid=t.termid
+        inner join doctfidf d on d.termid=t.termid
         where t.headingid in (%s)
         group by d.documentid
         order by sum(d.tfidf) desc
