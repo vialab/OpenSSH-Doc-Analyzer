@@ -430,31 +430,36 @@ class Wrapper(object):
         # for all the headings found
         for result in aHeading:
             tier_index = result[0]+'.'+result[1]
+            th_index = result[0]
             cat = result[3]
             # make sure their parents exist in our CSV
             while tier_index not in parent_list:
-                parent_tier, sub = self.getParentTier(tier_index)
+                p_tier, sub = self.getParentTier(tier_index)
+                parent_tier = p_tier
                 if parent_tier == "":                
                     parent_tier = "root"
-                # if sub != "":
-                #     parent_tier = parent_tier + "." + sub
+                if sub != "":
+                    parent_tier = parent_tier + "." + sub
                 tier = -1
                 for t in parent_tier.split("."):
                     if t == "NA":
                         break
                     tier += 1
                 th = self.db.execQuery("""select th.thematicheading 
-                from heading h 
+                from heading h  
                 left join thematicheading th on th.id=h.thematicheadingid
                 where h.tierindex=%s
-                limit 1;""", (parent_tier,))
+                limit 1;""", (th_index,))
                 theme = "OHT"
                 if len(th) > 0:
                     theme = th[0][0]
+                if theme == "OHT":
+                    print parent_tier
                 new_line = self.getCSVLine(tier_index, tier_index, parent_tier, tier=str(tier), cat=cat, th=theme)
                 line_list.append(new_line)
                 parent_list[tier_index] = True
                 tier_index = parent_tier
+                th_index = p_tier
     
         csv += self.sortHierarchy(line_list) # sort references in our csv
         csv += self.getHeadingCSVList(parent_list) # now append all children

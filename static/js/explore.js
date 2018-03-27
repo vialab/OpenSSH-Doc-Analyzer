@@ -3,7 +3,7 @@ var focus_id = "";
 
 // set the dimensions and margins of the vis
 var margin = {top: 20, right: 90, bottom: 30, left: 90};
-var padding = 30;
+var padding = 20;
 var min_size = 100;
 var add_size = 50;
     
@@ -157,6 +157,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         .enter().append("g")
             .attr("transform", function(d) { return "translate(" + [d.x0, d.y0] + ")"; })
             .attr("tier-index", function(d) { return d.data.parent; })
+            .attr("id", function(d) { return d.data.heading_id; })
             .each(function(d) { d.name = this; });
             
         // add click events if required
@@ -187,7 +188,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             node.append("text")
                 .text(function(d) { 
                     if(d.data.keyword == "") {
-                        return d.data.th.split(/(?=[A-Z][^A-Z])/g)
+                        return getThematicHeading(d);
                     }
                     return d.data.name.split(/(?=[A-Z][^A-Z])/g); 
                 })
@@ -207,9 +208,10 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             node.append("title")
                 .text(function(d) {                     
                     if(d.data.keyword == "") {
-                        return d.data.th.split(/(?=[A-Z][^A-Z])/g);
+                        return getThematicHeading(d);
+                    } else {
+                        return d.data.name.split(/(?=[A-Z][^A-Z])/g);
                     }
-                    return d.data.name.split(/(?=[A-Z][^A-Z])/g);
                 }
             );
         }
@@ -221,6 +223,27 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
 
         processNextUpdateRequest();
     });
+}
+
+function getThematicHeading(d) {
+    let title = d.data.th.split(/(?=[A-Z][^A-Z])/g);
+    let tier_index = d.data.heading_id.split(".")
+    let first_tier = "1";
+    if(tier_index[0] != "root") {
+        for(let i = 0; i < 7; i++) {
+            if(tier_index[i] == "NA") {
+                break;
+            } else {
+                first_tier = tier_index[i]
+            }
+        }
+    }
+    if(tier_index.length == 8) {
+        title += " (" + first_tier.toString() + ")";
+    } else if(tier_index.length == 10) {
+        title += " (" + first_tier.toString() + "." + tier_index[9] + ")";
+    }
+    return title;
 }
 
 function wrap(text) {
@@ -239,7 +262,7 @@ function wrap(text) {
         while (word = words.pop()) {
             line.push(word);
             tspan.text(line.join(" "));
-            if (tspan.node().getComputedTextLength() > width) {
+            if (tspan.node().getComputedTextLength() > width && line.length > 1) {
                 line.pop();
                 tspan.text(line.join(" "));
                 line = [word];
