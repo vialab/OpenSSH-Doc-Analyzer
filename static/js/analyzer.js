@@ -248,7 +248,6 @@ function showKeywordResults(data, cb_keyword) {
     if(data.length == 0) {
         $(".no-keyword").show();    
     }
-    console.log(data);
     for(i in data) {
         var clean_tier_index = data[i][4].replace(/\./g, "-");
         var svg_path = "keyword-vis-" + clean_tier_index;

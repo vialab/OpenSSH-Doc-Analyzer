@@ -681,7 +681,7 @@ class Wrapper(object):
         """ Given a tier index, also get its parent and immediate child """
         tier_index = {}
         tier_index["home"] = root_tier
-        tier_index["parent"] = self.getParentTier(root_tier)
+        tier_index["parent"] = self.getParentTier(root_tier)[0]
         tier_index["child"] = self.getFirstChildTier(root_tier)
         return tier_index
 

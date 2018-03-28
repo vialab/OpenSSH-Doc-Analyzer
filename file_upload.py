@@ -47,7 +47,7 @@ tm = tm.TopicModel(stop_words=aStopWord)
 #     pickle.dump(tm, f)
 tm = None
 # with open("./model/pkl/tm.pkl", "r") as f:
-    # tm = pickle.load(f)
+#     tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
 
 
@@ -378,10 +378,11 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
     # 3. session["searchterm"] - filtered list of key terms
     session["dochashid"] = dochash_id
     aHash = db.execQuery("""
-        select t.termid, t.word, udt.tf, udt.idf, udt.tfidf 
+        select t.termid, t.word, udt.tf, udt.idf, udt.tfidf, t.headingid, h.tierindex
         from userdoctfidf udt 
         left join tfidf t on t.termid=udt.termid
-        where udt.dochashid=%s
+        left join heading h on h.id=t.headingid
+        where udt.dochashid=%s and t.headingid is not null
         limit 5""", (dochash_id,))
 
     # we have a match - recover it
@@ -393,11 +394,13 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
         tfidf[term_idx]["tf"] = result[2]
         tfidf[term_idx]["idf"] = result[3]
         tfidf[term_idx]["tfidf"] = result[4]
+        tfidf[term_idx]["heading_id"] = result[5]
+        tfidf[term_idx]["tier_index"] = result[6]
     session["tfidf"] = tfidf
 
     # get headings from oht
     key_term = oht_wrapper.getTfidfHeadingList(session["tfidf"])
-    search_term = [term for term in keyterm[:CONST.DS_MAXTOPIC]]
+    search_term = [term for term in key_term[:CONST.DS_MAXTOPIC]]
     session["keyterm"] = key_term
     session["searchterm"] = search_term
     session["tierindex"] = oht_wrapper.getTierIndexIntersection(search_term)

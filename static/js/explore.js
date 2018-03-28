@@ -149,7 +149,6 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         // clear all previous data nodes
         var node = svg.select("g")
         .selectAll("g").remove();
-        console.log(root.descendants());
         // create new data nodes to svg
         node = svg.select("g")
         .selectAll("g")
@@ -266,7 +265,7 @@ function wrap(text) {
                 line.pop();
                 tspan.text(line.join(" "));
                 line = [word];
-                tspan = text.append("tspan").attr("x", 5).attr("y", y).attr("dy", ++lineNumber * lineHeight + em + "em").text(word);
+                tspan = text.append("tspan").attr("x", 5).attr("y", dy).attr("dy", ++lineNumber * lineHeight + em + "em").text(word);
             }
         }
     });
