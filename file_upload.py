@@ -383,6 +383,7 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
         left join tfidf t on t.termid=udt.termid
         left join heading h on h.id=t.headingid
         where udt.dochashid=%s and t.headingid is not null
+        order by udt.tfidf desc
         limit 5""", (dochash_id,))
 
     # we have a match - recover it
@@ -520,6 +521,7 @@ def filterHeadingList(words):
         temp["id"] = word["word"].id
         temp["name"] = word["word"].fr
         temp["pos"] = word["word"].pos
+        temp["heading_id"] = word["word"].headingid
         if word["enable"]:
             temp["enable"] = 1
         heading_list.append(temp)

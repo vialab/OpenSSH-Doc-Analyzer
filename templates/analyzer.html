@@ -88,7 +88,7 @@
     {% if search_term %}
         {% for term in search_term %}
             // drawSearchTerm("{{term['tier_index']|safe}}", "{{ term['heading_id'] }}", "{{ term['heading']|safe }}", 0);
-            drawKeyword("{{term['name']|safe}}");
+            drawKeyword("{{term['name']|safe}}", "{{term['heading_id']|safe}}");
         {% endfor %}
     {% endif %}
 </script>

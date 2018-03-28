@@ -180,7 +180,8 @@ $(document).ready(function() {
     var tier_index = getParameterByName("tierindex");
     if(quick_search) {
         if(heading_id) {
-            drawSearchTerm(tier_index, heading_id, quick_search, 0);
+            // drawSearchTerm(tier_index, heading_id, quick_search, 0);
+            drawKeyword(quick_search, heading_id);            
         } else {
             drawKeyword(quick_search);
         }
@@ -217,7 +218,7 @@ function recoverSearch(search_id) {
             for(var i = 0; i < data.length; i++) {
                 var weight = parseInt(data[i].weight);
                 if(data[i].keyword) {
-                    drawKeyword(data[i].keyword);
+                    drawKeyword(data[i].keyword, data[i].heading_id);
                 } else {
                     drawSearchTerm(data[i].tier_index
                         , data[i].heading_id, data[i].heading, weight);
@@ -411,7 +412,7 @@ function headingClicked(d, quick_search=false) {
                     if(quick_search) {
                         html += "' onclick='window.location.href=\"/analyzer?quicksearch=" + data[i]["id"] + "\"');'";
                     } else {
-                        html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\");'";
+                        html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\");'";
                     }
                 } else {
                     html += " no-click'";
@@ -483,6 +484,7 @@ function search(search_id) {
         n++;
         if($(this).hasClass("custom-keyword")) {
             keyword_list.push( {
+                "heading_id": $(".custom-keyword-heading", $(this)).attr("heading-id"),
                 "keyword": $(".custom-keyword-heading", $(this)).html(),
                 "weight": $(".custom-keyword-weight", $(this)).val()-1,
                 "order": i+1
@@ -553,8 +555,9 @@ function showSearchResults( data ) {
             //     + " | " + topic.heading + " ( " + dist.toFixed(2) 
             //     + " % )</a></li>");
             var $docterm = $("<li><a id='" + topic.id 
-                + "' onclick='drawKeyword(\"" + topic.name
-                + "\");' class='search-term'>" + (++n) + ". "+ topic.name 
+                + "' onclick='drawKeyword(\"" + topic.name+ "\",\""
+                + topic.heading_id + "\");' class='search-term'>" 
+                + (++n) + ". "+ topic.name 
                 + "</a></li>");
             $("#doc-topic", $container).append($docterm);
         }

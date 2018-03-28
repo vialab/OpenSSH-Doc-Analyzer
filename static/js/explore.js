@@ -326,11 +326,16 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
     resortable();
 }
 
-function drawKeyword(keyword) {
+function drawKeyword(keyword, heading_id) {
+    let id = heading_id;
+    if(typeof(heading_id) == "undefined") {
+        id = "";
+    }
     var $box = $("<div class='term-container text-center custom-keyword' id='keyword-"
     + (new Date()).getTime() + "'><button class='close' onclick='deleteTerm(this);'>\
     <span>&times;</span></button><input type='hidden' class='custom-keyword-weight' value='1'/>\
-    <div class='custom-keyword-heading'>" + keyword + "</div></div>");
+    <div class='custom-keyword-heading' heading-id='" + id + "'>" 
+    + keyword + "</div></div>");
     $("#add-term").before($box);
     resortable();
 }
