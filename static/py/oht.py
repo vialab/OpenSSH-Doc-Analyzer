@@ -161,7 +161,7 @@ class Wrapper(object):
         from word w
         left join heading h on h.id=w.headingid
         left join thematicheading th on th.id=h.thematicheadingid
-        where w.word like %s and h.id in (select headingid from tfidf_cache)
+        where w.word like %s and h.id in (select headingid from tfidf_cache) and h.pos='n'
         limit %s
         """, ("%" + keyword + "%", n))
 
@@ -304,169 +304,88 @@ class Wrapper(object):
         return "".join(new_list)
             
 
-    def getTierIndexChildren(self, root):
+    def getTierIndexChildren(self, heading_id):
         """ Get all immediate sub categories and tier below without subs """
-        csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier", "cat", "th")
+        csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier", "cat")
         parent_list = {}        
         line_list = []
-        # set "root" as top of hierarchy
-        new_line = self.getCSVLine("root","root", tier="-1")
-        line_list.append(new_line)
-        parent_list["root"] = False
+        # get our tier index
+        root = self.getTierIndex(heading_id)
+        root_cat = root.split(".")[0]
         # if we are looking for the root
         if root=="root":
-            # include all three root categories, the earth
-            new_line = self.getCSVLine("1.NA.NA.NA.NA.NA.NA","1.NA.NA.NA.NA.NA.NA","root", cat="1", th="The World")
+            # set "root" as top of hierarchy
+            new_line = self.getCSVLine("root","root", tier="-1")
             line_list.append(new_line)
-            parent_list["1.NA.NA.NA.NA.NA.NA"] = True
+            parent_list["root"] = False
+            # only need children so include all three root categories, the earth
+            new_line = self.getCSVLine("181456","The World","root", cat="1")
+            line_list.append(new_line)
+            parent_list["181456"] = True
             # the mind
-            new_line = self.getCSVLine("2.NA.NA.NA.NA.NA.NA","2.NA.NA.NA.NA.NA.NA","root", cat="2", th="The Mind")
+            new_line = self.getCSVLine("295250","The Mind","root", cat="2")
             line_list.append(new_line)
-            parent_list["2.NA.NA.NA.NA.NA.NA"] = True
+            parent_list["295250"] = True
             # society
-            new_line = self.getCSVLine("3.NA.NA.NA.NA.NA.NA","3.NA.NA.NA.NA.NA.NA","root", cat="3", th="Society")
+            new_line = self.getCSVLine("325638","Society","root", cat="3")
             line_list.append(new_line)
-            parent_list["3.NA.NA.NA.NA.NA.NA"] = True
-            # get tier index list
-            aHeading = self.db.execQuery("""
-            select h.tierindex
-            , h.tiering
-            , case when h.t2='NA' then '1'
-                    when h.t3='NA' then '2'
-                    when h.t4='NA' then '3'
-                    when h.t5='NA' then '4'
-                    when h.t6='NA' then '5'
-                    when h.t7='NA' then '6'
-                    else 0 end    
-            , h.t1
-            , th.thematicheading
-            from heading h
-            left join thematicheading th on th.id=h.thematicheadingid
-            where h.tierindex like %s 
-            and h.id in (select distinct headingid from tfidf_cache)
-            group by h.tierindex, h.tiering, case when h.t2='NA' then '1'
-                    when h.t3='NA' then '2'
-                    when h.t4='NA' then '3'
-                    when h.t5='NA' then '4'
-                    when h.t6='NA' then '5'
-                    when h.t7='NA' then '6'
-                    else 0 end
-                , h.t1
-                , th.thematicheading
-            """,('%.NA.NA.NA.NA.NA.NA',))
+            parent_list["325638"] = True
         else:
             # we are not root node
-            tier = root.split(".")
-            tier_index = ".".join(t for t in tier[:7])
-            parent_tier, sub = self.getParentTier(tier_index)
-            sub_tier = ".".join(t for t in tier[7:])
-
-            # get all related headings (parent, sibling, children)
-            child_tier = ""
-            na_found = False
-            for idx, t in enumerate(tier[:7]):
-                if idx > 0:
-                    child_tier += "."
-                if (not na_found and t == "NA"):
-                    child_tier += "%"
-                    na_found = True
-                    continue
-                child_tier += t
-            if parent_tier == "":
-                aHeading = self.db.execQuery("""
-                select h.tierindex
-                , h.tiering
-                , case when h.t2='NA' then '1'
-                    when h.t3='NA' then '2'
-                    when h.t4='NA' then '3'
-                    when h.t5='NA' then '4'
-                    when h.t6='NA' then '5'
-                    when h.t7='NA' then '6'
-                    else 0 end
-                , h.t1
-                , th.thematicheading
-                from heading h
-                left join thematicheading th on th.id=h.thematicheadingid
-                where (h.tierindex=%s or h.tierindex like %s or (h.tierindex like %s))
-                and h.id in (select distinct headingid from tfidf_cache)
-                group by h.tierindex, h.tiering, case when h.t2='NA' then '1'
-                    when h.t3='NA' then '2'
-                    when h.t4='NA' then '3'
-                    when h.t5='NA' then '4'
-                    when h.t6='NA' then '5'
-                    when h.t7='NA' then '6'
-                    else 0 end
-                , h.t1
-                , th.thematicheading
-                """,(tier_index, "%.NA.NA.NA.NA.NA.NA", child_tier))
+            root_heading = Heading(heading_id)
+            parent_tier, sub, parent_id = self.getParentTier(root)
+            if parent_id == "root":
+                heading_name = "root"
             else:
-                aHeading = self.db.execQuery("""
-                select h.tierindex
-                , h.tiering
-                , case when h.t2='NA' then '1'
-                    when h.t3='NA' then '2'
-                    when h.t4='NA' then '3'
-                    when h.t5='NA' then '4'
-                    when h.t6='NA' then '5'
-                    when h.t7='NA' then '6'
-                    else 0 end
-                , h.t1
-                , th.thematicheading
-                from heading h
-                left join thematicheading th on th.id=h.thematicheadingid                
-                where (h.tierindex=%s or h.tierindex=%s or (h.tierindex like %s))
-                and h.id in (select distinct headingid from tfidf_cache)
-                group by h.tierindex, h.tiering, case when h.t2='NA' then '1'
-                    when h.t3='NA' then '2'
-                    when h.t4='NA' then '3'
-                    when h.t5='NA' then '4'
-                    when h.t6='NA' then '5'
-                    when h.t7='NA' then '6'
-                    else 0 end
-                , h.t1
-                , th.thematicheading
-                """,(tier_index, parent_tier, child_tier))
-
-        # for all the headings found
-        for result in aHeading:
-            tier_index = result[0]+'.'+result[1]
-            th_index = result[0]
-            cat = result[3]
-            # make sure their parents exist in our CSV
-            while tier_index not in parent_list:
-                p_tier, sub = self.getParentTier(tier_index)
-                parent_tier = p_tier
-                if parent_tier == "":                
-                    parent_tier = "root"
-                if sub != "":
-                    parent_tier = parent_tier + "." + sub
-                tier = -1
-                for t in parent_tier.split("."):
-                    if t == "NA":
-                        break
-                    tier += 1
-                th = self.db.execQuery("""select th.thematicheading 
-                from heading h  
-                left join thematicheading th on th.id=h.thematicheadingid
-                where h.tierindex=%s
-                limit 1;""", (th_index,))
-                theme = "OHT"
-                if len(th) > 0:
-                    theme = th[0][0]
-                if theme == "OHT":
-                    print parent_tier
-                new_line = self.getCSVLine(tier_index, tier_index, parent_tier, tier=str(tier), cat=cat, th=theme)
-                line_list.append(new_line)
-                parent_list[tier_index] = True
-                tier_index = parent_tier
-                th_index = p_tier
+                h = self.db.execQuery("select heading from heading where id=%s", (parent_id))
+                heading_name = h[0][0]
+            # set our parent as the root
+            new_line = self.getCSVLine(parent_id, heading_name, tier="-1")
+            line_list.append(new_line)
+            parent_list[parent_id] = False
+            # then add in us
+            new_line = self.getCSVLine(heading_id, root_heading.en, parent_id, cat=root_cat)
+            line_list.append(new_line)
+            parent_list[heading_id] = True
     
         csv += self.sortHierarchy(line_list) # sort references in our csv
-        csv += self.getHeadingCSVList(parent_list) # now append all children
+        if root != "root":
+            csv += self.getHeadingChildrenCSVList(root, heading_id) # now append all children
         return csv
 
 
-    def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0", cat="0", th=""):
+    def getParentHeadingList(self, tier_index, parent_tier, child_tier):
+        """ Based on a tierindex, get a list of headings for this tier """
+        return self.db.execQuery("""
+            select h.tierindex
+            , h.tiering
+            , case when h.t2='NA' then '1'
+                when h.t3='NA' then '2'
+                when h.t4='NA' then '3'
+                when h.t5='NA' then '4'
+                when h.t6='NA' then '5'
+                when h.t7='NA' then '6'
+                else 0 end
+            , h.t1
+            , h.heading
+            from heading h
+            where (h.tierindex=%s or h.tierindex like %s or (h.tierindex like %s))
+            and h.pos='n' and h.subcat=''
+            and h.id in (select distinct headingid from tfidf_cache)
+            group by h.tierindex, h.tiering, case when h.t2='NA' then '1'
+                when h.t3='NA' then '2'
+                when h.t4='NA' then '3'
+                when h.t5='NA' then '4'
+                when h.t6='NA' then '5'
+                when h.t7='NA' then '6'
+                else 0 end
+            , h.t1
+            , h.heading
+            """,(tier_index, parent_tier, child_tier))
+
+
+
+    def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0", cat="0"):
         """ Helper function to standardize creating CSV lines """
         new_line = "\"" + heading_id \
             + "\",\"" + name \
@@ -474,9 +393,50 @@ class Wrapper(object):
             + "\",\"" + size \
             + "\",\"" + keyword \
             + "\",\"" + tier \
-            + "\",\"" + cat \
-            + "\",\"" + th + "\"\n"
+            + "\",\"" + cat + "\"\n"
         return new_line
+
+
+    def getHeadingChildrenCSVList(self, root, heading_id):
+        """ Get our tier children and format them for CSV """
+        csv = ""
+        query_tier = ""
+        tier = root.split(".")
+        found_na = False
+        last_index = 1
+        count = 0
+        # get wild card for children query
+        for i, t in enumerate(tier):
+            if i > 0:
+                query_tier += "."
+
+            if found_na and count < 2:
+                query_tier += "%"
+                count += 1
+            elif t == "NA" and not found_na:
+                found_na = True
+                query_tier += "%"
+                last_index = i+1
+            else:
+                query_tier += t
+
+        headings = self.db.execQuery("""
+            select h.id 
+            , h.heading
+            , h.t1
+            , h.tierindex
+            from heading h
+            where h.tierindex like %s and h.pos='n' and h.subcat=''
+            and h.id in (select distinct headingid from tfidf_cache)
+            and t""" + str(last_index) + "!= 'NA'", (query_tier,))
+        parent_list = [heading_id]
+        for h in headings:
+            p_tier, s_tier, p_id = self.getParentTier(h[3])
+            parent_list.append(str(h[0]))
+            if p_id not in parent_list:
+                p_id = heading_id
+            csv += self.getCSVLine(str(h[0]), h[1], str(p_id), "10", "1", "2", h[2])
+        return csv
 
 
     def getHeadingCSVList(self, parent_list):
@@ -485,9 +445,12 @@ class Wrapper(object):
         for key in parent_list:
             if not parent_list[key]:
                 continue
-            tier = key.split(".")
-            tier_index = ".".join(t for t in tier[:7])
-            root_tier = ".".join(t for t in tier[7:])
+            aParent = self.db.execQuery("""
+            select tierindex, tiering
+            from heading where id=%s
+            """, (key,))
+            tier_index = aParent[0][0]
+            root_tier = aParent[0][1]
             # get all nodes for this heading
             aHeading = self.db.execQuery("""
             select h.id
@@ -503,29 +466,35 @@ class Wrapper(object):
                 else 0 end
             , h.tiering
             , h.t1
-            , th.thematicheading
             from heading h
-            left join thematicheading th on th.id=h.thematicheadingid
-            where h.tierindex=%s and h.tiering=%s
+            where h.tierindex=%s and h.tiering=%s and h.pos='n' and h.subcat=''
             and h.id in (select distinct headingid from tfidf_cache)
             """, (tier_index,root_tier))
             # append all nodes to csv
             for result in aHeading:
+                if str(result[0]) in parent_list:
+                    continue
                 try:
                     tier = int(result[4])
                     if "sub" in result[5]:
                         tier += 1
                 except:
                     tier = 0
-                csv += self.getCSVLine(str(result[0]), result[1], result[3], "10", "1", str(tier), result[6], result[7])
+                h = self.db.execQuery("""
+                select h.id 
+                from heading h
+                where h.tierindex=%s and h.pos='n' and h.subcat=''
+                and h.id in (select distinct headingid from tfidf_cache)
+                limit 1
+                """, (tier_index,))
+                csv += self.getCSVLine(str(result[0]), result[1], str(h[0][0]), "10", "1", str(tier), result[6])
         return csv
-
     
 
     def getParentTier(self, root):
         """ Get parent tier of tier index """
         if root == "":
-            return "root", ""
+            return "root", "", "root"
         root_tier = root.split(".")
         if len(root_tier) > 9: # sub.n.i turns to n
             tier = ".".join(t for t in root_tier[:7])
@@ -543,7 +512,7 @@ class Wrapper(object):
                 if idx < len(root_tier)-1 and not start_na:
                     if root_tier[idx+1] == "NA":
                         if idx == 0: # we are root node
-                            return "", ""
+                            return "", "", "root"
                         start_na = True
                         last_idx = idx
                     
@@ -556,12 +525,17 @@ class Wrapper(object):
         # recurse until we find closest tier we actually use
         results = self.db.execQuery("""
         select id from heading
-        where tierindex=%s
+        where tierindex=%s 
+        and pos='n' and subcat=''
         and id in (select id from tfidf_cache)
         """, (tier,))
         if len(results) == 0:
             return self.getParentTier(tier)
-        return tier, sub_tier
+        else:
+            parent_id = results[0][0]
+            if parent_id == "":
+                parent_id = "root"
+        return tier, sub_tier, parent_id
 
 
     def getFirstChildTier(self, root):
@@ -579,6 +553,7 @@ class Wrapper(object):
             select tierindex, tiering
             from heading
             where tierindex = %s and tiering like %s
+            and h.pos='n' and h.subcat=''
             and id in (select id from tfidf_cache)
             order by tiering, subcat
             limit 1""", (".".join(root_tier),sub_query))
@@ -589,6 +564,7 @@ class Wrapper(object):
             select tierindex, tiering
             from heading
             where tierindex = %s and tiering != ''
+            and h.pos='n' and h.subcat=''
             and id in (select id from tfidf_cache)
             order by tiering, subcat
             limit 1""", (root,))
@@ -633,6 +609,7 @@ class Wrapper(object):
 
 
     def getTfidfHeadingList(self, aTF):
+        """ Get term information associated with OHT """
         search_term = []
         for term in aTF:
             aWord = {}
@@ -680,9 +657,9 @@ class Wrapper(object):
     def getTierIndexTrio(self, root_tier):
         """ Given a tier index, also get its parent and immediate child """
         tier_index = {}
-        tier_index["home"] = root_tier
-        tier_index["parent"] = self.getParentTier(root_tier)[0]
-        tier_index["child"] = self.getFirstChildTier(root_tier)
+        tier_index["home"] = self.getHeadingId(root_tier)
+        tier_index["parent"] = self.getParentTier(root_tier)[2]
+        tier_index["child"] = self.getHeadingId(self.getFirstChildTier(root_tier))
         return tier_index
 
     
@@ -767,3 +744,23 @@ class Wrapper(object):
             "tier_index": self.getTierIndexIntersection(search_list)
         }
                 
+
+    def getTierIndex(self, heading_id):
+        results = self.db.execQuery("""
+        select tierindex from heading
+        where id=%s and id in (select id from tfidf_cache)
+        """, (heading_id,))
+        if len(results) > 0:
+            return results[0][0]
+        return "root"
+
+    def getHeadingId(self, tier_index):
+        results = self.db.execQuery("""
+        select id from heading
+        where tierindex=%s 
+        and pos='n' and subcat=''
+        and id in (select id from tfidf_cache)
+        """, (tier_index,))
+        if len(results) > 0:
+            return str(results[0][0])
+        return "root"

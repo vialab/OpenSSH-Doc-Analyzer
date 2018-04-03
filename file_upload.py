@@ -236,9 +236,6 @@ def oht_csv(tier_index=None):
     """ Web hook for retrieving OHT tree based off tier index """
     if tier_index is None:
         return Response(oht_wrapper.csv(), mimetype="text/csv")
-        
-    if len(tier_index.split(".")) < 7 and tier_index != "root":
-        abort(404)
 
     csv = oht_wrapper.getTierIndexChildren(tier_index)
     return Response(csv, mimetype="text/csv")

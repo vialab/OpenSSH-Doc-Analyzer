@@ -186,10 +186,10 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
       
             node.append("text")
                 .text(function(d) { 
-                    if(d.data.keyword == "") {
-                        return getThematicHeading(d);
-                    }
-                    return d.data.name.split(/(?=[A-Z][^A-Z])/g); 
+                    // if(d.data.keyword == "") {
+                    //     return getThematicHeading(d);
+                    // }
+                    return d.data.name; 
                 })
                 .attr("dx", function(d) { return 5; })
                 .attr("dy", function(d) { return 15; })
@@ -206,11 +206,10 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             // add a title for when a node is hovered
             node.append("title")
                 .text(function(d) {                     
-                    if(d.data.keyword == "") {
-                        return getThematicHeading(d);
-                    } else {
-                        return d.data.name.split(/(?=[A-Z][^A-Z])/g);
-                    }
+                    // if(d.data.keyword == "") {
+                    //     return getThematicHeading(d);
+                    // }
+                    return d.data.name;
                 }
             );
         }
@@ -225,7 +224,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
 }
 
 function getThematicHeading(d) {
-    let title = d.data.th.split(/(?=[A-Z][^A-Z])/g);
+    let title = d.data.th;
     let tier_index = d.data.heading_id.split(".")
     let first_tier = "1";
     if(tier_index[0] != "root") {
@@ -354,9 +353,9 @@ function getColor(d) {
         category = parseInt(d.data.cat);
     }
 
-    if($("#modal-heading-id").val() == d.data.heading_id) {
-        return default_color(0);
-    }
+    // if($("#modal-heading-id").val() == d.data.heading_id) {
+    //     return default_color(0);
+    // }
 
     switch(category) {
         case 2: // the mind
