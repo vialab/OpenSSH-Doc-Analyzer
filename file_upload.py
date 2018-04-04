@@ -53,6 +53,7 @@ strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
+    # saveParentHeadings()
     # countKeywords()
     # tm.tfidf_vect.fit(tm.tf)
     # tm.saveModel()
@@ -246,8 +247,15 @@ def oht_synset(heading_id):
     """ Web hook for retrieving a word heading synset """
     heading = oht.Heading(heading_id)
     words = heading.Synset()
-    word_list = filterHeadingList(words)
-    return jsonify(word_list)
+    pos = heading.PartOfSpeech()
+    response = {
+        "id": heading_id,
+        "name": heading.fr,
+        "tier_index": heading.tierindex,
+        "words": filterOHTWordList(words),
+        "pos": filterOHTHeadingList(pos)
+    }
+    return jsonify(response)
 
 
 @app.route("/oht/directory/<heading_id>")
@@ -259,9 +267,9 @@ def oht_directory(heading_id):
     hypo = heading.Hyponym()
     cohypo = heading.Cohyponym()
     word_list = {}
-    word_list["hyper"] = filterHeadingList(hyper)
-    word_list["hypo"] = filterHeadingList(hypo)
-    word_list["cohypo"] = filterHeadingList(cohypo)
+    word_list["hyper"] = filterOHTWordList(hyper)
+    word_list["hypo"] = filterOHTWordList(hypo)
+    word_list["cohypo"] = filterOHTWordList(cohypo)
     return jsonify(word_list)
 
 
@@ -510,7 +518,7 @@ def getSearchMetaInfo(aRankList):
 
 
 
-def filterHeadingList(words):
+def filterOHTWordList(words):
     """ Filter a list of words for client side use """
     heading_list = []
     for word in words:
@@ -521,6 +529,19 @@ def filterHeadingList(words):
         temp["heading_id"] = word["word"].headingid
         if word["enable"]:
             temp["enable"] = 1
+        heading_list.append(temp)
+    return heading_list
+
+
+def filterOHTHeadingList(headings):
+    """ Filter a list of words for client side use """
+    heading_list = []
+    for heading in headings:
+        temp = {}
+        temp["id"] = heading.id
+        temp["name"] = heading.fr
+        temp["pos"] = heading.pos
+        temp["tier_index"] = heading.tierindex
         heading_list.append(temp)
     return heading_list
 
@@ -740,6 +761,33 @@ def countKeywords():
                     insert into dockeyword(documentid, keywordid, freq, dist)
                     values(%s, %s, %s, %s)
                     """, (key, keyword_id, freq, dist))
+
+
+def saveParentHeadings():
+    headings = db.execQuery("""select id
+        , pos
+        , tierindex 
+        from heading 
+        where parentid is null
+    """)
+    n = 0
+    print "got %s headings ..." % len(headings)
+    for heading in headings:
+        n += 1
+        if heading[1] == "n":
+            p_tier, s_tier, parent_id = oht.getParentTier(heading[2])
+            db.execUpdate("update heading set parentid=%s where id=%s"
+                , (parent_id, heading[0]))
+        else:
+            parent = db.execQuery("""select id from heading 
+            where tierindex=%s and pos='n' and subcat=''
+            limit 1
+            """, (heading[2],))
+            if len(parent) > 0:
+                db.execUpdate("update heading set parentid=%s where id=%s"
+                    , (parent[0][0], heading[0]))
+        if (n % 1000) == 0:
+            print n
 
 
 if __name__ == "__main__":

@@ -408,14 +408,15 @@ function headingClicked(d, quick_search=false) {
 }
 
 
-function getSynset(elem, heading_id) {
+function getSynset(heading_id) {
     $(".pos-container").removeClass("active");
-    $(elem).addClass("active");
+    $(".pos-container").removeClass("active");
+    $()
     $.ajax({
         type: "GET"
         , url: "/oht/synset/" + heading_id
         , success: function(response) {
-            populateBOW(response.words, false);
+            populateBOW(response.words, quick_search);
         }
     });
 }
@@ -429,7 +430,7 @@ function populatePOS(data, selected_pos) {
         if(selected_pos == data[i].pos) {
             html += " active";
         }
-        html += "' onclick='getSynset(this, \"" + data[i].id + "\");'>";
+        html += "' onclick=''>";
         html += data[i].pos + ". " + data[i].name;
         html += "</div>";
         $(".part-of-speech #pos-words").append(html);

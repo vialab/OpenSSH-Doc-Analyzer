@@ -337,7 +337,6 @@ text {
     height: 100vh;
     background-color: white;
     z-index: 1;
-    overflow: scroll;
     border-right: 1px solid lightgray;
 }
 
@@ -362,6 +361,53 @@ text {
     top: 75px;
     transform: translateX(-50%);
     text-transform: uppercase;
+}
+
+#search-dialog-side {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.search-side {
+    position: absolute;
+}
+
+.search-side.part-of-speech {
+    top: 0px;
+    height: 30%;
+}
+
+.search-side.part-of-speech #pos-words {
+    height: 100%;
+    border-bottom: 5px solid #eee;
+    padding-bottom: 15px;
+}
+
+#pos-words .pos-container {
+    border: 1px solid #eee;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+    float: left;
+}
+
+#pos-words .pos-container.active {
+    background-color: rgba(168,209,255,0.4);
+}
+
+
+#pos-words .pos-container:hover {
+    background-color: rgba(168,209,255,0.6);    
+}
+
+.search-side.part-of-speech h4 {
+    text-transform: uppercase;
+}
+
+.search-side.word-box {
+    bottom: 0px;
+    height: 65%;
 }
 
 #search-dialog svg {

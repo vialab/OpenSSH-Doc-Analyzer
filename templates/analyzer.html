@@ -7,11 +7,26 @@
 {% block page_content %}
 <div id="search-dialog">
     <div id="search-dialog-title"></div>
-    <!-- <input id="weight-slider" type="text" data-slider-ticks="[1,2,3,4,5]" data-slider-ticks-snap-bounds="30"
-        data-slider-tooltip="hide"> -->
     <button class="close" onclick="toggleSearchDialog();">
         <span>&times;</span>
     </button>
+    <div id="row">
+        <div class="col-sm-12">
+            <div class="col-sm-9" id="search-dialog-main"></div>
+            <div style="float: left;">
+                <div class="search-side part-of-speech">
+                    <h4>Select a Word:</h4>
+                    <div id="pos-words">
+                    </div>
+                </div>
+                <div class="search-side word-box">
+                    <h4></h4>
+                    <div id="heading-words">
+                    </div>                    
+                </div>            
+            </div>
+        </div>
+    </div>
 </div>
 <div id="search-keyword-dialog">
     <button class="close" onclick="toggleKeywordDialog();">

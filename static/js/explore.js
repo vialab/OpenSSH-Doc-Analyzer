@@ -6,9 +6,9 @@ var margin = {top: 20, right: 90, bottom: 30, left: 90};
 var padding = 20;
 var min_size = 100;
 var add_size = 50;
-    
 var format = d3.format(",d");
-
+var oneclick = false;
+var click_to;
 // hierarchical data conversion function from csv
 var stratify = d3.stratify()
     .id(function(d) { return d.heading_id; })
@@ -47,28 +47,33 @@ function hovered(hover) {
 // default function for a clicked circle node
 function clicked(cb_keyword) {
     return function(d) {
-        d3.event.stopPropagation();
-        if( d.data.keyword ) {
-            // if we clicked a keyword
-            // run the callback function
-            cb_keyword(d);
-            return;
+        if(!oneclick) {
+            oneclick = true;
+            var click_to = setTimeout(function() {
+                if(oneclick) {
+                    cb_keyword(d);
+                }
+                oneclick = false;
+            }, 250);
+        } else {
+            oneclick = false;
+            clearTimeout(click_to);
+            // otherwise we clicked another tier
+            var $container = $(this).closest("svg");
+            var svg_id = $container.attr("id");
+            var width = $container.attr("width");
+            var height = $container.attr("height");
+            // var pack = d3.pack().size([width, height]).padding(padding);  
+            var pack = d3.treemap()
+            .size([width, height])
+            .paddingOuter(padding)
+            .tile(d3.treemapBinary);
+            
+            // update the circle pack to show new tier
+            update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, true
+                , true, true, d.data.heading_id, cb_keyword);
         }
-        // otherwise we clicked another tier
-        var $container = $(this).closest("svg");
-        var svg_id = $container.attr("id");
-        var width = $container.attr("width");
-        var height = $container.attr("height");
-        // var pack = d3.pack().size([width, height]).padding(padding);  
-        var pack = d3.treemap()
-        .size([width, height])
-        .paddingOuter(padding)
-        .tile(d3.treemapBinary);
-        
-        // update the circle pack to show new tier
-        update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, true
-            , true, true, d.data.heading_id, cb_keyword);
-    };
+    }
 }
 
 // create a circle pack vis at a designated DOM path
@@ -189,7 +194,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                     // if(d.data.keyword == "") {
                     //     return getThematicHeading(d);
                     // }
-                    return d.data.name; 
+                    return d.data.name.toUpperCase(); 
                 })
                 .attr("dx", function(d) { return 5; })
                 .attr("dy", function(d) { return 15; })
@@ -209,7 +214,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                     // if(d.data.keyword == "") {
                     //     return getThematicHeading(d);
                     // }
-                    return d.data.name;
+                    return d.data.name.toUpperCase();
                 }
             );
         }
@@ -254,7 +259,6 @@ function wrap(text) {
             lineHeight = 1.5, // ems
             dy = text.attr("dy"),
             dx = text.attr("dx"),
-            em = 1.2,
             width = text.attr("box-width")-padding,
             tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", lineHeight + "em");
         while (word = words.pop()) {
@@ -264,7 +268,7 @@ function wrap(text) {
                 line.pop();
                 tspan.text(line.join(" "));
                 line = [word];
-                tspan = text.append("tspan").attr("x", 5).attr("y", dy).attr("dy", ++lineNumber * lineHeight + em + "em").text(word);
+                tspan = text.append("tspan").attr("x", 5).attr("dy", lineHeight + "em").text(word);
             }
         }
     });

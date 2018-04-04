@@ -49,6 +49,7 @@ class Heading(object):
         , th.fr_thematicheading
         , h.tierindex
         , h.subcat
+        , h.pos
         from heading h
         left join thematicheading th on th.id=h.thematicheadingid
         where h.id=%s """, (strID,))
@@ -61,7 +62,20 @@ class Heading(object):
         self.tierindex = heading[0][6]
         self.atierindex = heading[0][6].replace(".NA", "").split(".")
         self.subcat = heading[0][7]
+        self.pos = heading[0][8]
 
+
+    def PartOfSpeech(self):
+        """ Returns all parts of speech for a given tier """
+        results = self.db.execQuery("""select h.id
+            from heading h
+            where h.tierindex=%s and h.subcat=''
+            """, (self.tierindex,))
+        pos_list = []
+        for result in results:
+            pos_list.append(Heading(result[0]))
+        return pos_list
+            
 
     def Synset(self):
         """ Returns list of words categorized within current heading """
@@ -337,7 +351,7 @@ class Wrapper(object):
             if parent_id == "root":
                 heading_name = "root"
             else:
-                h = self.db.execQuery("select heading from heading where id=%s", (parent_id))
+                h = self.db.execQuery("select heading from heading where id=%s", (parent_id,))
                 heading_name = h[0][0]
             # set our parent as the root
             new_line = self.getCSVLine(parent_id, heading_name, tier="-1")
@@ -387,13 +401,13 @@ class Wrapper(object):
 
     def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0", cat="0"):
         """ Helper function to standardize creating CSV lines """
-        new_line = "\"" + heading_id \
-            + "\",\"" + name \
-            + "\",\"" + parent \
-            + "\",\"" + size \
-            + "\",\"" + keyword \
-            + "\",\"" + tier \
-            + "\",\"" + cat + "\"\n"
+        new_line = "\"" + str(heading_id) \
+            + "\",\"" + str(name) \
+            + "\",\"" + str(parent) \
+            + "\",\"" + str(size) \
+            + "\",\"" + str(keyword) \
+            + "\",\"" + str(tier) \
+            + "\",\"" + str(cat) + "\"\n"
         return new_line
 
 
@@ -410,7 +424,7 @@ class Wrapper(object):
             if i > 0:
                 query_tier += "."
 
-            if found_na and count < 2:
+            if found_na and count < 1:
                 query_tier += "%"
                 count += 1
             elif t == "NA" and not found_na:
@@ -425,17 +439,43 @@ class Wrapper(object):
             , h.heading
             , h.t1
             , h.tierindex
+            , case when h.t2='NA' then '1'
+                when h.t3='NA' then '2'
+                when h.t4='NA' then '3'
+                when h.t5='NA' then '4'
+                when h.t6='NA' then '5'
+                when h.t7='NA' then '6'
+                else 0 end
+            , h.parentid
             from heading h
             where h.tierindex like %s and h.pos='n' and h.subcat=''
             and h.id in (select distinct headingid from tfidf_cache)
             and t""" + str(last_index) + "!= 'NA'", (query_tier,))
         parent_list = [heading_id]
         for h in headings:
-            p_tier, s_tier, p_id = self.getParentTier(h[3])
             parent_list.append(str(h[0]))
-            if p_id not in parent_list:
-                p_id = heading_id
-            csv += self.getCSVLine(str(h[0]), h[1], str(p_id), "10", "1", "2", h[2])
+            p_id = str(h[5])
+            while p_id not in parent_list:
+                p = self.db.execQuery("""select h.id 
+                        , h.heading
+                        , h.t1
+                        , h.tierindex
+                        , case when h.t2='NA' then '1'
+                            when h.t3='NA' then '2'
+                            when h.t4='NA' then '3'
+                            when h.t5='NA' then '4'
+                            when h.t6='NA' then '5'
+                            when h.t7='NA' then '6'
+                            else 0 end
+                        , h.parentid
+                    from heading h where h.id=%s""", (p_id,))
+                if len(p) == 0:
+                    p_id = heading_id
+                    break
+                p_id = p[0][5]
+                parent_list.append(p_id)
+                csv += self.getCSVLine(str(p[0][0]), p[0][1], p_id, "10", "1", str(p[0][4]), p[0][2])                
+            csv += self.getCSVLine(str(h[0]), h[1], p_id, "10", "1", str(h[4]), h[2])
         return csv
 
 
@@ -527,12 +567,11 @@ class Wrapper(object):
         select id from heading
         where tierindex=%s 
         and pos='n' and subcat=''
-        and id in (select id from tfidf_cache)
         """, (tier,))
         if len(results) == 0:
             return self.getParentTier(tier)
         else:
-            parent_id = results[0][0]
+            parent_id = str(results[0][0])
             if parent_id == "":
                 parent_id = "root"
         return tier, sub_tier, parent_id
@@ -554,7 +593,6 @@ class Wrapper(object):
             from heading
             where tierindex = %s and tiering like %s
             and h.pos='n' and h.subcat=''
-            and id in (select id from tfidf_cache)
             order by tiering, subcat
             limit 1""", (".".join(root_tier),sub_query))
             if len(results) > 0:
@@ -565,7 +603,6 @@ class Wrapper(object):
             from heading
             where tierindex = %s and tiering != ''
             and h.pos='n' and h.subcat=''
-            and id in (select id from tfidf_cache)
             order by tiering, subcat
             limit 1""", (root,))
             if len(results) > 0:
@@ -748,7 +785,7 @@ class Wrapper(object):
     def getTierIndex(self, heading_id):
         results = self.db.execQuery("""
         select tierindex from heading
-        where id=%s and id in (select id from tfidf_cache)
+        where id=%s
         """, (heading_id,))
         if len(results) > 0:
             return results[0][0]
@@ -759,7 +796,6 @@ class Wrapper(object):
         select id from heading
         where tierindex=%s 
         and pos='n' and subcat=''
-        and id in (select id from tfidf_cache)
         """, (tier_index,))
         if len(results) > 0:
             return str(results[0][0])
