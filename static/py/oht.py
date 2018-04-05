@@ -160,9 +160,20 @@ class Wrapper(object):
     wordList = []
     db = db.Database()
     ALLOWED_LANG = ["en", "fr"]
+    child_count = {}
+
 
     def __init__(self):
         self.db.execProc("sp_tfidf_cache")
+        counts = self.db.execQuery("""select parentid, count(*) 
+            from heading
+            where parentid is not null and pos='n' and subcat=''
+            group by parentid;
+        """)
+        for count in counts:
+            self.child_count[str(count[0])] = count[1]
+
+
 
     def getKeywords(self, keyword, n=10):
         """ Returns a list of headings that have a matching keyword """
@@ -178,6 +189,8 @@ class Wrapper(object):
         where w.word like %s and h.id in (select headingid from tfidf_cache) and h.pos='n'
         limit %s
         """, ("%" + keyword + "%", n))
+
+
 
     def getWordList(self, strWord, pos=None, lang="en"):
         """ Returns a list of word objects that matches """
@@ -320,7 +333,7 @@ class Wrapper(object):
 
     def getTierIndexChildren(self, heading_id):
         """ Get all immediate sub categories and tier below without subs """
-        csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier", "cat")
+        csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier", "cat", "length")
         parent_list = {}        
         line_list = []
         # get our tier index
@@ -364,7 +377,7 @@ class Wrapper(object):
     
         csv += self.sortHierarchy(line_list) # sort references in our csv
         if root != "root":
-            csv += self.getHeadingChildrenCSVList(root, heading_id) # now append all children
+            csv += self.getHeadingChildrenCSVList(root, heading_id, parent_list) # now append all children
         return csv
 
 
@@ -399,19 +412,30 @@ class Wrapper(object):
 
 
 
-    def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0", cat="0"):
+    def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0", cat="0", length=""):
         """ Helper function to standardize creating CSV lines """
+        if length == "":
+            if heading_id == "root":
+                count = self.child_count["0"]
+            elif heading_id in self.child_count:
+                count = self.child_count[heading_id]
+            else:
+                count = "0"
+        else:
+            count = length
+
         new_line = "\"" + str(heading_id) \
             + "\",\"" + str(name) \
             + "\",\"" + str(parent) \
             + "\",\"" + str(size) \
             + "\",\"" + str(keyword) \
             + "\",\"" + str(tier) \
-            + "\",\"" + str(cat) + "\"\n"
+            + "\",\"" + str(cat) \
+            + "\",\"" + str(count) + "\"\n"
         return new_line
 
 
-    def getHeadingChildrenCSVList(self, root, heading_id):
+    def getHeadingChildrenCSVList(self, root, heading_id, parent_list):
         """ Get our tier children and format them for CSV """
         csv = ""
         query_tier = ""
@@ -446,14 +470,16 @@ class Wrapper(object):
                 when h.t6='NA' then '5'
                 when h.t7='NA' then '6'
                 else 0 end
-            , h.parentid
+            , case when h.parentid=0 then 'root' else h.parentid end
             from heading h
             where h.tierindex like %s and h.pos='n' and h.subcat=''
-            and h.id in (select distinct headingid from tfidf_cache)
+            and h.parentid is not null
             and t""" + str(last_index) + "!= 'NA'", (query_tier,))
-        parent_list = [heading_id]
+        
         for h in headings:
-            parent_list.append(str(h[0]))
+            if str(h[0]) in parent_list:
+                continue
+            parent_list[str(h[0])] = True
             p_id = str(h[5])
             while p_id not in parent_list:
                 p = self.db.execQuery("""select h.id 
@@ -467,13 +493,14 @@ class Wrapper(object):
                             when h.t6='NA' then '5'
                             when h.t7='NA' then '6'
                             else 0 end
-                        , h.parentid
-                    from heading h where h.id=%s""", (p_id,))
-                if len(p) == 0:
+                        , case when h.parentid=0 then 'root' else h.parentid end
+                    from heading h where h.id=%s and h.pos='n' and h.subcat=''
+                    and h.parentid is not null""", (p_id,))
+                if len(p) == 0 or str(p[0][0]) in parent_list:
                     p_id = heading_id
                     break
-                p_id = p[0][5]
-                parent_list.append(p_id)
+                p_id = str(p[0][5])
+                parent_list[str(p[0][0])] = True
                 csv += self.getCSVLine(str(p[0][0]), p[0][1], p_id, "10", "1", str(p[0][4]), p[0][2])                
             csv += self.getCSVLine(str(h[0]), h[1], p_id, "10", "1", str(h[4]), h[2])
         return csv

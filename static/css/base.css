@@ -350,6 +350,7 @@ text {
     right: 15px;
     top: 75px;
     font-size: 24px;
+    z-index: 99;
 }
 
 #search-dialog-title {

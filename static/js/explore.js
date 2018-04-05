@@ -47,6 +47,7 @@ function hovered(hover) {
 // default function for a clicked circle node
 function clicked(cb_keyword) {
     return function(d) {
+        d3.selectAll("g").style("stroke", "");
         if(!oneclick) {
             oneclick = true;
             var click_to = setTimeout(function() {
@@ -55,9 +56,13 @@ function clicked(cb_keyword) {
                 }
                 oneclick = false;
             }, 250);
+            d3.select(this).style("stroke", "rgb(220,100,100)");            
         } else {
             oneclick = false;
             clearTimeout(click_to);
+            if(d.data.length == "0") {
+                return;
+            }
             // otherwise we clicked another tier
             var $container = $(this).closest("svg");
             var svg_id = $container.attr("id");
@@ -143,7 +148,8 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         
         // convert the flat data into a hierarchy 
         var root = stratify(data)
-            .sum(function(d) { return 10; });
+            .sum(function(d) { return 10; })
+            .sort(function(a, b) { return b.height - a.height});
     
         // assign the name to each node
         root.each(function(d) {
@@ -188,13 +194,9 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         //     .attr("id", function(d) { return "clip-" + d.data.heading_id; })
         //   .append("use")
         //     .attr("xlink:href", function(d) { return "#" + d.data.heading_id; });
-      
             node.append("text")
-                .text(function(d) { 
-                    // if(d.data.keyword == "") {
-                    //     return getThematicHeading(d);
-                    // }
-                    return d.data.name.toUpperCase(); 
+                .text(function(d) {
+                    return d.data.name.toUpperCase();
                 })
                 .attr("dx", function(d) { return 5; })
                 .attr("dy", function(d) { return 15; })
@@ -208,12 +210,22 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                 })
                 .call(wrap);
 
+            node.append("text")
+                .attr("text-anchor", "end")
+                .text(function(d) {
+                    return " (" + d.data.length + ")"; 
+                })
+                .attr("x", function(d) { return d.x1-d.x0-(5*(d.data.length.length-1))-16; })
+                .attr("y", function(d) { return d.y1-d.y0-6; })
+                .style("fill", function(d) {
+                    let new_d = d;
+                    new_d.data.tier -= 2;
+                    return getColor(d);
+                });
+
             // add a title for when a node is hovered
             node.append("title")
                 .text(function(d) {                     
-                    // if(d.data.keyword == "") {
-                    //     return getThematicHeading(d);
-                    // }
                     return d.data.name.toUpperCase();
                 }
             );
@@ -228,26 +240,6 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
     });
 }
 
-function getThematicHeading(d) {
-    let title = d.data.th;
-    let tier_index = d.data.heading_id.split(".")
-    let first_tier = "1";
-    if(tier_index[0] != "root") {
-        for(let i = 0; i < 7; i++) {
-            if(tier_index[i] == "NA") {
-                break;
-            } else {
-                first_tier = tier_index[i]
-            }
-        }
-    }
-    if(tier_index.length == 8) {
-        title += " (" + first_tier.toString() + ")";
-    } else if(tier_index.length == 10) {
-        title += " (" + first_tier.toString() + "." + tier_index[9] + ")";
-    }
-    return title;
-}
 
 function wrap(text) {
     text.each(function() {

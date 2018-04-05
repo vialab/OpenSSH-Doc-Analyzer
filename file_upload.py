@@ -764,18 +764,27 @@ def countKeywords():
 
 
 def saveParentHeadings():
-    headings = db.execQuery("""select id
-        , pos
-        , tierindex 
-        from heading 
-        where parentid is null
+    headings = db.execQuery("""select h.id
+        , h.pos
+        , h.tierindex
+        from heading h
+        left join heading p on p.id=h.parentid
+        where h.parentid is not null and h.parentid!=0
+        and h.subcat='' and h.pos='n' and 
+        1=case when h.t2!=p.t2 and h.t3!='NA' then 1
+            when h.t3!=p.t3 and h.t4!='NA' then 1
+            when h.t4!=p.t4 and h.t5!='NA' then 1
+            when h.t5!=p.t5 and h.t6!='NA' then 1
+            when h.t6!=p.t6 and h.t7!='NA' then 1
+            when p.t7!='NA' then 1
+            else 0 end ;
     """)
     n = 0
     print "got %s headings ..." % len(headings)
     for heading in headings:
         n += 1
         if heading[1] == "n":
-            p_tier, s_tier, parent_id = oht.getParentTier(heading[2])
+            p_tier, s_tier, parent_id = oht_wrapper.getParentTier(heading[2])
             db.execUpdate("update heading set parentid=%s where id=%s"
                 , (parent_id, heading[0]))
         else:
@@ -786,6 +795,10 @@ def saveParentHeadings():
             if len(parent) > 0:
                 db.execUpdate("update heading set parentid=%s where id=%s"
                     , (parent[0][0], heading[0]))
+            else:
+                # flat level with no words in it
+                p_tier, s_tier, parent_id = oht_wrapper.getParentTier(heading[2])
+
         if (n % 1000) == 0:
             print n
 
