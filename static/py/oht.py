@@ -80,11 +80,14 @@ class Heading(object):
     def Synset(self):
         """ Returns list of words categorized within current heading """
         results = self.db.execQuery("""
-            select w.id, wc.id
+            select w.id
+				, case when wc.termid in (select termid from term_cache)
+					then wc.termid
+                    else null end
             from word w
-            left join word_cache wc on wc.wordid=w.id
+            left join tfidf wc on wc.wordid=w.id
             where w.headingid=%s
-            order by wc.id desc""", (self.id,))
+            order by wc.id desc;""", (self.id,))
         words = []
         for result in results:
             if result[1]:

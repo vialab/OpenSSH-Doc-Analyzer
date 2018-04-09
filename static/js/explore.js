@@ -33,7 +33,7 @@ var society_color = d3.scaleLinear()
     .interpolate(d3.interpolateHcl);
 var default_color = d3.scaleLinear()
     .domain([0, 1])
-    .range(["#fff", "#fff"])
+    .range(["#fff", "#000"])
     .interpolate(d3.interpolateHcl);
 
 // draw outline on hovered circled and its ancestors
@@ -218,9 +218,13 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                 .attr("x", function(d) { return d.x1-d.x0-(5*(d.data.length.length-1))-16; })
                 .attr("y", function(d) { return d.y1-d.y0-6; })
                 .style("fill", function(d) {
-                    let new_d = d;
-                    new_d.data.tier -= 2;
-                    return getColor(d);
+                    var new_d = d;
+                    if(d.data.cat == 0) {
+                        new_d.data.tier = 1;
+                    } else {
+                        new_d.data.tier -= 2;                        
+                    }
+                    return getColor(new_d);
                 });
 
             // add a title for when a node is hovered
