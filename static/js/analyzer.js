@@ -157,6 +157,7 @@ $(document).keyup(function(e) {
 });
 
 $(document).ready(function() {
+    getJournalCount(null, "#corpus-count");
     toggleKeywordDialog();
     toggleSearchDialog();
     // instantiate drag and drop elems
@@ -502,7 +503,6 @@ function saveSelection($container, heading_id, weight, name) {
 
 // take saved dom elements and get new document results
 function search(search_id) {
-    var heading_list = [];
     var keyword_list = [];
     var n = 0;
     // loop through search terms in dom
@@ -515,24 +515,19 @@ function search(search_id) {
                 "weight": $(".custom-keyword-weight", $(this)).val()-1,
                 "order": i+1
             });
-        } else {
-            heading_list.push( {
-                "heading_id": $(".term-heading-id", $(this)).val(),
-                "weight": $(".term-heading-weight", $(this)).val()-1,
-                "order": i+1
-            });
         }
     });
-    data = { 
-        "heading_list":heading_list
-        , "keyword_list":keyword_list 
-    }
+    data = { "keyword_list":keyword_list };
     if(search_id) {
         data["search_id"] = search_id;
     }
 
     if(n == 0) return;
+    getSearchResults(data);
+    getJournalCount(data);
+}
 
+function getSearchResults( data ){
     $.ajax({
         url: "search"
         , contentType: "application/json"
@@ -541,6 +536,24 @@ function search(search_id) {
         , type: "POST"
         , success: function(data) {
             showSearchResults(data);
+        }
+    });
+}
+
+// get journal distribution of erudit
+function getJournalCount( data, svg_path="#search-count" ) {
+    var post_data = JSON.stringify({"keyword_list": []});
+    if(typeof(data) != "undefined" && data != null) {
+        post_data = JSON.stringify(data);
+    }
+    $.ajax({
+        url: "erudit/journal_count"
+        , contentType: "application/json"
+        , data: post_data
+        , dataType: "json"
+        , type: "POST"
+        , success: function(data) {
+            drawJournalCount(data, svg_path);
         }
     });
 }

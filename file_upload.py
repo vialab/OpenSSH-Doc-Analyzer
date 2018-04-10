@@ -152,33 +152,20 @@ def search():
         """, close_cursor=True)
         search_id = result[0][0]
 
-    aTopicList = []
-    if len(content["heading_list"]) > 0:
-        # get all heading ids
-        for h in content["heading_list"]:
-            aTopicList.append(h["heading_id"])
-            if "search_id" not in content:
-                db.execQuery("""insert into searchterm(searchid, headingid, weight, rank)
-                values(%s, %s, %s, %s); commit;"""
-                ,(search_id, h["heading_id"], h["weight"], h["order"]))
-
-    aKeywordList = []
+    keyword_list = []
     if len(content["keyword_list"]) > 0:
         # get all keywords
         for k in content["keyword_list"]:
-            aKeywordList.append(k["keyword"])
+            keyword_list.append(k["keyword"])
             if "search_id" not in content:
                 db.execQuery("""insert into searchterm(searchid, keyword, weight, rank)
                 values(%s, %s, %s, %s); commit;"""
                 , (search_id, k["keyword"], k["weight"], k["order"]))
 
     # find matches in the corpus
-    # currently, topics and keyword matches are found separately
-    # concatenated and returned (will need to rework this)
-    aRankList = corpus.matchHeadingList(content["heading_list"], 10)
-    aRankList += corpus.matchKeyword(aKeywordList, 10)
+    rank_list = corpus.matchKeyword(keyword_list, 10)
     # attach meta info for display on the documents
-    search = getSearchMetaInfo(aRankList)
+    search = getSearchMetaInfo(rank_list)
     return json.dumps(search)
 
 
@@ -258,19 +245,17 @@ def oht_synset(heading_id):
     return jsonify(response)
 
 
-@app.route("/oht/directory/<heading_id>")
-def oht_directory(heading_id):
-    """ Retrieve parent, adjacent, and children headings """
-    heading = oht.Heading(heading_id)
-    words = heading.Synset()
-    hyper = heading.Hypernym()
-    hypo = heading.Hyponym()
-    cohypo = heading.Cohyponym()
-    word_list = {}
-    word_list["hyper"] = filterOHTWordList(hyper)
-    word_list["hypo"] = filterOHTWordList(hypo)
-    word_list["cohypo"] = filterOHTWordList(cohypo)
-    return jsonify(word_list)
+@app.route("/erudit/journal_count", methods=["POST"])
+def erudit_journal():
+    """ Get over-arching journal distribution based on search """
+    content = request.get_json()
+    keyword_list = []
+    if len(content["keyword_list"]) > 0:
+        # get all keywords
+        for k in content["keyword_list"]:
+            keyword_list.append(k["keyword"])
+    dist = corpus.getJournalCount(keyword_list)
+    return jsonify(dist)
 
 
 @app.route("/oht/tier/<tier_index>")
@@ -367,8 +352,6 @@ def recoverSearch(search_id):
     left join heading h2 on h2.id=w.headingid
     left join tfidf_heading th on th.wordid=w.id
     where st.searchid=%s and s.ipaddr=%s
-    and (st.headingid in (select headingid from tfidf_cache) 
-		or w.headingid in (select headingid from tfidf_cache))
     order by st.rank""", (search_id,user_ip))
     data = oht_wrapper.aggregateByRelevance(results)
     # return json markup
@@ -421,11 +404,11 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
 def getSearchResults( tfidf ):
     """ Get a list of documents and return it's meta-info  """
     start = time.time()
-    aRankList = match(tfidf, 10)
+    rank_list = match(tfidf, 10)
     end = time.time()
     print("Found 10 results in %s seconds" % (end-start))
     # return meta info
-    return getSearchMetaInfo(aRankList)
+    return getSearchMetaInfo(rank_list)
 
 
 
@@ -444,12 +427,12 @@ def match(tfidf, n=100):
 
 
 
-def getSearchMetaInfo(aRankList):
+def getSearchMetaInfo(rank_list):
     """ Get the meta info for a list of document ids """
     results = []
     start = time.time()
     # first get document info - author, title, etc.
-    for aDoc in aRankList:
+    for aDoc in rank_list:
         result = corpus.getDocumentInfo(aDoc[0])
         resultlist = list(result[0])
         # if strDocHashID is None:
@@ -466,7 +449,6 @@ def getSearchMetaInfo(aRankList):
         doc["id"] = result[0]
         doc["title"] = result[1]
         doc["author"] = result[2]
-        
         doc["citation"] = result[3] + ", Vol. " + result[4]
         if result[5]:
             doc["citation"] += ", No. " + result[5]

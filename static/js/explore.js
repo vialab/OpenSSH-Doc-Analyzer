@@ -81,6 +81,40 @@ function clicked(cb_keyword) {
     }
 }
 
+
+// create a barchart to display distribution
+function drawJournalCount(data, svg_path) {
+    let svg = d3.select(svg_path),
+    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom;
+
+    let x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+        y = d3.scaleLinear().rangeRound([height, 0]);
+    
+    svg.select("g").remove();
+    let g = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    x.domain(data.map(function(d) { return d.name; }));
+    y.domain([0, d3.max(data, function(d) { return d.freq; })]);
+
+    g.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", function(d) { return x(d.name); })
+        .attr("y", function(d) { return y(d.freq); })
+        .attr("width", x.bandwidth())
+        .attr("height", function(d) { return height - y(d.freq); })
+        .append("title")
+        .text(function(d) {                     
+            return d.name + ": " + d.freq.toString();
+        });
+}
+
+
+
 // create a circle pack vis at a designated DOM path
 // args:
 // svg_path - path to the parent where SVG is to exist

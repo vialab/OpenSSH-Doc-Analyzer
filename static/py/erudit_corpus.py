@@ -7,24 +7,6 @@ from lz4.frame import compress, decompress
 
 db = db.Database()
 
-def matchHeadingList(heading_list, n=100):
-    """ Match an array of selected topics to the corpus """
-    if len(heading_list) == 0:
-        return []
-
-    # parametize our list to use in where in clause
-    id_list = ",".join([heading["heading_id"] for heading in heading_list])
-    return db.execQuery("""
-        select d.documentid, sum(d.tfidf)
-        from tfidf t
-        inner join doctfidf d on d.termid=t.termid
-        where t.headingid in (%s)
-        group by d.documentid
-        order by sum(d.tfidf) desc
-        limit %s
-        """, (id_list,n))
-
-
 def matchKeyword(keyword_list, n=100):
     if len(keyword_list) == 0:
         return []
@@ -48,6 +30,43 @@ def matchKeyword(keyword_list, n=100):
         limit %s
         """, (keywords, n))
 
+
+
+def getJournalCount(keyword_list):
+    if len(keyword_list) == 0:
+        results = db.execQuery("""select titrerev
+            , count(*) 
+            from meta where documentid in (
+                select distinct documentid from doctfidf 
+                where termid in (select distinct termid from tfidf 
+                )
+            ) group by titrerev
+            """)
+    else:
+        # clean list of special characters
+        clean_list = []
+        for word in keyword_list:
+            clean_list.append(re.sub('[^A-Za-z0-9]+', '', word))
+        # put them for regex search
+        keywords = " ".join(clean_list)
+        results = db.execQuery(""" select m.titrerev, ifnull(x.freq, 0) from meta m
+            left join (
+                    select titrerev, count(*) freq from meta where documentid in (
+                        select distinct documentid from doctfidf 
+                        where termid in (
+                            select termid
+                            from tfidf 
+                            where match(word) against(%s in boolean mode) 
+                        )
+                    ) group by titrerev
+                ) x on x.titrerev=m.titrerev
+            group by m.titrerev, x.freq
+            order by m.titrerev;
+            """, (keywords,))
+    freq = []
+    for result in results:
+        freq.append({ "name": result[0], "freq": result[1] })
+    return freq
 
 
 def getDocumentInfo(document_id):

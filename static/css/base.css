@@ -536,12 +536,16 @@ text {
     padding: 30px 15px;
 }
 
-#parent-list.top {
-    
+.bar {
+    fill: steelblue;
+  }
+
+.bar:hover {
+fill: brown;
 }
 
-#parent-list.bottom {
-    
+.axis--x path {
+display: none;
 }
 
 .slick-arrow {
