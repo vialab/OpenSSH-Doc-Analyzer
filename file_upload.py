@@ -66,6 +66,7 @@ def index():
     # transformDocumentToModel(5000)
     # saveTFDF()
     # oht_wrapper.writeHierarchyToCSV()
+    saveEntities()
     return render_template("index.html")
 
 
@@ -781,6 +782,17 @@ def saveParentHeadings():
                 # flat level with no words in it
                 p_tier, s_tier, parent_id = oht_wrapper.getParentTier(heading[2])
 
+        if (n % 1000) == 0:
+            print n
+
+
+
+def saveEntities():
+    n = 0
+    results = db.execQuery("select id, path from document where cleanpath is not null and id not in (select distinct documentid from entity)")
+    for result in results:
+        erudit.saveEntityData(result[0], "/Users/jayrsawal/Documents" + result[1])
+        n += 1
         if (n % 1000) == 0:
             print n
 

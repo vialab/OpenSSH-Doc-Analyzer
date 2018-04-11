@@ -320,7 +320,7 @@ a.search-term:hover {
 
 text {
     font: 10px sans-serif;
-    text-anchor: start;
+    /* text-anchor: start; */
 }
 
 .node--hover circle {

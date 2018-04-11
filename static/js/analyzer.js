@@ -286,6 +286,8 @@ function deleteTerm(self) {
     if(searching) {
         toggleSearchDialog();
     }
+    let data = getSearchTerms();
+    getJournalCount({"keyword_list":data});
 }
 
 // open or close keyword search dialog
@@ -513,6 +515,7 @@ function search(search_id) {
     if(search_id) data["search_id"] = search_id;
 
     getSearchResults(data);
+    resetJournalCount();
 }
 
 function getSearchResults( data ){

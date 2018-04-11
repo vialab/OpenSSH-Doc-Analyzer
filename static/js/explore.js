@@ -154,16 +154,16 @@ function drawJournalCount(data, merge) {
     //         .style("text-anchor", "end")
     //         .attr("transform", "translate(-10,0) rotate(-90)");
     
-    // g.append("g")
-    //     .attr("class", "axis")
-    //     .call(d3.axisLeft(y).ticks(null, "s"))
-    //     .append("text")
-    //     .attr("x", 2)
-    //     .attr("y", y(y.ticks().pop()) + 0.5)
-    //     .attr("dy", "0.32em")
-    //     .attr("fill", "#000")
-    //     .attr("font-weight", "bold")
-    //     .attr("text-anchor", "start");
+    g.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(y).ticks().tickFormat(d3.format(".0s")))
+        .append("text")
+        .attr("x", 2)
+        .attr("y", y(y.ticks().pop()) + 0.5)
+        .attr("dy", "0.32em")
+        .attr("fill", "#000")
+        .attr("font-weight", "bold")
+        .attr("text-anchor","end");
     
     // let legend = g.append("g")
     //     .attr("font-family", "sans-serif")
@@ -189,6 +189,15 @@ function drawJournalCount(data, merge) {
     //     .text(function(d) { return d; });
 }
 
+
+// unstack the barchart that displays journal counts
+function resetJournalCount() {
+    for(let i = 0; i < chart_data.length; i++) {
+        chart_data[i].freq = chart_data[i].new;
+        delete chart_data[i].new;
+    }
+    drawJournalCount(chart_data, false);
+}
 
 
 // create a circle pack vis at a designated DOM path
