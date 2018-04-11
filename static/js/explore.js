@@ -9,6 +9,7 @@ var add_size = 50;
 var format = d3.format(",d");
 var oneclick = false;
 var click_to;
+var chart_data;
 // hierarchical data conversion function from csv
 var stratify = d3.stratify()
     .id(function(d) { return d.heading_id; })
@@ -83,34 +84,109 @@ function clicked(cb_keyword) {
 
 
 // create a barchart to display distribution
-function drawJournalCount(data, svg_path) {
-    let svg = d3.select(svg_path),
-    margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom;
-
-    let x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
-        y = d3.scaleLinear().rangeRound([height, 0]);
+function drawJournalCount(data, merge) {
+    let keys = ["freq"];
+    if(merge && typeof(chart_data) != "undefined") {
+        for(var i = 0; i < chart_data.length; i++) {
+            chart_data[i].new = data[i].freq;
+            chart_data[i].total = data[i].freq + chart_data[i].freq;
+        }
+        keys.push("new");
+    } else {
+        chart_data = data;
+        for(var i = 0; i < chart_data.length; i++) {
+            chart_data[i].total = chart_data[i].freq;
+        }
+    }
+    let svg = d3.select("#search-count");
+    svg.selectAll("g").remove();
     
-    svg.select("g").remove();
-    let g = svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    let margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    x.domain(data.map(function(d) { return d.name; }));
-    y.domain([0, d3.max(data, function(d) { return d.freq; })]);
+    let x = d3.scaleBand()
+        .rangeRound([0, width])
+        .paddingInner(0.05)
+        .align(0.1);
 
-    g.selectAll(".bar")
-        .data(data)
+    let y = d3.scaleLinear()
+        .rangeRound([height, 0]);
+
+    let z = d3.scaleOrdinal()
+        .domain(["freq","new"])
+        .range(["#98abc5", "#a05d56"]);
+
+    // data.sort(function(a, b) { return b.freq - a.freq; });
+    x.domain(chart_data.map(function(d) { return d.name; }));
+    y.domain([0, d3.max(chart_data, function(d) { return d.total; })]).nice();
+    z.domain(keys);
+    g.append("g")
+        .selectAll("g")
+        .data(d3.stack().keys(keys)(chart_data))
+        .enter().append("g")
+        .attr("fill", function(d) { 
+            return z(d.key);
+        })
+        .selectAll("rect")
+        .data(function(d) { return d; })
         .enter().append("rect")
-        .attr("class", "bar")
-        .attr("x", function(d) { return x(d.name); })
-        .attr("y", function(d) { return y(d.freq); })
+        .attr("x", function(d) { return x(d.data.name); })
+        .attr("y", function(d) {
+            return y(d[1]); 
+        })
+        .attr("height", function(d) {
+            return y(d[0]) - y(d[1]); 
+        })
         .attr("width", x.bandwidth())
-        .attr("height", function(d) { return height - y(d.freq); })
+        .attr("class", "bar")
         .append("title")
-        .text(function(d) {                     
-            return d.name + ": " + d.freq.toString();
-        });
+            .text(function(d) {
+                return d.data.name;
+            });
+    
+    // g.append("g")
+    //     .attr("class", "axis")
+    //     .attr("transform", "translate(0," + height + ")")
+    //     .call(d3.axisBottom(x))
+    //     .selectAll("text")
+    //         .style("text-anchor", "end")
+    //         .attr("transform", "translate(-10,0) rotate(-90)");
+    
+    // g.append("g")
+    //     .attr("class", "axis")
+    //     .call(d3.axisLeft(y).ticks(null, "s"))
+    //     .append("text")
+    //     .attr("x", 2)
+    //     .attr("y", y(y.ticks().pop()) + 0.5)
+    //     .attr("dy", "0.32em")
+    //     .attr("fill", "#000")
+    //     .attr("font-weight", "bold")
+    //     .attr("text-anchor", "start");
+    
+    // let legend = g.append("g")
+    //     .attr("font-family", "sans-serif")
+    //     .attr("font-size", 10)
+    //     .attr("text-anchor", "end")
+    //     .selectAll("g")
+    //     .data(keys.slice().reverse())
+    //     .enter().append("g")
+    //     .attr("transform", function(d, i) { 
+    //         return "translate(0," + i * 20 + ")"; 
+    //     });
+    
+    // legend.append("rect")
+    //     .attr("x", width - 19)
+    //     .attr("width", 19)
+    //     .attr("height", 19)
+    //     .attr("fill", z);
+    
+    // legend.append("text")
+    //     .attr("x", width - 24)
+    //     .attr("y", 9.5)
+    //     .attr("dy", "0.32em")
+    //     .text(function(d) { return d; });
 }
 
 
@@ -359,7 +435,7 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
     resortable();
 }
 
-function drawKeyword(keyword, heading_id) {
+function drawKeyword(keyword, heading_id, draw_count = false) {
     let id = heading_id;
     if(typeof(heading_id) == "undefined") {
         id = "";
@@ -371,6 +447,10 @@ function drawKeyword(keyword, heading_id) {
     + keyword + "</div></div>");
     $("#add-term").before($box);
     resortable();
+    if(draw_count) {
+        let data = getSearchTerms();
+        getJournalCount({"keyword_list":data});
+    }
 }
 
 function resortable() {
@@ -405,4 +485,40 @@ function getColor(d) {
             return default_color(d.data.tier);
             break;
     }
+}
+
+
+// get journal distribution of erudit
+function getJournalCount( data, merge_chart=true ) {
+    var post_data = JSON.stringify({"keyword_list": []});
+    if(typeof(data) != "undefined" && data != null) {
+        post_data = JSON.stringify(data);
+    }
+    $.ajax({
+        url: "erudit/journal_count"
+        , contentType: "application/json"
+        , data: post_data
+        , dataType: "json"
+        , type: "POST"
+        , success: function(data) {
+            drawJournalCount(data, merge_chart);
+        }
+    });
+}
+
+
+// set weight slider bar to a specific value
+function getSearchTerms() {
+    let keyword_list = [];
+    $("#search-term-box .term-container").each(function(i) {
+        if($(this).hasClass("custom-keyword")) {
+            keyword_list.push( {
+                "heading_id": $(".custom-keyword-heading", $(this)).attr("heading-id"),
+                "keyword": $(".custom-keyword-heading", $(this)).html(),
+                "weight": $(".custom-keyword-weight", $(this)).val()-1,
+                "order": i+1
+            });
+        }
+    });
+    return keyword_list;
 }

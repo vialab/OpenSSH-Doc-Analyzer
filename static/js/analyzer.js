@@ -157,7 +157,10 @@ $(document).keyup(function(e) {
 });
 
 $(document).ready(function() {
-    getJournalCount(null, "#corpus-count");
+    let keyword_list = getSearchTerms();
+    if(keyword_list.length > 0) {
+        getJournalCount({"keyword_list":keyword_list}, false);
+    }
     toggleKeywordDialog();
     toggleSearchDialog();
     // instantiate drag and drop elems
@@ -447,7 +450,7 @@ function populateBOW(data, quick_search) {
             if(quick_search) {
                 html += "' onclick='window.location.href=\"/analyzer?quicksearch=" + data[i]["id"] + "\"');'";
             } else {
-                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\");'";
+                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\", true);'";
             }
         } else {
             html += " no-click'";
@@ -503,28 +506,13 @@ function saveSelection($container, heading_id, weight, name) {
 
 // take saved dom elements and get new document results
 function search(search_id) {
-    var keyword_list = [];
-    var n = 0;
-    // loop through search terms in dom
-    $("#search-term-box .term-container").each(function(i) {
-        n++;
-        if($(this).hasClass("custom-keyword")) {
-            keyword_list.push( {
-                "heading_id": $(".custom-keyword-heading", $(this)).attr("heading-id"),
-                "keyword": $(".custom-keyword-heading", $(this)).html(),
-                "weight": $(".custom-keyword-weight", $(this)).val()-1,
-                "order": i+1
-            });
-        }
-    });
-    data = { "keyword_list":keyword_list };
-    if(search_id) {
-        data["search_id"] = search_id;
-    }
+    let keyword_list = getSearchTerms();
+    if(keyword_list.length == 0) return;
+    
+    let data = { "keyword_list":keyword_list };
+    if(search_id) data["search_id"] = search_id;
 
-    if(n == 0) return;
     getSearchResults(data);
-    getJournalCount(data);
 }
 
 function getSearchResults( data ){
@@ -540,23 +528,6 @@ function getSearchResults( data ){
     });
 }
 
-// get journal distribution of erudit
-function getJournalCount( data, svg_path="#search-count" ) {
-    var post_data = JSON.stringify({"keyword_list": []});
-    if(typeof(data) != "undefined" && data != null) {
-        post_data = JSON.stringify(data);
-    }
-    $.ajax({
-        url: "erudit/journal_count"
-        , contentType: "application/json"
-        , data: post_data
-        , dataType: "json"
-        , type: "POST"
-        , success: function(data) {
-            drawJournalCount(data, svg_path);
-        }
-    });
-}
 
 // format and display search results
 function showSearchResults( data ) {
@@ -603,27 +574,6 @@ function showSearchResults( data ) {
     }
 }
 
-// set weight slider bar to a specific value
-function setWeightValue(weight) {
-    var dist = ((weight-1) * 25);
-    $("#search-dialog .slider .slider-handle").attr("aria-valuenow", weight);
-    $("#search-dialog .slider .slider-handle").css("left", dist + "%");
-    $("#search-dialog .slider .slider-track .slider-selection").css("width", dist + "%");
-    $("#search-dialog .slider .slider-track .slider-track-high").css("width", (1-dist) + "%");
-    
-    // deselect all ticks
-    var $ticks = $("#search-dialog .slider .slider-tick-container .slider-tick");
-    $ticks.removeClass("in-selection");
-    
-    // select all ticks up to the weight we want
-    for(var i = 0; i < weight; i++) {
-        $($ticks[i]).addClass("in-selection");
-    }
-
-    // make sure to set meta values
-    $("#weight-slider").val(weight);
-    $("#weight-slider").attr("data-value", weight);
-}
 
 // handle animations here so we can reuse
 function animate(animation, $target) {

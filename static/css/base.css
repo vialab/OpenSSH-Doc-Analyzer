@@ -536,17 +536,18 @@ text {
     padding: 30px 15px;
 }
 
-.bar {
+/* .bar {
     fill: steelblue;
-  }
+  } */
 
 .bar:hover {
 fill: brown;
 }
 
-.axis--x path {
-display: none;
+.axis .domain {
+    display: none;
 }
+  
 
 .slick-arrow {
     background: rgba(50,50,50,0.5) !important;
