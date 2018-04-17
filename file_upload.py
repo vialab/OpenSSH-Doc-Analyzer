@@ -66,7 +66,7 @@ def index():
     # transformDocumentToModel(5000)
     # saveTFDF()
     # oht_wrapper.writeHierarchyToCSV()
-    saveEntities()
+    # saveEntities()
     return render_template("index.html")
 
 

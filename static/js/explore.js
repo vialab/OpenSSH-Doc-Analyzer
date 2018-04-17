@@ -18,7 +18,7 @@ var stratify = d3.stratify()
 // queue of visualizations to request
 var hook_busy = false;
 var vis_queue = [];
-
+var journal_timeout;
 // color scale for depth
 var world_color = d3.scaleLinear()
     .domain([-2, 6])
@@ -86,77 +86,110 @@ function clicked(cb_keyword) {
 // create a barchart to display distribution
 function drawJournalCount(data, merge) {
     let keys = ["freq"];
+    let y_mean = 0;
+    // append new query data to current if we have new search query
+    // also calculate the mean for label filtering
     if(merge && typeof(chart_data) != "undefined") {
+        let n = 0, sum = 0;
         for(var i = 0; i < chart_data.length; i++) {
             chart_data[i].new = data[i].freq;
             chart_data[i].total = data[i].freq + chart_data[i].freq;
+            sum += chart_data[i].total;
+            n += 2;
         }
+        y_mean = sum / n;
         keys.push("new");
     } else {
+        // not appending, but we still want to calculate the mean
         chart_data = data;
+        let n = 0, sum = 0;
         for(var i = 0; i < chart_data.length; i++) {
             chart_data[i].total = chart_data[i].freq;
+            sum += chart_data[i].total;
+            n += 1;
         }
+        y_mean = sum / n;        
     }
+    // start-up vis variables
     let svg = d3.select("#search-count");
-    svg.selectAll("g").remove();
-    
-    let margin = {top: 20, right: 20, bottom: 30, left: 40},
+    svg.selectAll("g").remove(); // clear current svg
+    let margin = {top: 20, right: 10, bottom: 80, left: 40},
     width = +svg.attr("width") - margin.left - margin.right,
     height = +svg.attr("height") - margin.top - margin.bottom,
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    let x = d3.scaleBand()
-        .rangeRound([0, width])
-        .paddingInner(0.05)
-        .align(0.1);
+    // create the bands to set domains
+    // we need two x-axis bands: one for ticks, the other for the bars within ticks
+    var x0 = d3.scaleBand().rangeRound([0, width]).paddingInner(0.1);
+    var x1 = d3.scaleBand().padding(0.05);
+    var y = d3.scaleLinear().rangeRound([height, 0]);
+    var z = d3.scaleOrdinal()
+        .range(["rgb(0, 100, 150)", "rgba(0, 150, 100, 0.5)"]);
 
-    let y = d3.scaleLinear()
-        .rangeRound([height, 0]);
-
-    let z = d3.scaleOrdinal()
-        .domain(["freq","new"])
-        .range(["#98abc5", "#a05d56"]);
-
-    // data.sort(function(a, b) { return b.freq - a.freq; });
-    x.domain(chart_data.map(function(d) { return d.name; }));
-    y.domain([0, d3.max(chart_data, function(d) { return d.total; })]).nice();
-    z.domain(keys);
+    x0.domain(chart_data.map(function(d) { return d.name; }));
+    x1.domain(keys).rangeRound([0, x0.bandwidth()]);
+    y.domain([0, d3.max(chart_data, function(d) { 
+        return d3.max(keys, function(key) { return d[key]; }); 
+        })]).nice();
+    // draw our bars
     g.append("g")
         .selectAll("g")
-        .data(d3.stack().keys(keys)(chart_data))
+        .data(chart_data)
         .enter().append("g")
-        .attr("fill", function(d) { 
-            return z(d.key);
-        })
+            .attr("transform", function(d) { return "translate(" + x0(d.name) + ",0)"; })
         .selectAll("rect")
-        .data(function(d) { return d; })
-        .enter().append("rect")
-        .attr("x", function(d) { return x(d.data.name); })
-        .attr("y", function(d) {
-            return y(d[1]); 
-        })
-        .attr("height", function(d) {
-            return y(d[0]) - y(d[1]); 
-        })
-        .attr("width", x.bandwidth())
-        .attr("class", "bar")
-        .append("title")
-            .text(function(d) {
-                return d.data.name;
+        .data(function(d) {
+            return keys.map(function(key) {
+                return { key: key, value: d[key], name:d.name };
             });
+        })
+        .enter().append("rect")
+            .attr("x", function(d) { return x1(d.key); })
+            .attr("y", function(d) { return y(d.value); })
+            .attr("height", function(d) { return height - y(d.value); })
+            .attr("width", x1.bandwidth())
+            .attr("class", "bar")
+            .attr("fill", function(d) { return z(d.key);})
+        .append("title")
+            .text(function(d) { return d.name + ": " + d.value; });
     
-    // g.append("g")
-    //     .attr("class", "axis")
-    //     .attr("transform", "translate(0," + height + ")")
-    //     .call(d3.axisBottom(x))
-    //     .selectAll("text")
-    //         .style("text-anchor", "end")
-    //         .attr("transform", "translate(-10,0) rotate(-90)");
-    
+    // list all the data points that deserve a label
+    // i.e. frequency > mean frequency
+    // this is to avoid clutter because we have 181 x-axis ticks
+    let label_x = {};
+    for(let i = 0; i < chart_data.length; i++) {
+        if(chart_data[i].freq > y_mean) {
+            label_x[chart_data[i].name] = true;
+        } else {
+            if(typeof(chart_data[i].new) != "undefined") {
+                if(chart_data[i].new > y_mean) {
+                    label_x[chart_data[i].name] = true;                    
+                }
+            }
+        }
+    }
+    // label the x axis
     g.append("g")
         .attr("class", "axis")
-        .call(d3.axisLeft(y).ticks().tickFormat(d3.format(".0s")))
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x0))
+        .selectAll("text")
+            .style("text-anchor", "start")
+            .style("font-size", "8px")
+            .style("visibility", function(d) {
+                if(typeof(label_x[d]) == "undefined") {
+                    return "hidden";
+                } else {
+                    return "visible";
+                }
+            })
+            .attr("transform", "translate(5,3)rotate(35)")
+        .append("title")
+            .text(function(d) { return d; });
+    // label the y axis
+    g.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(y).ticks(10).tickFormat(d3.format(".0s")))
         .append("text")
         .attr("x", 2)
         .attr("y", y(y.ticks().pop()) + 0.5)
@@ -164,34 +197,39 @@ function drawJournalCount(data, merge) {
         .attr("fill", "#000")
         .attr("font-weight", "bold")
         .attr("text-anchor","end");
-    
-    // let legend = g.append("g")
-    //     .attr("font-family", "sans-serif")
-    //     .attr("font-size", 10)
-    //     .attr("text-anchor", "end")
-    //     .selectAll("g")
-    //     .data(keys.slice().reverse())
-    //     .enter().append("g")
-    //     .attr("transform", function(d, i) { 
-    //         return "translate(0," + i * 20 + ")"; 
-    //     });
-    
-    // legend.append("rect")
-    //     .attr("x", width - 19)
-    //     .attr("width", 19)
-    //     .attr("height", 19)
-    //     .attr("fill", z);
-    
-    // legend.append("text")
-    //     .attr("x", width - 24)
-    //     .attr("y", 9.5)
-    //     .attr("dy", "0.32em")
-    //     .text(function(d) { return d; });
+    // draw a legend
+    let legend = g.append("g")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 10)
+        .attr("text-anchor", "start")
+        .selectAll("g")
+        .data(keys.slice().reverse())
+        .enter().append("g")
+        .attr("transform", function(d, i) { 
+            return "translate(0," + i * 20 + ")"; 
+        });
+    // squares to depict color
+    legend.append("rect")
+        .attr("x", 5)
+        .attr("width", 15)
+        .attr("height", 15)
+        .attr("fill", z);
+    // and now label
+    legend.append("text")
+        .attr("x", 25)
+        .attr("y", 7.5)
+        .attr("dy", "0.32em")
+        .text(function(d) { 
+            if(d == "freq") return "Current Results";
+            else return "New Results";
+            return d; 
+        });
 }
 
 
 // unstack the barchart that displays journal counts
 function resetJournalCount() {
+    if(typeof(chart_data) == "undefined") return;
     for(let i = 0; i < chart_data.length; i++) {
         chart_data[i].freq = chart_data[i].new;
         delete chart_data[i].new;
@@ -389,6 +427,8 @@ function wrap(text) {
     });
 }
 
+// the drawing of vis can be request heavy, so let's queue them up
+// and draw updates synchronously async to let the page load
 function processNextUpdateRequest() {
     if(vis_queue.length > 0) {
         var temp = vis_queue.pop();
@@ -444,6 +484,7 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
     resortable();
 }
 
+// draw the keyword in the search query box
 function drawKeyword(keyword, heading_id, draw_count = false) {
     let id = heading_id;
     if(typeof(heading_id) == "undefined") {
@@ -456,6 +497,8 @@ function drawKeyword(keyword, heading_id, draw_count = false) {
     + keyword + "</div></div>");
     $("#add-term").before($box);
     resortable();
+    // we want the journal counts to show potential changes
+    // whenever the search query changes
     if(draw_count) {
         let data = getSearchTerms();
         getJournalCount({"keyword_list":data});
@@ -503,20 +546,27 @@ function getJournalCount( data, merge_chart=true ) {
     if(typeof(data) != "undefined" && data != null) {
         post_data = JSON.stringify(data);
     }
-    $.ajax({
-        url: "erudit/journal_count"
-        , contentType: "application/json"
-        , data: post_data
-        , dataType: "json"
-        , type: "POST"
-        , success: function(data) {
-            drawJournalCount(data, merge_chart);
-        }
-    });
+    // created a timeout for this hook so that the vis is not
+    // regenerated every time when adding/removing multiple search items
+    if(journal_timeout) {
+        clearTimeout(journal_timeout);
+    }
+    journal_timeout = setTimeout(function() {
+        $.ajax({
+            url: "erudit/journal_count"
+            , contentType: "application/json"
+            , data: post_data
+            , dataType: "json"
+            , type: "POST"
+            , success: function(data) {
+                drawJournalCount(data, merge_chart);
+            }
+        });
+    }, 500);
 }
 
 
-// set weight slider bar to a specific value
+// get the current search terms in a json format
 function getSearchTerms() {
     let keyword_list = [];
     $("#search-term-box .term-container").each(function(i) {

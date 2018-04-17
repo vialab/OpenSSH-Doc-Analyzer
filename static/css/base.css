@@ -557,3 +557,8 @@ fill: brown;
     height: 50px;
     line-height: 50px;
 }
+
+#journal-count {
+    max-width: 100%;
+    overflow: scroll;
+}

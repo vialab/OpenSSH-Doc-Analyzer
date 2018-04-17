@@ -622,7 +622,7 @@ class Wrapper(object):
             select tierindex, tiering
             from heading
             where tierindex = %s and tiering like %s
-            and h.pos='n' and h.subcat=''
+            and pos='n' and subcat=''
             order by tiering, subcat
             limit 1""", (".".join(root_tier),sub_query))
             if len(results) > 0:
@@ -632,7 +632,7 @@ class Wrapper(object):
             select tierindex, tiering
             from heading
             where tierindex = %s and tiering != ''
-            and h.pos='n' and h.subcat=''
+            and pos='n' and subcat=''
             order by tiering, subcat
             limit 1""", (root,))
             if len(results) > 0:
@@ -717,7 +717,10 @@ class Wrapper(object):
             if aHeading[key] > top_freq:
                 top_freq = aHeading[key]
                 top_heading = key
-                top_index = term["tier_index"]
+                if "sub" in term["tier_index"]:
+                    top_index = self.getParentTier(term["tier_index"])[0]
+                else:
+                    top_index = term["tier_index"]
         return self.getTierIndexTrio(top_index)
 
     
@@ -746,6 +749,7 @@ class Wrapper(object):
                 if x == "NA" or y == "NA":
                     # penalize for being broader/narrower (top-bottom = -1)
                     heading_score -= 0.2
+                    continue
                 
                 if x != y:
                     # give partial marks proportional to difference

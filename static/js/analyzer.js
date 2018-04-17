@@ -2,7 +2,7 @@ var searching = true, peeking = false, keyword_searching = true; // toggle modes
 var target = ""; // retain which element we are editting
 var target_parent = ""; // element parent
 var target_index = ""; // element tier index
-var typed_interval; // interval that listens for last keypress
+var type_timeout; // interval that listens for last keypress
 var vis_width = $("#search-dialog-main").width();
 var selected_heading = "";
 
@@ -47,7 +47,7 @@ $("#search-result-container").on("click", function() {
         togglePeek();    
     }
 });
-
+// peek at the current search results
 $("#search-dialog").on("click", function() {
     if(peeking) togglePeek();
 });
@@ -107,9 +107,9 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
     // wait one second until after the person is done typing
     // before running the request
     $(".load-keyword").show();
-    if(typed_interval) {
+    if(type_timeout) {
         $("#search-keyword-container .keyword-container").remove();
-        clearInterval(typed_interval);
+        clearTimeout(type_timeout);
     }
 
     var cb_keyword = function() {
@@ -136,7 +136,7 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
     //     };
     // }
 
-    typed_interval = setTimeout(function() {
+    type_timeout = setTimeout(function() {
         getKeywordList(keyword, cb_keyword);
     }, 1000);
 });
@@ -157,10 +157,6 @@ $(document).keyup(function(e) {
 });
 
 $(document).ready(function() {
-    let keyword_list = getSearchTerms();
-    if(keyword_list.length > 0) {
-        getJournalCount({"keyword_list":keyword_list}, false);
-    }
     toggleKeywordDialog();
     toggleSearchDialog();
     // instantiate drag and drop elems
@@ -183,7 +179,13 @@ $(document).ready(function() {
         search();        
     } else if(search_id) {
         recoverSearch(search_id);
+    } else {
+        let keyword_list = getSearchTerms();
+        if(keyword_list.length > 0) {
+            getJournalCount({"keyword_list":keyword_list}, false);
+        }
     }
+    
 });
 
 
@@ -413,7 +415,7 @@ function headingClicked(d, quick_search=false) {
     });
 }
 
-
+// get the words within selected heading
 function getSynset(elem, heading_id) {
     $(".pos-container").removeClass("active");
     $(elem).addClass("active");
@@ -421,6 +423,7 @@ function getSynset(elem, heading_id) {
         type: "GET"
         , url: "/oht/synset/" + heading_id
         , success: function(response) {
+            // write the words onto the screen
             populateBOW(response.words, false);
         }
     });
@@ -515,9 +518,12 @@ function search(search_id) {
     if(search_id) data["search_id"] = search_id;
 
     getSearchResults(data);
-    resetJournalCount();
+    if(keyword_list.length > 0) {
+        getJournalCount({"keyword_list":keyword_list}, false);
+    }
 }
 
+// query and update search results
 function getSearchResults( data ){
     $.ajax({
         url: "search"
