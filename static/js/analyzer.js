@@ -113,28 +113,18 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
     }
 
     var cb_keyword = function() {
-        var heading_text = $(".keyword-heading", this).html();
         var heading_id = $(this).attr("heading-id");
-        var tier_index = $(this).attr("tier-index");
-        // drawSearchTerm(tier_index, heading_id, heading_text, 0);
-        let d = {
-            "data": {
-                "parent":"",
-                "heading_id":heading_id,
-                "name": heading_text
-            }
-        };
-        headingClicked(d);
+        openExploreVis(heading_id);
     };
     
-    // if($(this).attr("id") == "search-keyword-home") {
-    //     cb_keyword = function() {
-    //         window.location.href = "/analyzer?quicksearch=" 
-    //             + $(".keyword-heading", this).html() + "&headingid="
-    //             + $(this).attr("heading-id") + "&tierindex="
-    //             + $(this).attr("tier-index");
-    //     };
-    // }
+    if($(this).attr("id") == "search-keyword-home") {
+        cb_keyword = function() {
+            window.location.href = "/analyzer?quicksearch=" 
+                + $(".keyword-heading", this).html() + "&headingid="
+                + $(this).attr("heading-id") + "&tierindex="
+                + $(this).attr("tier-index");
+        };
+    }
 
     type_timeout = setTimeout(function() {
         getKeywordList(keyword, cb_keyword);
@@ -171,12 +161,10 @@ $(document).ready(function() {
     var tier_index = getParameterByName("tierindex");
     if(quick_search) {
         if(heading_id) {
-            // drawSearchTerm(tier_index, heading_id, quick_search, 0);
-            drawKeyword(quick_search, heading_id);            
+            openExploreVis(heading_id);
         } else {
-            drawKeyword(quick_search);
+            drawKeyword(quick_search, "", true);
         }
-        search();        
     } else if(search_id) {
         recoverSearch(search_id);
     } else {
@@ -265,7 +253,7 @@ function showKeywordResults(data, cb_keyword) {
     }
     $(".custom-keyword-container").off("click");
     $(".custom-keyword-container").on("click", function() {
-        drawKeyword($(".keyword-heading").html());
+        drawKeyword($(".keyword-heading").html(),"",true);
         toggleKeywordDialog();
     });
     
@@ -596,4 +584,11 @@ function animate(animation, $target) {
             }, 500);
             break;
     }
+}
+
+// open up the exploration tool at a specific heading
+function openExploreVis(heading_id) {
+    home_tier = heading_id;
+    $("#add-term").click();
+    headingClicked({"data":{"heading_id":heading_id}});
 }
