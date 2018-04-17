@@ -18,6 +18,7 @@ import re
 import nltk
 import time
 import matplotlib.pyplot as plt
+import pandas as pd
 from pathlib2 import Path
 from sklearn.feature_extraction.text import CountVectorizer
 from lz4.frame import compress, decompress
@@ -78,8 +79,7 @@ def upload():
         file = request.files['file']
         # make sure upload is support file type
         if file and cm.isSupportedFile(file.filename):
-            with open(file.filename, "r") as f:
-                strText = f.read()
+            strText = pd.read_csv(file.stream).to_string()
             if strText == "":
                 return
             # remove stopwords

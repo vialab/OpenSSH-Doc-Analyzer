@@ -459,7 +459,7 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
     
     // search term html
     var $box = $("<div class='term-container text-center' id='"
-        + container_path + "'><button class='close' onclick='deleteTerm(this);'>\
+        + container_path + "'><button class='close' style='z-index:999;' onclick='deleteTerm(event);'>\
         <span>&times;</span></button><input type='hidden' class='term-heading-id' value='" 
         + heading_id +"'/><input type='hidden' class='term-heading-weight' value='1'/>\
         <div class='term-heading'>" + heading_text + "</div><div class='term-vis' id='" 
@@ -492,7 +492,7 @@ function drawKeyword(keyword, heading_id, draw_count = false) {
     }
     var $box = $("<div class='term-container text-center custom-keyword' id='keyword-"
     + (new Date()).getTime() + "' onclick='openExploreVis(\"" 
-    + id + "\")'><button class='close' onclick='deleteTerm(this);'>\
+    + id + "\")'><button class='close' style='z-index:999;' onclick='deleteTerm(this);'>\
     <span>&times;</span></button><input type='hidden' class='custom-keyword-weight' value='1'/>\
     <div class='custom-keyword-heading' heading-id='" + id + "'>" + keyword + "</div></div>");
     $("#add-term").before($box);
@@ -500,8 +500,7 @@ function drawKeyword(keyword, heading_id, draw_count = false) {
     // we want the journal counts to show potential changes
     // whenever the search query changes
     if(draw_count) {
-        let data = getSearchTerms();
-        getJournalCount({"keyword_list":data});
+        updateJournalCount(true);
     }
 }
 
@@ -564,7 +563,6 @@ function getJournalCount( data, merge_chart=true ) {
         });
     }, 500);
 }
-
 
 // get the current search terms in a json format
 function getSearchTerms() {

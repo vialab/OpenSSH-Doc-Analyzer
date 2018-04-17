@@ -163,17 +163,13 @@ $(document).ready(function() {
         if(heading_id) {
             openExploreVis(heading_id);
         } else {
-            drawKeyword(quick_search, "", true);
+            drawKeyword(quick_search, "");
         }
     } else if(search_id) {
         recoverSearch(search_id);
-    } else {
-        let keyword_list = getSearchTerms();
-        if(keyword_list.length > 0) {
-            getJournalCount({"keyword_list":keyword_list}, false);
-        }
+        return;
     }
-    
+    updateJournalCount();
 });
 
 
@@ -271,13 +267,14 @@ function setKeyword(keyword) {
 }
 
 // delete a search term from dom
-function deleteTerm(self) {
-    $(self).parent().remove();
+function deleteTerm(e) {
+    $(e).parent().remove();
     if(searching) {
         toggleSearchDialog();
     }
-    let data = getSearchTerms();
-    getJournalCount({"keyword_list":data});
+    updateJournalCount(true);
+    var e = window.event;
+    e.cancelBubble = true;
 }
 
 // open or close keyword search dialog
@@ -506,9 +503,7 @@ function search(search_id) {
     if(search_id) data["search_id"] = search_id;
 
     getSearchResults(data);
-    if(keyword_list.length > 0) {
-        getJournalCount({"keyword_list":keyword_list}, false);
-    }
+    updateJournalCount();
 }
 
 // query and update search results
@@ -591,4 +586,12 @@ function openExploreVis(heading_id) {
     home_tier = heading_id;
     $("#add-term").click();
     headingClicked({"data":{"heading_id":heading_id}});
+}
+
+// update the journal count vis
+function updateJournalCount(merge=false) {
+    let keyword_list = getSearchTerms();
+    if(keyword_list.length > 0) {
+        getJournalCount({"keyword_list":keyword_list}, merge);
+    }
 }
