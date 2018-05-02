@@ -15,8 +15,8 @@ import constants as CONST
 import pickle_session as ps
 import oht
 import re
-import nltk
 import time
+import urllib
 import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib2 import Path
@@ -24,7 +24,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from lz4.frame import compress, decompress
 from flask import *
 from lxml import etree
-
+from nltk import word_tokenize
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = CONST.UPLOAD_FOLDER
@@ -46,7 +46,7 @@ tm = tm.TopicModel(stop_words=aStopWord)
 # tm.tfidf_vect.fit(tm.tf)
 # with open("./model/pkl/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
-tm = None
+# tm = None
 # with open("./model/pkl/tm.pkl", "r") as f:
 #     tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
@@ -68,6 +68,7 @@ def index():
     # saveTFDF()
     # oht_wrapper.writeHierarchyToCSV()
     # saveEntities()
+    getMap()
     return render_template("index.html")
 
 
@@ -795,6 +796,43 @@ def saveEntities():
         n += 1
         if (n % 1000) == 0:
             print n
+
+def getMap():
+    results = db.execQuery("select distinct affiliation from auteur where addr is null and auteurpos='au1' and affiliation like %s", ("%%universite%%",))
+    n = 0
+    for result in results:
+        if n % 10 == 0:
+            print n
+        n += 1
+        retry = 0
+        while retry < 2:
+            try:
+                tokens = word_tokenize(tm.removeStopWords(result[0]).encode("utf-8"))
+                search = ""
+                append = False
+                for t in tokens:
+                    if "universit" in t:
+                        append = True
+                    if append:
+                        search += t + " "
+                url = "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyBdvmy3nQOytqE2gfIgUv20LYduWgOxAD4&address=" + urllib.quote(search)
+                geo = json.loads(urllib.urlopen(url).read())
+                if geo["status"] == "ZERO_RESULTS":
+                    continue
+                if geo["status"] == "OVER_QUERY_LIMIT":
+                    time.sleep(2)
+                    raise ValueError("Blah")
+                lat = geo["results"][0]["geometry"]["location"]["lat"]
+                lng = geo["results"][0]["geometry"]["location"]["lng"]
+                addr = geo["results"][0]["formatted_address"]
+                types = " ".join(geo["results"][0]["types"])
+                db.execUpdate("""update auteur set addr=%s, lat=%s, lng=%s, loc=%s 
+                    where affiliation=%s""", (addr, lat, lng, types, result[0]))
+                time.sleep(0.05)
+                retry = 2
+            except:
+                retry += 1
+
 
 
 if __name__ == "__main__":
