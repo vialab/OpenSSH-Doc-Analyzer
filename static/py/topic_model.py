@@ -18,6 +18,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, Ha
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 
 # os.environ["JAVAHOME"] = "C:/Program Files (x86)/Java/jre1.8.0_121/bin/java.exe"
+os.environ["TAGDIR"] = "./treetagger/"
 
 class TopicModel(object):
     """ Class for handling all topic modeling functions """

@@ -22,7 +22,7 @@ fi
 
 docker build -t "${IMAGE_NAME}" .
 
-export PID=$(docker run --restart always -p 3009:5000 -d -t "${IMAGE_NAME}")
+export PID=$(docker run --restart always -p 3333:5000 -d -t "${IMAGE_NAME}")
 
 echo "Tailing logs, press CTRL+C to exit..."
 
