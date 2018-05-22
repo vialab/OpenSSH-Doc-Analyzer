@@ -42,8 +42,8 @@ for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
 tm = tm.TopicModel(stop_words=aStopWord)
-tm.loadModel()
-tm.tfidf_vect.fit(tm.tf)
+# tm.loadModel()
+# tm.tfidf_vect.fit(tm.tf)
 # with open("./model/pkl/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
 # tm = None

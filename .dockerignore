@@ -1,0 +1,15 @@
+.git
+.DS_Store
+Dockerfile
+README.md
+venv
+.vscode
+sproc
+/model/corps/*
+*.csv
+*.txt
+run.sh
+/model/pkl/demo/*
+/model/pkl/backup/*
+/model/pkl/tf.pkl
+/model/pkl/tm.pkl

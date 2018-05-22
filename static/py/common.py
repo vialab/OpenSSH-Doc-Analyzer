@@ -9,7 +9,6 @@ import constants as CONST
 import hashlib
 import codecs
 from lxml import etree, objectify
-from PIL import Image
 
 ## Common helper functions used across the web app
 
