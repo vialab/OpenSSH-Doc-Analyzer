@@ -42,8 +42,8 @@ for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
 tm = tm.TopicModel(stop_words=aStopWord)
-# tm.loadModel()
-# tm.tfidf_vect.fit(tm.tf)
+tm.loadModel()
+tm.tfidf_vect.fit(tm.tf)
 # with open("./model/pkl/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
 # tm = None
@@ -68,7 +68,9 @@ def index():
     # saveTFDF()
     # oht_wrapper.writeHierarchyToCSV()
     # saveEntities()
-    getMap()
+    # getMap()
+    # cleanAffiliations()
+    # createMapJSON()
     return render_template("index.html")
 
 
@@ -80,7 +82,8 @@ def upload():
         file = request.files['file']
         # make sure upload is support file type
         if file and cm.isSupportedFile(file.filename):
-            strText = pd.read_csv(file.stream).to_string()
+            # strText = pd.read_csv(file.stream).to_string()
+            strText = file.read()
             if strText == "":
                 return
             # remove stopwords
@@ -165,7 +168,7 @@ def search():
                 , (search_id, k["keyword"], k["weight"], k["order"]))
 
     # find matches in the corpus
-    rank_list = corpus.matchKeyword(keyword_list, 10)
+    rank_list = corpus.matchKeyword(keyword_list, 100)
     # attach meta info for display on the documents
     search = getSearchMetaInfo(rank_list)
     return json.dumps(search)
@@ -406,7 +409,7 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
 def getSearchResults( tfidf ):
     """ Get a list of documents and return it's meta-info  """
     start = time.time()
-    rank_list = match(tfidf, 10)
+    rank_list = match(tfidf, 100)
     end = time.time()
     print("Found 10 results in %s seconds" % (end-start))
     # return meta info
@@ -787,7 +790,6 @@ def saveParentHeadings():
             print n
 
 
-
 def saveEntities():
     n = 0
     results = db.execQuery("select id, path from document where cleanpath is not null and id not in (select distinct documentid from entity)")
@@ -797,43 +799,301 @@ def saveEntities():
         if (n % 1000) == 0:
             print n
 
+
+def cleanAffiliations():
+    results = db.execQuery("""select a.id, a.affiliation, a.lat, a.lng 
+        from affiliation a
+        inner join (
+        select lat, lng, count(*) c from affiliation group by lat, lng having count(*) > 1
+        ) x on x.lat=a.lat and x.lng=a.lng
+        order by a.lat, a.lng, length(a.affiliation);""")
+    aff_group = []
+    first = {}
+    first["id"] = results[0][0]
+    first["aff"] = results[0][1]
+    first["lat"] = results[0][2]
+    first["lng"] = results[0][3]
+
+    for result in results[1:]:
+        if result[2] == first["lat"] and result[3] == first["lng"]:
+            db.execUpdate("""update author set affiliationid=%s, university=%s 
+                where affiliationid=%s
+                """, (first["id"],first["aff"],result[0]))
+            db.execUpdate("""delete from affiliation
+                where id=%s
+                """, (result[0],))
+        else:
+            first["id"] = result[0]
+            first["aff"] = result[1]
+            first["lat"] = result[2]
+            first["lng"] = result[3]
+
+
 def getMap():
-    results = db.execQuery("select distinct affiliation from auteur where addr is null and auteurpos='au1' and affiliation like %s", ("%%universite%%",))
+    # results = db.execQuery("select distinct affiliation from author where affiliationid is null and affiliation like %s", ("%%universit%%",))
+    results = db.execQuery("select distinct university from author where university is not null and affiliationid is null;")
     n = 0
     for result in results:
         if n % 10 == 0:
             print n
+        if n == 2450:
+            break
         n += 1
         retry = 0
         while retry < 2:
             try:
-                tokens = word_tokenize(tm.removeStopWords(result[0]).encode("utf-8"))
-                search = ""
-                append = False
-                for t in tokens:
-                    if "universit" in t:
-                        append = True
-                    if append:
-                        search += t + " "
-                url = "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyBdvmy3nQOytqE2gfIgUv20LYduWgOxAD4&address=" + urllib.quote(search)
+                search = result[0].strip().encode("utf-8")
+                strText = result[0].strip()
+                if not strText.startswith("Universit"):
+                    translate_char = u"!@#$%^&*()[]{};:,./<>?\|`~-=_+"
+                    translate_table = dict((ord(char), u" ") for char in translate_char)
+                    strText = strText.translate(translate_table).replace("cours", "")
+                    tokens = word_tokenize(tm.removeStopWords(strText).encode("utf-8"))
+                    search = ""
+                    append = False
+                    x = 0
+                    for i, t in enumerate(tokens):
+                        if x > 4:
+                            break
+                        if "universit" in t and append:
+                            break
+                        if "universit" in t and not append:
+                            append = True
+                            if i > 0:
+                                search += tokens[i-1] + " "
+                        if append:
+                            search += t + " "
+                            x += 1
+                search = search.strip()
+                url = "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyCqdIacUciZPQcOmfNAuaqsH17wDLj8wD8&address=" + urllib.quote(search)
                 geo = json.loads(urllib.urlopen(url).read())
                 if geo["status"] == "ZERO_RESULTS":
+                    retry = 3
                     continue
                 if geo["status"] == "OVER_QUERY_LIMIT":
-                    time.sleep(2)
+                    time.sleep((retry+1)**2)
                     raise ValueError("Blah")
                 lat = geo["results"][0]["geometry"]["location"]["lat"]
                 lng = geo["results"][0]["geometry"]["location"]["lng"]
                 addr = geo["results"][0]["formatted_address"]
                 types = " ".join(geo["results"][0]["types"])
-                db.execUpdate("""update auteur set addr=%s, lat=%s, lng=%s, loc=%s 
-                    where affiliation=%s""", (addr, lat, lng, types, result[0]))
-                time.sleep(0.05)
+                db.execUpdate("""insert into affiliation(affiliation, addr, lat, lng, loc)
+                    values(%s, %s, %s, %s, %s);
+                    """, (result[0], addr, lat, lng, types))
+                aff = db.execQuery("select id from affiliation where affiliation=%s", (result[0],))
+                db.execUpdate("update author set affiliationid=%s where university=%s", (aff[0][0],result[0]))
+                time.sleep(0.1)
                 retry = 2
             except:
                 retry += 1
 
 
+def createMapJSON():
+    results = db.execQuery("""
+        select m.documentid
+        , m.journalid
+        , m.titrerev
+        , m.annee
+        , m.periode
+        , case when t.titre is null then t.surtitre else t.titre end titre
+        , case when t.titre is null and t.surtitre is not null then null else t.surtitre end surtitre
+        , concat(a.nomfamille, ', ', a.prenom) auteur
+        , a.lat
+        , a.lng
+        , a.authorid
+        , aa.affiliationid
+        from meta m
+        left join auteur a on a.documentid=m.documentid and a.auteurpos='au1'
+        left join author aa on aa.id=a.authorid
+        left join titre t on t.documentid=m.documentid
+        where a.authorid is not null 
+        and aa.affiliationid is not null
+        and a.documentid in (
+            select documentid from auteur a
+            left join author aa on aa.id=a.authorid
+            where aa.affiliationid is not null
+            group by documentid
+            having count(*)  > 2
+        );
+        """)
+    documents = []
+    last_doc_id = results[0][0]
+    for result in results:
+        doc = {}
+        doc["documentid"] = result[0]
+        doc["journalid"] = result[1]
+        doc["journal"] = result[2]
+        doc["year"] = result[3]
+        doc["period"] = result[4]
+        doc["title"] = result[5]
+        doc["subtitle"] = result[6]
+        doc["author"] = result[7]
+        doc["lat"] = result[8]
+        doc["lng"] = result[9]
+        doc["authorid"] = result[10]
+        doc["entitiyid"] = result[11]
+        documents.append(doc)
+    strCleanPath = "./model/entities.json"
+    entities = createEntityMapJSON()
+    createEntityLinkData(documents)
+    data = {
+        "entities": entities
+        , "documents": documents
+    }
+    cm.saveUTF8ToDisk(strCleanPath, json.dumps(data))
+    
+
+def createEntityMapJSON():
+    entities = {}
+    results = db.execQuery("""
+        select id
+        , affiliation
+        , addr
+        , lat
+        , lng
+        , loc
+        from affiliation
+        """)
+    for result in results:
+        entities[result[0]] = {}
+        entities[result[0]]["entityid"] = result[0]
+        entities[result[0]]["affiliation"] = result[1]
+        entities[result[0]]["addr"] = result[2]
+        entities[result[0]]["lat"] = result[3]
+        entities[result[0]]["lng"] = result[4]
+        entities[result[0]]["loc"] = result[5]
+    return entities
+
+
+def createEntityLinkData(documents):
+    for doc in documents:
+        links = []
+        authors = db.execQuery("""
+            select distinct aa.affiliationid
+            , af.lat
+            , af.lng
+            from auteur a
+            inner join author aa on a.authorid=aa.id
+            inner join affiliation af on aa.affiliationid=af.id
+            where a.documentid=%s
+            and aa.affiliationid is not null
+            """, (doc["documentid"],))
+        for a in authors:
+            author = {}
+            author["affiliationid"] = a[0]
+            author["lat"] = a[1]
+            author["lng"] = a[2]
+            links.append(author)
+        if len(links) > 2:
+            links = sortAuthorLinks(links)
+        else:
+            links = [link["affiliationid"] for link in links]
+        doc["links"] = links
+
+
+def sortAuthorLinks(links):
+    link_stack = links
+    sorted_links = []
+    max_lat, min_lat, max_lng, min_lng = getMinMaxLatLng(links)
+    # get only nodes existing in top right quadrant
+    # but make sure we do not include max_lng to avoid duplicates
+    q_maxlatlng = []
+    added_list = []
+    for i, link in enumerate(link_stack):
+        if i not in added_list and link["lng"] >= max_lat["lng"] \
+            and link["lat"] >= max_lng["lat"] \
+            and (link != max_lng or max_lat==max_lng):
+            q_maxlatlng.append(link)
+            added_list.append(i)
+    sorted_links += traverseQuadrant(q_maxlatlng, max_lat["lng"])
+    # get only nodes existing in bottom right quadrant
+    # but make sure we do not include min_lat to avoid duplicates
+    q_maxlnglat = [] 
+    for i, link in enumerate(link_stack):
+        if i not in added_list and link["lat"] <= max_lng["lat"] \
+            and link["lng"] <= min_lat["lng"] \
+            and (link != min_lat or max_lng==min_lat):
+            q_maxlnglat.append(link)
+            added_list.append(i)
+    sorted_links += traverseQuadrant(q_maxlnglat, max_lng["lat"])
+    # get only nodes existing in bottom left quadrant
+    # but make sure we do not include min_lng to avoid duplicates
+    q_minlatlng = []
+    for i, link in enumerate(link_stack):
+        if i not in added_list and link["lng"] <= min_lat["lng"] \
+            and link["lat"] <= min_lng["lat"] \
+            and (link != min_lng or min_lng==min_lat):
+            q_minlatlng.append(link)
+            added_list.append(i)
+    sorted_links += traverseQuadrant(q_minlatlng, min_lat["lng"])
+    # get only nodes existing in bottom left quadrant
+    # but make sure we do not include min_lng to avoid duplicates
+    q_minlnglat = []
+    for i, link in enumerate(link_stack):
+        if i not in added_list and link["lat"] >= min_lng["lat"] \
+            and link["lng"] <= max_lat["lng"] \
+            and (link != max_lat or min_lng==max_lat):
+            q_minlnglat.append(link)
+            added_list.append(i)
+    sorted_links += traverseQuadrant(q_minlnglat, min_lng["lat"])
+    return [link["affiliationid"] for link in sorted_links]
+
+
+def traverseQuadrant(quadrant, anchor):
+    # traverse a quadrant in a line from anchor to max
+    # return the ordered list
+    ordered_list = []
+    while len(quadrant) > 0:
+        closest_distance = 999
+        closest_index = 999
+        for i, link in enumerate(quadrant):
+            lat_diff = abs(link["lat"]-anchor)
+            if lat_diff < closest_distance:
+                closest_index = i
+                closest_distance = lat_diff
+        ordered_list.append(quadrant.pop(closest_index))
+    return ordered_list
+
+
+def getMinMaxLatLng(links):
+    # get max and min lat lng values CLOCKWISE by pairwise values
+    # this will give us quadrants
+    max_lat = {"lat":-999,"lng":999}
+    min_lat = {"lat":999,"lng":-999}
+    max_lng = min_lat
+    min_lng = max_lat
+    for link in links:
+        if link["lat"] >= max_lat["lat"]:
+            if link["lat"] == max_lat["lat"]:
+                if link["lng"] < max_lat["lng"]:
+                    max_lat = link                
+            else:
+                max_lat = link
+
+        if link["lat"] <= min_lat["lat"]:
+            if link["lat"] == min_lat["lat"]:
+                if link["lng"] > min_lat["lng"]:
+                    min_lat = link                
+            else:
+                min_lat = link
+
+        if link["lng"] >= max_lng["lng"]:
+            if link["lng"] == max_lng["lng"]:
+                if link["lat"] > max_lng["lat"]:
+                    max_lng = link                
+            else:
+                max_lng = link
+
+        if link["lng"] <= min_lng["lng"]:
+            if link["lng"] == min_lng["lng"]:
+                if link["lat"] < min_lng["lat"]:
+                    min_lng = link                
+            else:
+                min_lng = link
+    return max_lat, min_lat, max_lng, min_lng
+    
+        
+    
 
 if __name__ == "__main__":
     sess.init_app(app)

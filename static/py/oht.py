@@ -708,6 +708,8 @@ class Wrapper(object):
         top_freq = 0
         top_tier = ""
         for term in search_term:
+            if term is None or term["heading_id"] is None:
+                continue
             key = term["heading_id"]
             if key in aHeading:
                 aHeading[key] += 1
@@ -739,6 +741,8 @@ class Wrapper(object):
         top_score = -1.0
         top_heading = None
         for heading in heading_list:
+            if heading["heading_id"] is None:
+                continue
             heading_score = 0.0
             tier = heading["tier_index"].split(".")[:7]
             # calculate score, cascading tiers (e.g. point per matching tier)
@@ -796,10 +800,15 @@ class Wrapper(object):
         best_score = -1 # first one always wins incase of tie
         # correlation will be based off the first keyword    
         for term in term_list[base_word]:
+            if term["heading_id"] is None:
+                continue
             total_score = 0
             temp = [term]
             # loop through rest of terms
             for key in term_list:
+                if term_list[key][0]["heading_id"] is None:
+                    temp.append(term_list[key][0])
+                    continue
                 if key == base_word:                
                     continue
                 heading, score = self.getClosestHeading(term["tier_index"], term_list[key])

@@ -159,7 +159,7 @@ $(document).ready(function() {
     var quick_search = getParameterByName("quicksearch");
     var heading_id = getParameterByName("headingid");
     var tier_index = getParameterByName("tierindex");
-    if(quick_search) {
+    if(quick_search) { 
         if(heading_id) {
             openExploreVis(heading_id);
         } else {
@@ -197,7 +197,7 @@ function recoverSearch(search_id) {
             child_tier = tiers.child;
             var data = content["content"];
             for(var i = 0; i < data.length; i++) {
-                var weight = parseInt(data[i].weight);
+                // var weight = parseInt(data[i].weight);
                 if(data[i].keyword) {
                     drawKeyword(data[i].keyword, data[i].heading_id);
                 } else {
