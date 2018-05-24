@@ -18,6 +18,7 @@ class PickleSession(MutableMapping):
         self.directory = directory
         self.sid = sid
         self.read()
+        self.permanent = True
 
     def __getitem__(self, key):
         self.read()

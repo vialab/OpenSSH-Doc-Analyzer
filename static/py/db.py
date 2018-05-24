@@ -8,68 +8,77 @@ class Database(object):
     session_open = False
 
     def __init__(self):
-        self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True, charset='utf8mb4')
+        self._connect()
+
+    def _connect(self):
+        self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], charset='utf8mb4')
+
+    def _execute(self, sqlStmt, args=None, cursor=None, is_update=True):
+        try:
+            if not self.conn.open:
+                self._connect()
+
+            if cursor is None:
+                cursor = self.conn.cursor()
+
+            cursor.execute(sqlStmt, args)
+        except (AttributeError, sql.OperationalError):
+            self._connect()
+            cursor = self.conn.cursor()
+            cursor.execute(sqlStmt, args)
+        try:
+            if is_update:
+                self.conn.commit()
+        except Exception as e:
+            print(e)
+        return cursor
 
     def beginSession(self):
         """ Returns a cursor to be able to maintain a session """
-        self.conn.ping(True)
         if self.session_open:
             raise "A session already exists."
-        cursor = self.conn.cursor()
-        try:
-            return cursor
-        except Exception as e:
-            cursor.close()
-            raise
+        if not self.conn.open:
+            self._connect()
+        return self.conn.cursor()
 
-    def execSessionQuery(self, cursor, strCmd, args=(), close_cursor=False):
+    def execSessionQuery(self, cursor, strCmd, args=(), close_cursor=False, is_update=False):
         """ Used to run a query on a specific cursor """
-        try:
-            cursor.execute(strCmd, args)
-            results = cursor.fetchall()
-            if close_cursor:
-                cursor.close()
-                self.session_open = False
-            return results
-        except Exception as e:
-            cursor.close()
-            raise
+        r_cursor = self._execute(strCmd, args, cursor, is_update)
+        results = []
+
+        if r_cursor is not None:
+            results = r_cursor.fetchall()
+
+        if close_cursor:
+            r_cursor.close()
+
+        return results
 
     def execQuery(self, strCmd, args=(), is_update=False):
         """ Execute an SQL query """
-        self.conn.ping(True)
-        cursor = self.conn.cursor() 
-        try:
-            cursor.execute(strCmd, args)
-            if is_update:
-                self.conn.commit()
-            results = cursor.fetchall()
-            return results
-        except Exception as e:
-            # self.throwSQLError(e)
-            raise
-        finally:
-            cursor.close()
-
+        return self.execSessionQuery(None, strCmd, args)
 
     def execUpdate(self, strCmd, args=()):
         """ Execute an SQL insert/update command """
         return self.execQuery(strCmd, args, is_update=True)
 
-
     def execProc(self, strProc, args=()):
         """ Execute an SQL stored procedure """
-        self.conn.ping(True)
-        cursor = self.conn.cursor() 
+        cursor = None
 
         try:
+            cursor = self.conn.cursor()
             cursor.callproc(strProc, args)
-            return cursor.fetchall()        
-        except Exception as e:
-            # self.throwSQLError(e)
-            raise
-        finally:
-            cursor.close()    
+        except (AttributeError, sql.OperationalError):
+            self._connect()
+
+            cursor = self.conn.cursor()
+            cursor.callproc(strProc, args)
+
+        results = cursor.fetchall()
+        cursor.close()
+
+        return results
 
     def throwSQLError(self, e):
         """ Log system errors to database """
@@ -77,5 +86,5 @@ class Database(object):
         results = cursor.callproc("sp_systemerror", (strError,))
 
     def __del__(self):
-        self.conn.close()
-        
+        if self.conn is not None:
+            self.conn.close()
