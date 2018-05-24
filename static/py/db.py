@@ -8,7 +8,7 @@ class Database(object):
     session_open = False
 
     def __init__(self):
-        self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True, charset='utf8')
+        self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], use_unicode=True, charset='utf8mb4')
 
     def beginSession(self):
         """ Returns a cursor to be able to maintain a session """
@@ -17,9 +17,9 @@ class Database(object):
             raise "A session already exists."
         cursor = self.conn.cursor()
         try:
-            cursor.execute("SET NAMES utf8mb4;")
-            cursor.execute("SET CHARACTER SET utf8mb4;")
-            cursor.execute("SET character_set_connection=utf8mb4;")
+            # cursor.execute("SET NAMES utf8mb4;")
+            # cursor.execute("SET CHARACTER SET utf8mb4;")
+            # cursor.execute("SET character_set_connection=utf8mb4;")
             return cursor
         except Exception, e:
             cursor.close()
@@ -43,11 +43,11 @@ class Database(object):
         self.conn.ping(True)
         cursor = self.conn.cursor() 
         try:
-            if is_update:
-                self.conn.begin()
-            cursor.execute("SET NAMES utf8mb4;")
-            cursor.execute("SET CHARACTER SET utf8mb4;")
-            cursor.execute("SET character_set_connection=utf8mb4;")
+            # if is_update:
+            #     self.conn.begin()
+            # cursor.execute("SET NAMES utf8mb4;")
+            # cursor.execute("SET CHARACTER SET utf8mb4;")
+            # cursor.execute("SET character_set_connection=utf8mb4;")
             cursor.execute(strCmd, args)
             if is_update:
                 self.conn.commit()

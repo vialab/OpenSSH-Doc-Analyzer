@@ -112,7 +112,7 @@ def upload():
                 session["dochashid"] = dochash_id
                 # preprocess text
                 strClean = tm.preProcessText(strText.decode("utf8"))
-                # transform to topic model
+                # transform to  model
                 tfidf = tm.transformTfidf(strClean)
                 session["tfidf"] = tfidf
                 for idx in tfidf:
