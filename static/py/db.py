@@ -12,6 +12,7 @@ class Database(object):
 
     def beginSession(self):
         """ Returns a cursor to be able to maintain a session """
+        self.conn.ping(True)
         if self.session_open:
             raise "A session already exists."
         cursor = self.conn.cursor()
@@ -39,6 +40,7 @@ class Database(object):
 
     def execQuery(self, strCmd, args=(), is_update=False):
         """ Execute an SQL query """
+        self.conn.ping(True)
         cursor = self.conn.cursor() 
         try:
             if is_update:
@@ -78,6 +80,7 @@ class Database(object):
 
     def execProc(self, strProc, args=()):
         """ Execute an SQL stored procedure """
+        self.conn.ping(True)
         cursor = self.conn.cursor() 
 
         try:

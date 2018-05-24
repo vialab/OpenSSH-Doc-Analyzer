@@ -49,7 +49,7 @@ def getJournalCount(keyword_list):
             clean_list.append(re.sub('[^A-Za-z0-9]+', '', word))
         # put them for regex search
         keywords = " ".join(clean_list)
-        results = db.execQuery(""" select m.titrerev, ifnull(x.freq, 0) from meta m
+        results = db.execQuery("""select m.titrerev, ifnull(x.freq, 0) from meta m
             left join (
                     select titrerev, count(*) freq from meta where documentid in (
                         select distinct documentid from doctfidf 
