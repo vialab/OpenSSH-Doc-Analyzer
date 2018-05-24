@@ -17,11 +17,8 @@ class Database(object):
             raise "A session already exists."
         cursor = self.conn.cursor()
         try:
-            # cursor.execute("SET NAMES utf8mb4;")
-            # cursor.execute("SET CHARACTER SET utf8mb4;")
-            # cursor.execute("SET character_set_connection=utf8mb4;")
             return cursor
-        except Exception, e:
+        except Exception as e:
             cursor.close()
             raise
 
@@ -34,7 +31,7 @@ class Database(object):
                 cursor.close()
                 self.session_open = False
             return results
-        except Exception, e:
+        except Exception as e:
             cursor.close()
             raise
 
@@ -43,17 +40,12 @@ class Database(object):
         self.conn.ping(True)
         cursor = self.conn.cursor() 
         try:
-            # if is_update:
-            #     self.conn.begin()
-            # cursor.execute("SET NAMES utf8mb4;")
-            # cursor.execute("SET CHARACTER SET utf8mb4;")
-            # cursor.execute("SET character_set_connection=utf8mb4;")
             cursor.execute(strCmd, args)
             if is_update:
                 self.conn.commit()
             results = cursor.fetchall()
             return results
-        except Exception, e:
+        except Exception as e:
             # self.throwSQLError(e)
             raise
         finally:
@@ -62,19 +54,6 @@ class Database(object):
 
     def execUpdate(self, strCmd, args=()):
         """ Execute an SQL insert/update command """
-        # strCmd = strCmd.strip()
-        # strCommitCmd = ""
-        # if(not(strCmd.lower().startswith("begin;"))):
-        #     strCommitCmd = "BEGIN; "
-
-        # strCommitCmd += strCmd
-
-        # if(not(strCmd.lower().endswith(";"))):
-        #     strCommitCmd += ";"
-
-        # if(not(strCmd.lower().endswith("commit;"))):
-        #     strCommitCmd += " COMMIT;"
-        
         return self.execQuery(strCmd, args, is_update=True)
 
 
@@ -86,7 +65,7 @@ class Database(object):
         try:
             cursor.callproc(strProc, args)
             return cursor.fetchall()        
-        except Exception, e:
+        except Exception as e:
             # self.throwSQLError(e)
             raise
         finally:
