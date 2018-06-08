@@ -47,8 +47,8 @@ tm = tm.TopicModel(stop_words=aStopWord)
 # with open("./model/pkl/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
 # tm = None
-# with open("./model/pkl/tm.pkl", "r") as f:
-#     tm = pickle.load(f)
+with open("./model/pkl/tm.pkl", "r") as f:
+    tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
 
 
@@ -71,6 +71,7 @@ def index():
     # getMap()
     # cleanAffiliations()
     # createMapJSON()
+    # saveJournalCounts()
     return render_template("index.html")
 
 
@@ -1092,8 +1093,22 @@ def getMinMaxLatLng(links):
                 min_lng = link
     return max_lat, min_lat, max_lng, min_lng
     
-        
+
+def saveJournalCounts():
+    results = db.execQuery("""
+    select j.id, j.title, count(*) from journal j
+    left join meta m on m.journalid=j.id
+    group by j.id, j.title;
+    """)
+    journal = {}
+    for result in results:
+        journal[result[0]] = {}
+        journal[result[0]]["title"] = result[1]
+        journal[result[0]]["count"] = result[2]
+    strCleanPath = "./model/journal.json"
+    cm.saveUTF8ToDisk(strCleanPath, json.dumps(journal))
     
+        
 
 if __name__ == "__main__":
     sess.init_app(app)

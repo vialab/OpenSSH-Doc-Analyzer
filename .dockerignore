@@ -11,5 +11,3 @@ sproc
 run.sh
 /model/pkl/demo/*
 /model/pkl/backup/*
-/model/pkl/tf.pkl
-/model/pkl/tm.pkl
