@@ -370,6 +370,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             node.append("text")
                 .attr("text-anchor", "end")
                 .text(function(d) {
+                    console.log(d);
                     return " (" + d.data.length + ")"; 
                 })
                 .attr("x", function(d) { return d.x1-d.x0-(5*(d.data.length.length-1))-16; })

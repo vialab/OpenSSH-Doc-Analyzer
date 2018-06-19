@@ -47,8 +47,8 @@ tm = tm.TopicModel(stop_words=aStopWord)
 # with open("./model/pkl/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
 # tm = None
-with open("./model/pkl/tm.pkl", "r") as f:
-    tm = pickle.load(f)
+# with open("./model/pkl/tm.pkl", "r") as f:
+#     tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
 
 

@@ -164,17 +164,40 @@ class Wrapper(object):
     db = db.Database()
     ALLOWED_LANG = ["en", "fr"]
     child_count = {}
+    synset_count = {}
 
 
     def __init__(self):
         self.db.execProc("sp_tfidf_cache")
-        counts = self.db.execQuery("""select parentid, count(*) 
-            from heading
-            where parentid is not null and pos='n' and subcat=''
-            group by parentid;
+        counts = self.db.execQuery("""select x.id, ifnull(y.n, 0) count
+            from heading x
+            left join (select parentid, count(*) n
+				from heading
+				where parentid is not null and pos='n' and subcat=''
+				group by parentid) y on x.id=y.parentid
+			where x.pos='n' and x.subcat='';
         """)
+        synset_cache = {}
+        # preprocess and cache results for RT retrieval
         for count in counts:
-            self.child_count[str(count[0])] = count[1]
+            _heading_id = str(count[0])
+            self.child_count[_heading_id] = count[1] # how many children
+            # count how big their synset is
+            heading = Heading(count[0])
+            # cache it to measure how big the branch synset is
+            synset_cache[_heading_id] = len(heading.Synset())
+            self.synset_count[_heading_id] = { "heading": synset_cache[_heading_id], "children":0 }
+            if count[1] == 0:
+                continue
+            # get list of children
+            headings = self.getHeadingChildrenCSVList(heading_id=_heading_id, output_csv=False)
+            n = 0
+            # save total size of this branch
+            for h in headings:
+                if h[0] not in synset_cache:
+                    synset_cache[h[0]] = len(Heading(h[0]).Synset())
+                n += synset_cache[h[0]]
+            self.synset_count[_heading_id]["children"] = n
 
 
 
@@ -336,7 +359,7 @@ class Wrapper(object):
 
     def getTierIndexChildren(self, heading_id):
         """ Get all immediate sub categories and tier below without subs """
-        csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier", "cat", "length")
+        csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier", "cat", "length", "set_size", "child_size")
         parent_list = {}        
         line_list = []
         # get our tier index
@@ -415,17 +438,28 @@ class Wrapper(object):
 
 
 
-    def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0", cat="0", length=""):
+    def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0", cat="0", length="", set_size="", child_size=""):
         """ Helper function to standardize creating CSV lines """
         if length == "":
             if heading_id == "root":
-                count = self.child_count["0"]
+                length = self.child_count["0"]
             elif heading_id in self.child_count:
-                count = self.child_count[heading_id]
+                length = self.child_count[heading_id]
             else:
-                count = "0"
-        else:
-            count = length
+                length = "0"
+        
+        if set_size == "":
+            if heading_id in self.synset_count:
+                set_size = self.synset_count[heading_id]["heading"]
+            else:
+                set_size = "0"
+        
+        if child_size == "":
+            if heading_id in self.synset_count:
+                child_size = self.synset_count[heading_id]["children"]
+            else:
+                child_size = "0"
+
 
         new_line = "\"" + str(heading_id) \
             + "\",\"" + str(name) \
@@ -434,12 +468,16 @@ class Wrapper(object):
             + "\",\"" + str(keyword) \
             + "\",\"" + str(tier) \
             + "\",\"" + str(cat) \
-            + "\",\"" + str(count) + "\"\n"
+            + "\",\"" + str(length) \
+            + "\",\"" + str(set_size) \
+            + "\",\"" + str(child_size) + "\"\n"
         return new_line
 
 
-    def getHeadingChildrenCSVList(self, root, heading_id, parent_list):
+    def getHeadingChildrenCSVList(self, root=None, heading_id=None, parent_list={}, output_csv=True):
         """ Get our tier children and format them for CSV """
+        if root is None:
+            root = self.getTierIndex(heading_id)
         csv = ""
         query_tier = ""
         tier = root.split(".")
@@ -478,6 +516,9 @@ class Wrapper(object):
             where h.tierindex like %s and h.pos='n' and h.subcat=''
             and h.parentid is not null
             and t""" + str(last_index) + "!= 'NA'", (query_tier,))
+        
+        if not output_csv:
+            return headings
         
         for h in headings:
             if str(h[0]) in parent_list:
