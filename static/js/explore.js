@@ -61,7 +61,7 @@ function clicked(cb_keyword) {
         } else {
             oneclick = false;
             clearTimeout(click_to);
-            if(d.data.length == "0") {
+            if(d.data.length == "0" && d.data.heading_id != "root") {
                 return;
             }
             // otherwise we clicked another tier
@@ -367,13 +367,15 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                 })
                 .call(wrap);
 
+            // how many words in this synset
             node.append("text")
                 .attr("text-anchor", "end")
                 .text(function(d) {
-                    console.log(d);
-                    return " (" + d.data.length + ")"; 
+                    return " (" + d.data.set_size + ")"; 
                 })
-                .attr("x", function(d) { return d.x1-d.x0-(5*(d.data.length.length-1))-16; })
+                .attr("x", function(d) { 
+                    return d.x1-d.x0-(5*(d.data.set_size.length-1))-16; 
+                })
                 .attr("y", function(d) { return d.y1-d.y0-6; })
                 .style("fill", function(d) {
                     var new_d = d;
@@ -384,6 +386,20 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                     }
                     return getColor(new_d);
                 });
+
+            // symbol whether or not there are children words
+            node.append("text")
+                .attr("text-anchor", "end")
+                .text(function(d) {
+                    if(d.data.child_size > 0) {
+                        return "V";
+                    }
+                    return "";
+                })
+                .attr("x", function(d) { 
+                    return d.x1-d.x0-(5*(d.data.set_size.length-1))-6; 
+                })
+                .attr("y", function(d) { return d.y1-d.y0-6; })
 
             // add a title for when a node is hovered
             node.append("title")

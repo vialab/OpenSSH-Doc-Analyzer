@@ -383,6 +383,7 @@ function togglePeek() {
 
 // what happens when a keyword is clicked in search dialog vis
 function headingClicked(d, quick_search=false) {
+    if(d.data.heading_id == "root") return;
     $.ajax({
         type: "GET"
         , url: "/oht/synset/" + d.data.heading_id

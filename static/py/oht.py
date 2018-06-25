@@ -3,6 +3,7 @@ import db
 import codecs
 import constants as CONST
 import unicodecsv
+import cPickle as pickle
 from cStringIO import StringIO
 
 class Word(object):
@@ -177,27 +178,55 @@ class Wrapper(object):
 				group by parentid) y on x.id=y.parentid
 			where x.pos='n' and x.subcat='';
         """)
-        synset_cache = {}
+        # synsets = self.db.execQuery("""select w.headingid
+        #       , count(*)
+        #   from word w
+        #   left join tfidf wc on wc.wordid=w.id
+        #   where w.headingid in (select distinct id from heading where subcat='')
+        #     and wc.termid in (select termid from term_cache)
+        #   group by w.headingid;
+        # """, to_dict=True)
+        # pos = self.db.execQuery("""select h.parentid
+        #     , count(*)
+        #   from word w
+        #   left join tfidf wc on wc.wordid=w.id
+        #   left join heading h on h.id=w.headingid
+        #   where w.headingid in (select distinct id from heading where subcat='' and pos!='n')
+        #     and wc.termid in (select termid from term_cache)
+		# group by h.parentid;
+        # """, to_dict=True)
         # preprocess and cache results for RT retrieval
         for count in counts:
             _heading_id = str(count[0])
             self.child_count[_heading_id] = count[1] # how many children
             # count how big their synset is
-            heading = Heading(count[0])
-            # cache it to measure how big the branch synset is
-            synset_cache[_heading_id] = len(heading.Synset())
-            self.synset_count[_heading_id] = { "heading": synset_cache[_heading_id], "children":0 }
-            if count[1] == 0:
-                continue
-            # get list of children
-            headings = self.getHeadingChildrenCSVList(heading_id=_heading_id, output_csv=False)
-            n = 0
-            # save total size of this branch
-            for h in headings:
-                if h[0] not in synset_cache:
-                    synset_cache[h[0]] = len(Heading(h[0]).Synset())
-                n += synset_cache[h[0]]
-            self.synset_count[_heading_id]["children"] = n
+            # heading = Heading(count[0])
+            # heading_count = 0
+            # if _heading_id in synsets:
+            #     heading_count = synsets[_heading_id][0]
+            # if _heading_id in pos:
+            #     heading_count += pos[_heading_id][0]
+                
+            # self.synset_count[_heading_id] = { "heading": heading_count, "children":0 }
+            # # check if we have children to count
+            # if count[1] == 0:
+            #     continue
+            # # get list of children
+            # headings = self.getHeadingChildrenCSVList(heading_id=_heading_id, output_csv=False)
+            # n = 0
+            # # save total size of this branch
+            # for h in headings:
+            #     h_id = str(h[0])
+            #     if h_id in synsets:
+            #         n += synsets[h_id][0]
+            #     if h_id in pos:
+            #         n += pos[h_id][0]
+            # self.synset_count[_heading_id]["children"] = n
+        # cached this because it made startup take ~5 mins
+        # with open("./model/pkl/synset.pkl", "w+") as f:
+        #     pickle.dump(self.synset_count, f)
+        with open("./model/pkl/synset.pkl", "r") as f:
+            self.synset_count = pickle.load(f)
 
 
 
@@ -441,9 +470,7 @@ class Wrapper(object):
     def getCSVLine(self, heading_id="", name="", parent="", size="", keyword="", tier="0", cat="0", length="", set_size="", child_size=""):
         """ Helper function to standardize creating CSV lines """
         if length == "":
-            if heading_id == "root":
-                length = self.child_count["0"]
-            elif heading_id in self.child_count:
+            if heading_id in self.child_count:
                 length = self.child_count[heading_id]
             else:
                 length = "0"
@@ -521,9 +548,13 @@ class Wrapper(object):
             return headings
         
         for h in headings:
-            if str(h[0]) in parent_list:
+            h_id = str(h[0])
+            if h_id in parent_list:
                 continue
-            parent_list[str(h[0])] = True
+            if self.synset_count[h_id]["heading"] == 0 \
+                and self.synset_count[h_id]["children"] == 0:
+                continue
+            parent_list[h_id] = True
             p_id = str(h[5])
             while p_id not in parent_list:
                 p = self.db.execQuery("""select h.id 

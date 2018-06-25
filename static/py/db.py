@@ -54,9 +54,16 @@ class Database(object):
 
         return results
 
-    def execQuery(self, strCmd, args=(), is_update=False):
+    def execQuery(self, strCmd, args=(), is_update=False, to_dict=False):
         """ Execute an SQL query """
-        return self.execSessionQuery(None, strCmd, args)
+        results = self.execSessionQuery(None, strCmd, args)
+        if to_dict:
+            # make these results retrievable by id (assumes id is always first)
+            new_results = {}
+            for result in results:
+                new_results[str(result[0])] = result[1:]
+            return new_results
+        return results
 
     def execUpdate(self, strCmd, args=()):
         """ Execute an SQL insert/update command """
