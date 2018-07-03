@@ -446,7 +446,7 @@ function populateBOW(data, quick_search) {
         } else {
             html += " no-click'";
         }
-        html += ">" + data[i]["name"] + "</div>";
+        html += ">" + data[i]["pos"] + ". " + data[i]["name"] + "</div>";
         $(".word-box #heading-words").append(html);
     }
 }

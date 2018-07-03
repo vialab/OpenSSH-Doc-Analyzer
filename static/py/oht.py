@@ -16,8 +16,9 @@ class Word(object):
                 , w.headingid
                 , w.word
                 , w.fr_translation
-                , w.pos
+                , t.pos
                 from word w
+                left join tfidf t on t.wordid=w.id
                 where w.id=%s """, (strID,))
        self.id = word[0][0]
        self.headingid = word[0][1]
@@ -85,21 +86,30 @@ class Heading(object):
         """ Returns list of words categorized within current heading """
         results = self.db.execQuery("""
             select w.id
+                , w.fr_translation
+                , ifnull(p.oht, 'n')
+                , w.headingid
 				, case when wc.termid in (select termid from term_cache)
 					then wc.termid
                     else null end
             from word w
             left join tfidf wc on wc.wordid=w.id
+            left join pos p on p.pos=wc.pos
             where w.headingid=%s
             order by wc.id desc;""", (self.id,))
         words = []
         for result in results:
-            if result[1]:
+            temp = {}
+            temp["id"] = result[0]
+            temp["name"] = result[1]
+            temp["pos"] = result[2]
+            temp["heading_id"] = result[3]
+            if result[4]:
                 bEnable = True
             else:
                 bEnable = False
-            word = { "word":Word(result[0]), "enable": bEnable }
-            words.append(word)
+            temp["enable"] = bEnable
+            words.append(temp)
         return words
 
 

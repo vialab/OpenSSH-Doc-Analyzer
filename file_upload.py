@@ -42,10 +42,10 @@ for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
 tm = tm.TopicModel(stop_words=aStopWord)
-tm.loadModel()
-tm.tfidf_vect.fit(tm.tf)
-with open("./model/pkl/tm.pkl", "w+") as f:
-    pickle.dump(tm, f)
+# tm.loadModel()
+# tm.tfidf_vect.fit(tm.tf)
+# with open("./model/pkl/tm.pkl", "w+") as f:
+#     pickle.dump(tm, f)
 # tm = None
 # with open("./model/pkl/tm.pkl", "r") as f:
 #     tm = pickle.load(f)
@@ -245,7 +245,7 @@ def oht_synset(heading_id):
         "id": heading_id,
         "name": heading.fr,
         "tier_index": heading.tierindex,
-        "words": filterOHTWordList(words),
+        "words": words,
         "pos": filterOHTHeadingList(pos)
     }
     return jsonify(response)
