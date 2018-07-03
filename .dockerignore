@@ -5,9 +5,7 @@ README.md
 venv
 .vscode
 sproc
-/model/corps/*
+/model/corps/**
 *.csv
 *.txt
 run.sh
-/model/pkl/demo/*
-/model/pkl/backup/*

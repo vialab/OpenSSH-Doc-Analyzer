@@ -425,7 +425,7 @@ function populatePOS(data, selected_pos) {
             html += " active";
         }
         html += "' onclick='getSynset(this, \"" + data[i].id + "\");'>";
-        html += data[i].pos + ". " + data[i].name;
+        html += data[i].pos + ". " + data[i].name + " (" + data[i].size + ")";
         html += "</div>";
         $(".part-of-speech #pos-words").append(html);
     }

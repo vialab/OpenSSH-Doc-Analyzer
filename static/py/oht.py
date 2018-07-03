@@ -51,9 +51,11 @@ class Heading(object):
         , h.tierindex
         , h.subcat
         , h.pos
+        , ifnull(p.size, 0)
         from heading h
         left join thematicheading th on th.id=h.thematicheadingid
-        where h.id=%s """, (strID,))
+        left join wordsize p on p.headingid=h.id
+        where h.id=%s""", (strID,))
         self.id = heading[0][0]
         self.thematicheadingid = heading[0][1]
         self.en = heading[0][2]
@@ -64,6 +66,7 @@ class Heading(object):
         self.atierindex = heading[0][6].replace(".NA", "").split(".")
         self.subcat = heading[0][7]
         self.pos = heading[0][8]
+        self.size = heading[0][9]
 
 
     def PartOfSpeech(self):

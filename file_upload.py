@@ -42,10 +42,10 @@ for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
 tm = tm.TopicModel(stop_words=aStopWord)
-# tm.loadModel()
-# tm.tfidf_vect.fit(tm.tf)
-# with open("./model/pkl/tm.pkl", "w+") as f:
-#     pickle.dump(tm, f)
+tm.loadModel()
+tm.tfidf_vect.fit(tm.tf)
+with open("./model/pkl/tm.pkl", "w+") as f:
+    pickle.dump(tm, f)
 # tm = None
 # with open("./model/pkl/tm.pkl", "r") as f:
 #     tm = pickle.load(f)
@@ -530,6 +530,7 @@ def filterOHTHeadingList(headings):
         temp["name"] = heading.fr
         temp["pos"] = heading.pos
         temp["tier_index"] = heading.tierindex
+        temp["size"] = heading.size
         heading_list.append(temp)
     return heading_list
 
