@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Journal | Analyzer{% endblock %}
+{% block add_style %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/journal.css') }}">
+{% endblock add_style %} 
+{% block page_content %}
+<div class="container" id="journal-list">
+    {% for journal in journal_list %}
+    <a href="/journal/documents?id={{journal[0]}}" class="{% if journal[2] %}featured{% endif %}"><span>{{ journal[1]|safe }}</span></a>
+    {% endfor %}
+</div>
+{% endblock page_content %}
+{% block add_js %}
+{% endblock add_js %}

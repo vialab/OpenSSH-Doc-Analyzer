@@ -75,6 +75,54 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/journal")
+def journal():
+    return render_template("journal.html")
+
+
+@app.route("/journal/analyzer")
+def journal_analyzer():
+    """ Web hook for main document analyzer page """
+    # we have 4 options here
+    # 0. Default - After uploading a file, go here to analyze
+    # 2. Recover Document - Load a previously used document
+    # 3. Recover Search - Load a previously used search query
+    dochash_id = request.args.get("dochashid")
+
+    if dochash_id is not None:
+        recoverDocumentTfidf(dochash_id)
+
+    total_start = time.time()
+    search = getJournalSearchResults(session["tfidf"], 999)
+    # results = db.execQuery("""
+    #     select id
+    #     , title
+    #     from journal
+    #     """)
+    search = [row for row in search]
+    search[0] = search[0] + (1,)
+
+    # otherwise, our search will be done dynamically through client
+    total_end = time.time()
+    print("Total Time: %s seconds" % (total_end-total_start))
+    return render_template("journal_analyzer.html"
+        , journal_list=search)
+
+
+@app.route("/journal/documents")
+def journal_view():
+    """ Web hook for viewing the documents in a journal """
+    journal_id = request.args.get("id")
+    if journal_id is None:
+        return redirect(url_for("index"))
+
+    results = db.execQuery("""
+        select documentid, 0
+        from meta where journalid=%s""", (journal_id,))
+    documents = getSearchMetaInfo(results)
+    return render_template("journal_view.html", doc_list=documents)
+
+
 
 @app.route("/upload", methods=["GET","POST"])
 def upload():
@@ -427,10 +475,29 @@ def match(tfidf, n=100):
         from doctfidf
         where termid in (""" + terms + """)
         group by documentid
-        order by sum(tfidf)
+        order by sum(tfidf) desc
         limit %s
         """,(n,))
 
+
+def getJournalSearchResults(tfidf, n=10):
+    """ Like search results, but amalgamated by journal instead """
+    terms = ",".join([str(term) for term in tfidf])
+    rank_list = db.execQuery("""
+        select m.journalid, j.title from meta m
+        left join (
+			select documentid
+			, sum(tfidf) score
+			from doctfidf
+			where termid in (""" + terms + """)
+			group by documentid
+			order by sum(tfidf) desc) x on x.documentid=m.documentid
+        left join journal j on j.id=m.journalid
+		group by m.journalid
+        order by sum(x.score) desc
+        limit %s;
+        """, (n,))
+    return rank_list
 
 
 def getSearchMetaInfo(rank_list):

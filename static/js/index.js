@@ -86,7 +86,11 @@ function showSearchHistory(data) {
 
     // make boxes clickable and redirect to analyzer page to recocer
     $("#doc-list .recent-doc").on("click", function() {
-        window.location.href = "/analyzer?dochashid=" + $(this).data("dochashid");
+        if(window.location.pathname == "/journal") {
+            window.location.href = "/journal/analyzer?dochashid=" + $(this).data("dochashid");
+        } else {
+            window.location.href = "/analyzer?dochashid=" + $(this).data("dochashid");
+        }
     });
 
     $("#search-list .recent-search").on("click", function() {

@@ -1,0 +1,22 @@
+#journal-list a {
+    position: relative;
+    display: inline-block;
+    width: 150px;
+    height: 150px;
+    border: 1px solid gray;
+    margin: 10px 5px;
+    cursor: pointer;
+}
+
+#journal-list a.featured {
+    width: 313px;
+    height: 313px;
+}
+
+#journal-list a span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
