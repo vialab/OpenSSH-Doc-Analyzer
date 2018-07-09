@@ -56,7 +56,7 @@ class Database(object):
 
     def execQuery(self, strCmd, args=(), is_update=False, to_dict=False):
         """ Execute an SQL query """
-        results = self.execSessionQuery(None, strCmd, args)
+        results = self.execSessionQuery(None, strCmd, args, False, is_update)
         if to_dict:
             # make these results retrievable by id (assumes id is always first)
             new_results = {}

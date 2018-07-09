@@ -19,11 +19,12 @@ import time
 import urllib
 import matplotlib.pyplot as plt
 import pandas as pd
+import requests
 from pathlib2 import Path
 from sklearn.feature_extraction.text import CountVectorizer
 from lz4.frame import compress, decompress
 from flask import *
-from lxml import etree
+from lxml import etree, html
 from nltk import word_tokenize
 
 app = Flask(__name__)
@@ -484,7 +485,7 @@ def getJournalSearchResults(tfidf, n=10):
     """ Like search results, but amalgamated by journal instead """
     terms = ",".join([str(term) for term in tfidf])
     rank_list = db.execQuery("""
-        select m.journalid, j.title from meta m
+        select m.journalid, j.title, j.logo from meta m
         left join (
 			select documentid
 			, sum(tfidf) score

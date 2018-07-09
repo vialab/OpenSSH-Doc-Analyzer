@@ -7,7 +7,14 @@
 {% block page_content %}
 <div class="container" id="journal-list">
     {% for journal in journal_list %}
-    <a href="/journal/documents?id={{journal[0]}}" class="{% if journal[2] %}featured{% endif %}"><span>{{ journal[1]|safe }}</span></a>
+    <div class="journal-item {% if journal[3] %}featured{% endif %}">
+        <a href="/journal/documents?id={{journal[0]}}" class="">
+            {% if journal[2] %}
+            <img src="{{journal[2]|safe}}" alt="{{journal[1]|safe}}"/>
+            {% endif %}
+        </a>
+        <span class="">{{ journal[1]|safe }}</span>
+    </div>
     {% endfor %}
 </div>
 {% endblock page_content %}

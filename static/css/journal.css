@@ -1,22 +1,47 @@
-#journal-list a {
+#journal-list .journal-item {
     position: relative;
     display: inline-block;
     width: 150px;
     height: 150px;
-    border: 1px solid gray;
+    border: 2px solid gray;
     margin: 10px 5px;
     cursor: pointer;
 }
 
-#journal-list a.featured {
+#journal-list .journal-item.featured {
     width: 313px;
     height: 313px;
 }
 
-#journal-list a span {
+#journal-list .journal-item span {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
+    padding: 5px;
+    background-color: rgba(255,255,255,0.8);
+}
+
+#journal-list .journal-item:hover span {
+    background-color: rgba(0,0,0,0.5);
+    color: white;
+}
+
+#journal-list .journal-item a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(100,100,100,0.5);
+}
+
+#journal-list .journal-item a img {
+    width: 100%;
+    height: auto;
+    opacity: 0.5;
+}
+
+#journal-list .journal-item:hover a img {
+    opacity: 1;
 }
