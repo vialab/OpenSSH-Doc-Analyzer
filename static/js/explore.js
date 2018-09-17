@@ -220,8 +220,8 @@ function drawJournalCount(data, merge) {
         .attr("y", 7.5)
         .attr("dy", "0.32em")
         .text(function(d) { 
-            if(d == "freq") return "Current Results";
-            else return "New Results";
+            if(d == "freq") return "Résultats Actuels";
+            else return "Nouveaux Résultats";
             return d; 
         });
 }
@@ -353,7 +353,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         //     .attr("xlink:href", function(d) { return "#" + d.data.heading_id; });
             node.append("text")
                 .text(function(d) {
-                    return d.data.name.toUpperCase();
+                    return d.data.name.replace("&#39;", "'").toUpperCase();
                 })
                 .attr("dx", function(d) { return 5; })
                 .attr("dy", function(d) { return 15; })

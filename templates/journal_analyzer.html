@@ -13,7 +13,7 @@
             <img src="{{journal[2]|safe}}" alt="{{journal[1]|safe}}"/>
             {% endif %}
         </a>
-        <span>{{ journal[1]|safe }}</span>
+        <span style="{% if not journal[2] %}display:block;{% endif %}">{{ journal[1]|safe }}</span>
     </div>
     {% endfor %}
 </div>

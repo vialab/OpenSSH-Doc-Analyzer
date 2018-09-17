@@ -1,0 +1,586 @@
+      <idissn>0007-974X</idissn>
+      <idissnnum>1918-8218</idissnnum>
+      <directeur sexe="feminin">
+        <fonction lang="fr">Directrice</fonction>
+        <nompers>
+          <prenom>Julie</prenom>
+          <nomfamille>Desrosiers</nomfamille>
+        </nompers>
+      </directeur>
+      <redacteurchef typerc="regulier" sexe="feminin">
+        <fonction lang="fr">Rédactrice en chef</fonction>
+        <nompers>
+          <prenom>Julie</prenom>
+          <nomfamille>Desrosiers</nomfamille>
+        </nompers>
+      </redacteurchef>
+    </revue>
+    <numero id="cd0260" lang="fr">
+      <volume>53</volume>
+      <nonumero>3</nonumero>
+      <pub>
+        <periode>Septembre</periode>
+        <annee>2012</annee>
+      </pub>
+      <pubnum>
+        <date typedate="publication">2012-08-23</date>
+      </pubnum>
+    </numero>
+    <editeur>
+      <nomorg>Faculté de droit de l’Université Laval</nomorg>
+    </editeur>
+    <prodnum>
+      <nomorg>Érudit</nomorg>
+    </prodnum>
+    <diffnum>
+      <nomorg>Érudit</nomorg>
+    </diffnum>
+    <schema nom="Erudit Article" version="3.0.0" lang="fr"/>
+    <droitsauteur>Tous droits réservés © <nomorg>Université Laval</nomorg>, 2012</droitsauteur>
+  </admin>
+  <liminaire>
+    <grtitre>
+      <titre>La réception juridique de la peur : quand effrayer rime avec tuer</titre>
+    </grtitre>
+    <grauteur>
+      <auteur id="au1">
+        <nompers>
+          <prenom>Christine</prenom>
+          <nomfamille>Santerre</nomfamille>
+        </nompers>
+        <affiliation>
+          <alinea>Avocate et doctorante en droit, Université Laval et Université de Toulouse 1 Capitole (cotutelle)</alinea>
+        </affiliation>
+      </auteur>
+    </grauteur>
+    <resume typeresume="resume" lang="fr">
+      <alinea>En droit pénal canadien, deux formes d’homicide entraînent la condamnation de celui qui crée une vive émotion de peur chez autrui, engendrant incidemment son décès. D’abord, l’homicide provoqué par la peur mentionné à l’article 222 (5) (c) du Code criminel incrimine celui qui cause la mort d’une autre personne en portant cette dernière, par des menaces ou la crainte de quelque violence, à faire quelque chose qui entraîne son décès. Ensuite, l’homicide par influence sur l’esprit mentionné à l’article 222 (5) (d) rend coupable celui qui cause la mort d’un être humain, précisément d’un enfant ou d’une personne malade, en l’effrayant volontairement. La spécificité de tels crimes suscite plusieurs questionnements. Faut-il tenir responsable celui qui apeure lorsque la mort résulte d’une réaction démesurée de la victime devant la peur ? Est-il pertinent de condamner celui qui apeure une autre personne lorsqu’une telle conduite engendre des conséquences tragiques qui ne sont ni voulues ni même envisagées ? Dans quelle mesure convient-il de considérer les caractéristiques personnelles de la victime lorsque celles-ci témoignent d’une particulière vulnérabilité quant à la peur ?</alinea>
+      <alinea>L’auteure tente de répondre à de telles interrogations dans l’article qui suit. La première partie aborde l’<marquage typemarq="italique">actus reus</marquage> de l’homicide, soit la suffisance du lien de causalité lorsqu’une vive émotion de peur engendre la mort. La seconde partie est consacrée à la <marquage typemarq="italique">mens rea</marquage> d’un tel crime, c’est-à-dire à l’intentionnalité exigée chez l’instigateur de la peur afin que sa responsabilité criminelle soit retenue. Inspirée par une jurisprudence canadienne, anglaise et australienne, l’auteure conclut en formulant une triple proposition afin de garantir une meilleure répression juridique de la peur en matière d’homicide.</alinea>
+    </resume>
+    <resume typeresume="resume" lang="en">
+      <alinea>In Canadian criminal law two types of homicide entail the condemning of a person who provokes in another person deadly emotions of fear that unexpectedly causes that person’s death. First of all, homicide caused by fear under Section 222 (5) (c) Cr. C. incriminates anyone who causes the death of another person either by making threats or menacing some form of violence in order to induce that person’s fear of impending violence so as to perform some act that causes death. As such, homicide by exercising influence on volition under Section 222 (5) (d) Cr. C. makes guilty a person who causes the death of a human being, especially of a child or a sickly person by deliberately instilling fear in such persons. The specific nature of such crimes raises many questions. Must a person be held liable for having frightened another person when death results from a hypersensitive reaction of the deceased confronted with fear ? Should the person who instils fear when such behaviour causes tragic consequences that were neither sought nor even imagined by the perpetrator ? To what extent should one take into consideration the personal characteristics of the victim when they illustrate specific vulnerability when confronted by fear ?</alinea>
+      <alinea>This article seeks answers to such questions. The first part dwells upon the <marquage typemarq="italique">actus reus</marquage> of the homicide, namely considering the sufficiency of the causal link when a powerful emotion of fear causes death. The second part focuses upon the <marquage typemarq="italique">mens rea</marquage> of such a crime, namely the intent required of the perpetrator of fear such that his or her criminal liability is upheld. Inspired by Canadian, British and Australian jurisprudence, the author concludes by formulating a triple proposition so as to guarantee enhanced legal repression of fear in matters of homicide.</alinea>
+    </resume>
+  </liminaire>
+  <corps>
+    <section1 id="s1n1">
+      <no>1</no>
+      <para id="pa1">
+        <no>1</no>
+        <alinea>La peur affecte l’esprit. Elle désoriente l’individu. Il s’agit d’une réaction          affective intense en réponse à un événement qui survient de manière soudaine et menaçant          l’intégrité physique et mentale<renvoi id="re1no1" idref="no1" typeref="note">1</renvoi>. Cette émotion est          provoquée par la prise de conscience d’un danger et représente une réaction affective          normale de l’organisme exposé à une menace réelle ou imaginée<renvoi id="re1no2" idref="no2" typeref="note">2</renvoi>. C’est pour éviter une souffrance et pour garder un équilibre émotionnel que          l’individu, devant une peur de plus en plus profonde, cherche des moyens pour se rassurer.          Pour ce faire, la personne apeurée met au point une défense ou une série de défenses          pouvant se manifester en trois phases alternantes<renvoi id="re1no3" idref="no3" typeref="note">3</renvoi>.</alinea>
+      </para>
+      <para id="pa2">
+        <no>2</no>
+        <alinea>Dans un premier temps, la peur se présente comme un moteur qui déclenche des actions          dictées par l’instinct de survie, telles que le combat et la fuite. Elle offre un réflexe          indispensable en mobilisant l’organisme dans le but d’échapper aux conséquences          préjudiciables d’une situation périlleuse. L’article 222 (5) (c) du <marquage typemarq="italique">Code criminel</marquage> concerne cette première phase réactionnelle :          « Une personne commet un homicide coupable lorsqu’elle cause la mort d’un être humain […]          en portant cet être humain, par des menaces ou la crainte de quelque violence […] à faire          quelque chose qui cause sa mort. » En d’autres termes, cette disposition vise la situation          où un individu en proie à une vive émotion de peur s’inflige une blessure mortelle afin          d’échapper au mal redouté. Ce faisant, le droit pénal reconnaît que la personne aux prises          avec une vive émotion de peur puisse réagir en commettant un geste généralement traduit          par la fuite et que, dans une telle éventualité, les conséquences préjudiciables puissent          être imputées à l’instigateur de la peur, même lorsque la mort en résulte.</alinea>
+      </para>
+      <para id="pa3">
+        <no>3</no>
+        <alinea>Dans un deuxième temps, lorsque la peur engendre une horreur insurmontable ou que le          réflexe de combat et la possibilité de fuite sont inexistants, les mécanismes naturels de          réaction sont alors anéantis. La personne apeurée peut ne pas voir ou ne pas croire à la          possibilité d’une résistance devant la menace. La peur se transforme en un inhibiteur          d’action se traduisant par un état d’inertie. Dans ces circonstances, le sujet est          entraîné dans un processus de paralysie, d’indécision ou de soumission à la volonté de la          force dominante. Cette deuxième phase réactionnelle s’apparente au scénario visé par          l’article 222 (5) (d) C.cr. : « Une personne commet un homicide coupable lorsqu’elle cause          la mort d’un être humain […] en effrayant volontairement cet être humain, dans le cas d’un          enfant ou d’une personne malade. » De cette disposition transpire une situation hautement          intimidatrice alors que l’accusé suscite l’effroi, paralysant mortellement cet être humain          particulièrement vulnérable. </alinea>
+      </para>
+      <para id="pa4">
+        <no>4</no>
+        <alinea>Dans un troisième et dernier temps, la peur franchit un autre seuil et déclenche une          action paradoxale qui laisse place à une force insoupçonnée. L’individu est propulsé par          un élan hors du commun l’entraînant à défier tout péril, allant même jusqu’à supprimer la          source à l’origine de la peur. Obsédé par l’impératif d’éliminer la menace, le sujet fait          fi du péril imminent qui le guette et se lance inconsciemment dans un déchaînement de          violence afin d’éliminer l’objet de la peur<marquage typemarq="italique">.</marquage> La          troisième phase réactionnelle intervient principalement en matière de légitime défense          alors que l’accusé, craignant un danger imminent, accomplit un geste à titre          défensif<renvoi id="re1no4" idref="no4" typeref="note">4</renvoi>.</alinea>
+      </para>
+      <para id="pa5">
+        <no>5</no>
+        <alinea>La présente étude a pour objet d’analyser la réception juridique de la peur          lorsqu’une telle émotion engendre le décès de la personne apeurée, soit au regard des deux          premières phases réactionnelles invoquées. L’étape initiale consiste à déterminer si un          homicide a été commis conformément à l’article 222 (5) C.cr. et, ensuite, à évaluer si          l’accusé possède la <marquage typemarq="italique">mens rea </marquage>requise pour le          meurtre, à savoir l’intention de causer la mort ou l’intention d’infliger des lésions          corporelles qu’il savait être de nature à causer la mort conformément à l’article 229          C.cr. Dans la négative, l’homicide est celui qui est visé par l’article 234 C.cr., soit un          homicide involontaire coupable. Les commentaires formulés dans la présente étude          traiteront de cette dernière infraction, l’intention requise pour le meurtre étant          généralement absente chez celui qui suscite une peur mortelle chez autrui. Plus          précisément, la première partie de notre article porte sur l’<marquage typemarq="italique">actus reus </marquage>de l’homicide, soit au regard de la suffisance du lien de causalité          entre la peur et la mort, alors que la seconde partie aborde la <marquage typemarq="italique">mens rea</marquage> d’un tel crime, c’est-à-dire l’intentionnalité          exigée chez l’instigateur de la peur afin que sa responsabilité criminelle soit          retenue<renvoi id="re1no5" idref="no5" typeref="note">5</renvoi>. </alinea>
+      </para>
+      <para id="pa6">
+        <no>6</no>
+        <alinea>D’entrée de jeu, précisons que le spectre entourant le décès généré par la peur          commande l’instauration de balises juridiques en raison des particularités inhérentes à          cette émotion. D’une part, puisque la peur souffre d’une variabilité d’intensité qui en          complexifie son analyse, alors que, pour un comportement identique, il en résulte une          réaction contrastante en fonction de celui qui est apeuré, mais également de celui qui          apeure autrui. Et, d’autre part, en raison de cette faculté qu’ont les êtres humains de          construire des scénarios qui entretiennent et enrichissent considérablement la peur, d’où          la possibilité qu’un individu puisse se percevoir comme étant « victime » d’une situation          intimidatrice, alors qu’il s’agit du fruit de son imagination. </alinea>
+      </para>
+    </section1>
+    <section1 id="s1n2">
+      <no>2</no>
+      <titre>1 L’ambivalence juridique en matière de causalité</titre>
+      <para id="pa7">
+        <no>7</no>
+        <alinea>Nous nous pencherons dans la première partie sur un élément fondamental en matière          d’homicide, soit le lien de causalité. Il s’agit d’évaluer la suffisance de cette exigence          dans des situations plutôt inhabituelles, soit lorsqu’une vive émotion de peur entraîne la          mort. D’abord, nous exposerons la teneur d’une telle exigence causale, pour ensuite          analyser les articles 226 et 228 C.cr., dispositions législatives édictées en vue de          faciliter la détermination du lien de causalité, mais qui suscitent maints questionnements          lorsque la peur entraîne la mort.</alinea>
+      </para>
+      <section2 id="s2n1">
+        <no>2.1</no>
+        <titre>1.1 La précarité du lien causal lorsque la mort succède à la peur</titre>
+        <para id="pa8">
+          <no>8</no>
+          <alinea>La preuve du lien de causalité permet de joindre la conduite de l’accusé au crime          qui lui est reproché en établissant un rapport de cause à effet entre le comportement de          l’inculpé et le résultat interdit. En d’autres termes, le ministère public doit démontrer          que la conduite du délinquant est la cause du résultat incriminé<renvoi id="re1no6" idref="no6" typeref="note">6</renvoi>. Les propos des professeurs Côté-Harper, Rainville et Turgeon s’avèrent          particulièrement éloquents quant à l’importance d’une telle exigence :</alinea>
+          <bloccitation>
+            <alinea>La nécessité d’un lien de causalité correspond à une exigence de justice            fondamentale au sens de l’article 7 de la <marquage typemarq="italique">Charte            canadienne des droits et libertés</marquage>. Par le truchement de la causalité, le            droit s’assure en effet de ne sévir que contre les individus véritablement responsables            d’une situation donnée. L’exigence du lien de causalité a donc pour but de soustraire            l’individu moralement innocent à la répression pénale. Le fait de requérir un lien            causal conforme à la gravité de l’infraction sous-entend nécessairement une exigence            d’un état d’esprit blâmable pour établir la culpabilité<renvoi id="re1no7" idref="no7" typeref="note">7</renvoi>. </alinea>
+          </bloccitation>
+        </para>
+        <para id="pa9">
+          <no>9</no>
+          <alinea>Les difficultés liées au lien de causalité entre l’acte et le résultat émergent          principalement en matière d’homicide, la question étant de savoir si la conduite de          l’accusé constitue la cause du décès. Ce questionnement se révèle d’autant plus délicat          lorsqu’il s’agit d’évaluer la suffisance du lien causal dans l’éventualité où la mort          succède à la peur, notamment en raison de la possibilité que d’autres éléments soient          intervenus dans une telle fatalité. Il s’agit alors d’évaluer si le lien de causalité est          suffisamment probant pour imputer la responsabilité criminelle du décès à l’accusé. En          matière d’homicide involontaire coupable, il faut évaluer si la conduite de l’accusé — à          savoir l’instauration de la peur chez autrui — a contribué de façon appréciable au          décès<renvoi id="re1no8" idref="no8" typeref="note">8</renvoi>. Se pose alors la question suivante : dans quelle          mesure la personne qui en apeure une autre doit-elle être tenue criminellement responsable          des conséquences tragiques et incontrôlables qui surviennent à la personne apeurée ? Dans          de telles circonstances, est-il possible de conclure que celui qui génère l’émotion de la          peur chez autrui a véritablement <marquage typemarq="italique">causé</marquage> la mort ?          De tels questionnements méritent une attention particulière dans la mesure où le droit          pénal risque d’imputer au délinquant la responsabilité criminelle d’une conséquence          fatale, soit celle de la mort, alors que l’unique volonté de ce dernier était celle          d’effrayer autrui.</alinea>
+        </para>
+        <para id="pa10">
+          <no>10</no>
+          <alinea>S’il appert que le lien de causalité se démontre assez aisément lorsqu’un contact          physique intervient entre l’accusé et la victime, il en va différemment lorsque la          conduite ayant entraîné la mort représente une atteinte émotionnelle. Afin de pallier          cette difficulté, le législateur a notamment édicté les articles 222 (5) (c) et (d) C.cr.          qui « empêchent de conjecturer sur la question de savoir si l’acte de l’accusé serait          considéré comme étant trop éloigné pour avoir causé le résultat allégué, ou si la suite          d’événements a été interrompue par une cause subséquente qui permet de dégager l’accusé de          toute responsabilité relative aux conséquences<renvoi id="re1no9" idref="no9" typeref="note">9</renvoi> ».        </alinea>
+        </para>
+        <para id="pa11">
+          <no>11</no>
+          <alinea>La jurisprudence canadienne et anglaise fournit quelques exemples où le lien de          causalité est maintenu lorsque le décès est causé par la peur. Remarquons notamment la          suffisance du lien causal lorsqu’une personne se jette à l’extérieur d’une voiture en          mouvement afin d’éviter une agression soudaine<renvoi id="re1no10" idref="no10" typeref="note">10</renvoi>,          lorsqu’un individu saute dans une rivière afin d’échapper à son assaillant et se          noie<renvoi id="re1no11" idref="no11" typeref="note">11</renvoi> ou lorsqu’une personne tombe accidentellement d’une          fenêtre en raison de l’effroi généré par une attaque imminente<renvoi id="re1no12" idref="no12" typeref="note">12</renvoi>. Le lien de causalité est également établi dans le cas d’un bambin qui,          apeuré à l’idée d’être discipliné, dégringole les escaliers et en meurt<renvoi id="re1no13" idref="no13" typeref="note">13</renvoi>, de même que dans cette situation où une personne terrifiée par          les pierres lancées dans sa direction tente de s’enfuir, tombe et se blesse          mortellement<renvoi id="re1no14" idref="no14" typeref="note">14</renvoi>. Dans de tels exemples, la conduite de la          victime n’est pas entièrement volontaire puisqu’elle est déclenchée par la peur instaurée          par l’accusé. Ce faisant, le droit pénal estime que la cause du décès doit être attribuée          à ce dernier et que sa responsabilité criminelle mérite d’être retenue. Ainsi, un geste          fait par la victime afin de préserver sa vie ou son intégrité corporelle n’a généralement          pas pour effet de rompre le lien de causalité lorsque, tragiquement, une telle conduite          entraîne sa mort<renvoi id="re1no15" idref="no15" typeref="note">15</renvoi>.</alinea>
+        </para>
+        <para id="pa12">
+          <no>12</no>
+          <alinea>Une récente décision traitant de l’article 222 (5) (c) C.cr, l’arrêt <marquage typemarq="italique">Bouchard</marquage><renvoi id="re1no16" idref="no16" typeref="note">16</renvoi>, confirme          l’intérêt de notre étude. Plusieurs individus se rendent chez la victime pour ensuite          l’amener en voiture dans un endroit isolé, croyant que la victime leur a dérobé un coffret          contenant des stupéfiants et de l’argent. Alors qu’il est questionné quant au prétendu          vol, l’accusé inflige quelques coups à la victime qui chute dans un fossé rempli d’eau.          Détrempé et effrayé, il s’enfuit dans les bois et y décède d’hypothermie. Selon le          tribunal de première instance, plusieurs éléments permettent d’imputer la responsabilité          du décès à l’inculpé : il accuse la victime d’être l’auteur du vol auprès des          propriétaires, il planifie avec eux un moment pour se rendre à sa résidence, il participe          à sa séquestration et se montre violent et menaçant à son égard. Par ailleurs, l’accusé          déclare aux membres du groupe qu’ils ne doivent pas ressentir de la pitié pour la victime          qui a fui dans les bois et conçoit plutôt un alibi dans l’éventualité où il arriverait          malheur au fuyard. De surcroît, l’accusé omet d’aviser les autorités policières de la          disparition de la victime<renvoi id="re1no17" idref="no17" typeref="note">17</renvoi>.</alinea>
+        </para>
+        <para id="pa13">
+          <no>13</no>
+          <alinea>La Cour d’appel du Québec confirme le verdict de culpabilité, estimant que le          tribunal de première instance a appliqué correctement les principes énoncés dans l’arrêt          <marquage typemarq="italique">Nette</marquage><renvoi id="re1no18" idref="no18" typeref="note">18</renvoi> relatifs          au lien de causalité entre les gestes perpétrés par l’inculpé et le décès de la victime.          L’inculpé est tenu responsable des conséquences tragiques résultant de la fuite, bien que          l’agression initiale ne représente pas l’unique cause de la mort, alors que l’écoulement          du temps fait intervenir des éléments extérieurs à la seule conduite réprouvée, notamment          les mauvaises conditions météorologiques<renvoi id="re1no19" idref="no19" typeref="note">19</renvoi>. L’issue de          cette décision nous apparaît justifiée dans la mesure où la victime craint de revenir          prématurément et d’être de nouveau en présence d’un groupe d’individus lui voulant du          tort. Se terrer peut sûrement participer de la fuite pour peu que ce réflexe semble encore          légitime. Le but ultime est d’éviter que la victime s’expose de nouveau au danger. La          fuite ne se limite pas à une course éperdue, pour cesser où le refuge débute.</alinea>
+        </para>
+      </section2>
+      <section2 id="s2n2">
+        <no>2.2</no>
+        <titre>1.2 L’insuffisance du lien causal dans le cas d’une simple influence sur        l’esprit</titre>
+        <para id="pa14">
+          <no>14</no>
+          <alinea>Le législateur reconnaît à l’article 228 C.cr.<renvoi id="re1no20" idref="no20" typeref="note">20</renvoi> que          la simple influence sur l’esprit ne peut suffire à maintenir le lien de causalité,          c’est-à-dire que le <marquage typemarq="italique">seul</marquage> fait d’instaurer la peur          chez autrui n’est pas suffisant si la mort en résulte, sauf dans le cas d’un enfant ou          d’une personne malade. En employant l’adverbe « seulement », le législateur fait en sorte          que cette disposition soit inapplicable lorsqu’une cause additionnelle s’ajoute à          l’effroi, soit lorsque la mort résulte d’un acte illégal<renvoi id="re1no21" idref="no21" typeref="note">21</renvoi>, d’un acte négligent<renvoi id="re1no22" idref="no22" typeref="note">22</renvoi> ou d’un geste fait par          la victime en réponse à la peur<renvoi id="re1no23" idref="no23" typeref="note">23</renvoi>. Cette disposition          s’applique donc précisément à l’homicide prévu à l’article 222 (5) (d) C.cr., c’est-à-dire          lorsque l’accusé cause la mort en effrayant volontairement une personne malade ou un          enfant<renvoi id="re1no24" idref="no24" typeref="note">24</renvoi>. Il s’agit d’une forme d’homicide peu commune, en          ce sens où elle se limite à la protection d’un groupe spécifique d’individus, soit des          personnes particulièrement vulnérables<renvoi id="re1no25" idref="no25" typeref="note">25</renvoi>. Bien qu’elles          soient peu nombreuses, quelques décisions canadiennes illustrent l’usage de l’article 228          C.cr. </alinea>
+        </para>
+        <para id="pa15">
+          <no>15</no>
+          <alinea>Dans l’affaire <marquage typemarq="italique">Howard</marquage><renvoi id="re1no26" idref="no26" typeref="note">26</renvoi>, la victime est frappée par l’accusé au cours d’une altercation verbale. Bien          que la victime semble en bonne santé à la suite de l’attaque, elle s’évanouit quelques          instants plus tard et décède. La preuve médicale montre que le coup de poing reçu ne          pouvait causer directement la mort. La victime était dans un tel état de colère et          d’énervement à la suite de l’échange verbal qu’elle serait décédée indépendamment d’une          attaque physique à son égard. L’inculpé est libéré de l’accusation d’homicide involontaire          à l’étape de l’enquête préliminaire, l’effervescence émotionnelle de la victime étant la          <marquage typemarq="italique">seule </marquage>cause de son décès.</alinea>
+        </para>
+        <para id="pa16">
+          <no>16</no>
+          <alinea>Dans l’arrêt <marquage typemarq="italique">Powder</marquage><renvoi id="re1no27" idref="no27" typeref="note">27</renvoi>, l’accusé et son comparse s’introduisent par effraction dans une          résidence afin d’y subtiliser de l’alcool, croyant à tort que le propriétaire est absent.          Ce dernier est plutôt armé d’une carabine et prêt à confronter les intrus. Une altercation          s’ensuit pour prendre fin quelques instants plus tard alors que la victime, ayant de la          difficulté à respirer, est raccompagnée par l’accusé dans sa chambre afin de s’étendre. Le          lendemain matin, la victime est retrouvée sans vie, allongée dans son lit. La preuve          démontre que la victime souffrait d’une maladie du coeur préexistante et que la          défaillance cardiaque a été précipitée par la peur et le stress ressentis lors de          l’introduction par effraction des accusés dans sa résidence. En 1981, la Cour d’appel de          l’Alberta acquitte l’accusé de l’infraction d’homicide involontaire coupable en se fondant          sur l’article 228 C.cr. Puisque la mort survient en l’absence d’un contact physique, soit          uniquement à la suite d’une vive émotion de peur, une preuve additionnelle devait être          présentée par le ministère public afin d’établir que la mort ne résultait pas d’« une          influence sur l’esprit seulement » ou d’« un désordre ou [d’]une maladie résultant d’une          influence sur l’esprit seulement<renvoi id="re1no28" idref="no28" typeref="note">28</renvoi> ». Le juge Belzil          précise que « [t]he Crown had the burden of establishing beyond a reasonable doubt that a          cause or causes other than influence on the mind had contributed to the death of the          deceased<renvoi id="re1no29" idref="no29" typeref="note">29</renvoi> ».</alinea>
+        </para>
+        <para id="pa17">
+          <no>17</no>
+          <alinea>Dans une affaire semblable, l’arrêt <marquage typemarq="italique">Lépine</marquage><renvoi id="re1no30" idref="no30" typeref="note">30</renvoi>, la victime décède d’une crise cardiaque à la suite          d’une altercation avec l’accusé. Ce dernier est acquitté d’homicide involontaire puisque          le coup de poing infligé n’a aucun lien avec la mort de la victime, une telle fin tragique          étant plutôt attribuable à la mauvaise condition cardiaque et au stress subi lors de          l’échange verbal. La Cour d’appel du Québec mentionne, que « dans la mesure où le premier          juge a conclu que c’est la peur et le stress qui étaient manifestement à l’origine du          décès de la victime et non l’acte externe de violence, il pouvait appliquer l’article 228          du <marquage typemarq="italique">Code criminel</marquage>, pourvu que la victime malade          n’ait pas été effrayée volontairement<renvoi id="re1no31" idref="no31" typeref="note">31</renvoi> ». </alinea>
+        </para>
+        <para id="pa18">
+          <no>18</no>
+          <alinea>Ce faisant, le <marquage typemarq="italique">seul</marquage> fait d’instaurer la          peur chez autrui — notamment dans le contexte d’un échange verbal ou d’une altercation          physique — n’est pas suffisant pour entraîner une condamnation lorsque la mort en          résulte<renvoi id="re1no32" idref="no32" typeref="note">32</renvoi>. Néanmoins, le droit canadien semble disposé à          reconnaître l’existence du lien de causalité lors même que l’émotion de la peur contribue          au décès. Il n’est pas impensable que deux causes se cumulent et que leur effet conjugué          occasionne la mort, auquel cas il s’avère suffisant que la cause indépendante de la peur          ait joué un rôle non négligeable. C’est ainsi, que dans l’arrêt <marquage typemarq="italique">Smithers</marquage><renvoi id="re1no33" idref="no33" typeref="note">33</renvoi>, la Cour suprême          du Canada confirme la condamnation d’homicide involontaire coupable, alors que l’expertise          médicale soutient que la mort résulte de l’aspiration de corps étrangers consécutive à un          vomissement ayant pu être causé soit par le coup de pied asséné par l’accusé dans          l’estomac de la victime, soit par l’appréhension d’une telle attaque<renvoi id="re1no34" idref="no34" typeref="note">34</renvoi>. </alinea>
+        </para>
+      </section2>
+      <section2 id="s2n3">
+        <no>2.3</no>
+        <titre>1.3 La fragilité du lien causal dans le cas d’une vulnérabilité chez la        victime</titre>
+        <para id="pa19">
+          <no>19</no>
+          <alinea>L’article 226 C.cr. prévoit qu’« une maladie ou [un] désordre provenant de quelque          autre cause » n’a pas pour effet de rompre le lien de causalité. Cette disposition          reconnaît implicitement le principe de la vulnérabilité particulière de la victime voulant          qu’un assaillant prenne cette dernière dans l’état où elle se trouve<renvoi id="re1no35" idref="no35" typeref="note">35</renvoi>. Manning, Mewett et Sankoff expliquent que ce principe « meant that if the          victim happens to be infirm, weak or particularly susceptible to an injury being fatal, an          accused is not excused merely because the victim would not have died had he or she been of          normal robust constitution<renvoi id="re1no36" idref="no36" typeref="note">36</renvoi> ». Deux fondements          soutiennent cette théorie protectrice de la victime, « l’une voulant qu’une personne soit          responsable des actes dont les conséquences probables risquent d’être hautement          préjudiciables et l’autre, reposant sur la responsabilité de tout acte imprévu survenant          lors de la perpétration d’un acte illégal<renvoi id="re1no37" idref="no37" typeref="note">37</renvoi> ». En fait, le          principe de la vulnérabilité particulière de la victime « oblige les agresseurs, une fois          lancés dans une conduite dangereuse [pouvant] d’une manière prévisible causer des          blessures à autrui, à endosser la responsabilité de toutes les conséquences, y compris la          mort<renvoi id="re1no38" idref="no38" typeref="note">38</renvoi> ». </alinea>
+        </para>
+        <para id="pa20">
+          <no>20</no>
+          <alinea>Quant aux professeurs Côté-Harper, Rainville et Turgeon, ils s’interrogent à juste          titre à savoir « si les principes de justice fondamentale, particulièrement celui de la          réprobation de la condamnation de la personne qui n’a rien fait de mal ou qui n’était pas          animée d’un esprit moralement blâmable, [justifient] le maintien de la règle de la          vulnérabilité particulière de la victime<renvoi id="re1no39" idref="no39" typeref="note">39</renvoi> ». Cette          remarque nous apparaît d’autant plus pertinente lorsque la conduite réprouvée est celle          qui consiste à effrayer. Dans un tel cas, la dangerosité du comportement est          définitivement moindre que celui qui cherche à porter atteinte à l’intégrité corporelle          d’autrui. Pour sa part, Stuart estime qu’une « inflexible thin skull rule may result in          punishment for a death where the risk of death was not, nor could reasonably have been,          anticipated. It cuts across a proper culpability requirement which must be reasonably          related to the consequence<renvoi id="re1no40" idref="no40" typeref="note">40</renvoi>. » En fait, cet auteur          considère que la « théorie du crâne fragile » représente une introduction discutable d’une          règle de droit civil ayant pour objet l’indemnisation de la victime particulièrement          vulnérable. Son application en droit pénal risque d’engendrer de graves injustices, tel          qu’en témoigne le passage suivant : </alinea>
+          <bloccitation>
+            <alinea>There are surely fundamental policy differences between punishing an offender for            unexpected consequences of an act and demanding that a tortfeasor fully compensate a            peculiarly vulnerable victim. Within the confines of the causation inquiry in criminal            law, a rigid rule that the accused takes the victim as he finds her seems unnecessary            and potentially productive of grave injustice<renvoi id="re1no41" idref="no41" typeref="note">41</renvoi>.</alinea>
+          </bloccitation>
+        </para>
+        <para id="pa21">
+          <no>21</no>
+          <alinea>À notre avis, le principe de la vulnérabilité particulière de la victime ne doit pas          représenter un facteur d’aggravation de la responsabilité lorsque le délinquant ignore les          particularités qui pourraient intensifier les effets pernicieux de la peur. La gravité          objective d’une menace de mort proférée à une personne ayant vécu un grave traumatisme          n’est pas plus importante que les mêmes propos adressés à une personne ordinaire, bien que          les conséquences risquent d’être différentes. Ce faisant, nous partageons l’opinion des          professeurs Côté-Harper, Rainville et Turgeon qui expliquent ceci :</alinea>
+          <bloccitation>
+            <alinea>Si l’objectif fondamental de la théorie de la vulnérabilité de la victime est de            pénaliser davantage l’accusé en raison de la condition particulière de la victime,            malgré l’ignorance de cette situation par l’accusé, elle se rapproche dangereusement du            concept de la responsabilité absolue, sans égard à la faute ou à l’esprit blâmable de            l’accusé, car elle ignore totalement son état d’esprit. C’est pourquoi il nous semble            plus juste de considérer cet aspect de la condition particulière de la victime au plan            de la <marquage typemarq="italique">mens rea</marquage> : l’accusé qui ignore la            condition réelle de la victime est condamné selon la gravité objective de son geste            tandis que celui qui la connaît voit sa responsabilité aggravée en raison de cette            connaissance<renvoi id="re1no42" idref="no42" typeref="note">42</renvoi>.</alinea>
+          </bloccitation>
+        </para>
+        <para id="pa22">
+          <no>22</no>
+          <alinea>Si l’application de ce principe est critiquée lorsque le décès résulte d’un contact          direct entre les antagonistes, une telle réserve nous apparaît d’autant plus justifiée          lorsque la victime décède en l’absence d’une atteinte physique, mais plutôt à la suite          d’une vive émotion de peur. Dans une telle éventualité, certaines particularités          psychologiques attribuables à la victime risquent d’être invoquées, telles que les traits          de personnalité, les facultés émotionnelles ou les troubles mentaux, ce qui aura pour          effet d’élargir considérablement l’application de ce principe. Tel a été le cas dans          l’affaire <marquage typemarq="italique">A.A.</marquage><renvoi id="re1no43" idref="no43" typeref="note">43</renvoi>          où la terreur ayant agi sur le système nerveux représente la cause du décès. Reconnaissant          le principe selon lequel celui qui agresse autrui doit prendre sa victime dans l’état où          elle se trouve, le juge Stauth indique « that a more “thin skulled man” than [the victim]          would be difficult to find. He had a much enlarged and diseased heart, a predisposition to          anxiety and stress because of his retardation, and high blood pressure<renvoi id="re1no44" idref="no44" typeref="note">44</renvoi>. » De plus, le juge du procès retient certaines vulnérabilités          particulières de la victime, notamment un léger retard mental, de telle sorte qu’elle          possède « a low threshold of panic and could be more easily frustrated and intimidated          than one would expect of a man of his age and physical proportions<renvoi id="re1no45" idref="no45" typeref="note">45</renvoi> ». L’issue de cette affaire nous apparaît discutable, dans la mesure où la          responsabilité criminelle de l’accusé subit l’influence de l’état mental de la victime,          alors qu’un tel état psychologique n’est pas connu des accusés<renvoi id="re1no46" idref="no46" typeref="note">46</renvoi>.</alinea>
+        </para>
+        <para id="pa23">
+          <no>23</no>
+          <alinea>Heureusement, les craintes précédemment formulées quant à la rigueur potentielle de          la règle de la vulnérabilité de la victime en matière criminelle sont atténuées par          l’exigence que l’inculpé possède la <marquage typemarq="italique">mens rea</marquage>          exigée par l’infraction d’homicide. Ce thème occupera les pages de la seconde partie de          notre article.</alinea>
+        </para>
+      </section2>
+    </section1>
+    <section1 id="s1n3">
+      <no>3</no>
+      <titre>2 Les particularités juridiques en matière d’intentionnalité</titre>
+      <para id="pa24">
+        <no>24</no>
+        <alinea>Nous examinerons ci-dessous la <marquage typemarq="italique">mens rea </marquage>de          l’infraction d’homicide involontaire coupable. En premier lieu, l’exigence de la          prévisibilité raisonnable résultant de la conduite de l’accusé sera abordée. En deuxième          lieu, nous nous pencherons sur les particularités de la victime qui doivent être          attribuées à la « personne raisonnable » afin de prétendre à une juste appréciation des          conséquences envisageables en réponse à la peur. En troisième lieu, notre propos portera          sur l’incertitude juridique relative à cette forme d’homicide qui réclame une volonté          d’effrayer une personne malade ou un enfant.</alinea>
+      </para>
+      <section2 id="s2n4">
+        <no>3.1</no>
+        <titre>2.1 La prévisibilité raisonnable des contrecoups de la peur</titre>
+        <para id="pa25">
+          <no>25</no>
+          <alinea>Lorsqu’une personne en frappe une autre, il est relativement aisé d’entrevoir les          conséquences préjudiciables d’un tel geste. Cette prévisibilité est amoindrie lorsqu’un          individu suscite la peur chez autrui, la réaction de la personne apeurée étant pour le          moins indéterminée. La peur engendre des conséquences incertaines. Ce faisant, faut-il          tenir criminellement responsable celui qui effraie une autre personne lorsqu’une telle          conduite engendre des conséquences tragiques qui ne sont ni voulues ni même envisagées ?        </alinea>
+        </para>
+        <para id="pa26">
+          <no>26</no>
+          <alinea>La jurisprudence et la doctrine énoncent que « le critère pour la détermination de          la <marquage typemarq="italique">mens rea</marquage> dans le cas de l’homicide          involontaire coupable résultant d’un acte illégal est […] celui de la prévisibilité          objective (dans le contexte d’un acte dangereux) du risque de lésions corporelles qui ne          sont ni sans importance ni de nature passagère<renvoi id="re1no47" idref="no47" typeref="note">47</renvoi> ». Se          pose alors la question suivante : une telle exigence édictée précisément pour l’homicide          involontaire causé par un acte illégal à l’article 222 (5) (a) C.cr. doit-elle être          appliquée à l’homicide involontaire provoqué par la peur mentionné à l’article 222 (5)          (c) ? La réponse à cette interrogation se révèle incertaine. Selon Grant, Boyle et Chunn,          le critère jurisprudentiel devrait être celui de la prévisibilité objective de la          <marquage typemarq="italique">réaction</marquage> de la victime. Elles suggèrent « an          objective test based on the accused’s perception at the time. This would make the accused          guilty where the victim does something that caused his own death, when the reasonable          person, with the knowledge and capacity of the accused at the time, would have foreseen          that the victim could reasonably take such steps<renvoi id="re1no48" idref="no48" typeref="note">48</renvoi>. »</alinea>
+        </para>
+        <para id="pa27">
+          <no>27</no>
+          <alinea>Pour sa part, le professeur Parent privilégie plutôt le critère de la prévisibilité          des lésions corporelles applicable pour l’ensemble des formes d’homicide énumérées à          l’article 222 C.cr.<renvoi id="re1no49" idref="no49" typeref="note">49</renvoi>. Il s’agit de l’approche privilégiée          dans l’arrêt <marquage typemarq="italique">Bouchard</marquage><renvoi id="re1no50" idref="no50" typeref="note">50</renvoi>, cette décision invoquée précédemment où la victime décède          d’hypothermie, après avoir pris la fuite dans un boisé à la suite d’une altercation avec          un groupe d’individus. Le juge André Plante de la Cour du Québec conclut qu’« il y avait          une prévisibilité objective […] non seulement de risques d’engelure mais aussi de          mort<renvoi id="re1no51" idref="no51" typeref="note">51</renvoi> ». Certains éléments appuient une telle          affirmation, notamment l’aveu par les membres du groupe que des recherches ont été          entreprises pour retrouver la victime en raison des mauvaises conditions météorologiques.          Par ailleurs, conscients du danger et d’éventuelles représailles judiciaires, ils          s’entendent pour dire qu’ils n’étaient pas présents sur les lieux, advenant qu’il arrive          malheur à la victime. La Cour d’appel du Québec confirme le verdict de culpabilité rendu          en première instance.</alinea>
+        </para>
+        <para id="pa28">
+          <no>28</no>
+          <alinea>Le critère privilégié par la common law anglaise combine les approches précédemment          exposées en considérant non seulement la prévisibilité objective de la réaction de la          victime aux prises avec la peur, mais également la prévisibilité objective des lésions          corporelles qui en résultent. Dans l’arrêt <marquage typemarq="italique">Mackie</marquage><renvoi id="re1no52" idref="no52" typeref="note">52</renvoi>, la Cour d’appel indique : « Where the injuries are          fatal, the attempt [to escape] must be the natural consequence of an unlawful act and that          unlawful act “must be such as all sober and reasonable people would inevitably recognise          must subject the other person to, at least, the risk of some harm resulting therefrom,          albeit not serious harm”<renvoi id="re1no53" idref="no53" typeref="note">53</renvoi> ». À notre avis, ce double          critère s’avère éminemment pertinent, dans la mesure où il permet d’éviter la condamnation          de l’inculpé pour des conséquences imprévisibles ou pour une réaction démesurée de la          victime<renvoi id="re1no54" idref="no54" typeref="note">54</renvoi>. </alinea>
+        </para>
+        <para id="pa29">
+          <no>29</no>
+          <alinea>Découle implicitement d’un tel critère l’exigence de proportionnalité entre la          gravité de la conduite réprouvée et la réaction de la victime. Dans l’arrêt <marquage typemarq="italique">Williams and Davis</marquage>, le juge Stuart Smith explique qu’il          doit y avoir « some proportionality between the gravity of the threat and the action of          the deceased in seeking to escape from it<renvoi id="re1no55" idref="no55" typeref="note">55</renvoi> ». Comme          l’affirme le professeur Glanville, « [t]he reasonable foresight principle gives the jury          the opportunity of exempting the defendant where what happened is particularly unusual and          it would be unfair to hold him liable<renvoi id="re1no56" idref="no56" typeref="note">56</renvoi> ». Malgré son          importance, il convient d’éviter une interprétation trop libérale de cette exigence pour          ne pas élargir démesurément le filet de la répression pénale en matière d’homicide. Ce          commentaire s’inspire des propos tenus par Tadros : </alinea>
+          <bloccitation>
+            <alinea>[A]ll dangerous action, perhaps even all action, carries with it some possibility            that it will cause death. For much ordinary everyday action the risk will be very small            indeed, and even for ordinary every day action, the risk of death doesn’t make action            impermissible. It doesn’t even make it <marquage typemarq="italique">prima            facie</marquage> wrong. We can impose some risk of death on others without having to            justify that imposition to them. And when we act, we don’t have to take steps to rule            out all of the risks that our conduct imposes on others. Our lack of prospective            responsibility to avoid small risks of death through ordinary everyday actions is            reflected by a lack of criminal responsibility for deaths that occur through those            actions<renvoi id="re1no57" idref="no57" typeref="note">57</renvoi>. </alinea>
+          </bloccitation>
+        </para>
+        <para id="pa30">
+          <no>30</no>
+          <alinea>À la lumière de ces propos, le droit pénal reconnaît que la responsabilité          criminelle de l’accusé ne doit pas être retenue lorsque la mort résulte d’une réaction          excessive et démesurée par rapport au désir initial, qui était simplement d’effrayer. À ce          sujet, il convient de reproduire un passage de l’arrêt <marquage typemarq="italique">Roberts</marquage><renvoi id="re1no58" idref="no58" typeref="note">58</renvoi>, alors qu’une jeune femme, effrayée          par la tentative d’agression et les menaces proférées à son égard, se jette à l’extérieur          du véhicule de l’accusé et s’inflige des blessures corporelles. Au regard de la réaction          de la victime, la Cour d’appel indique ce qui suit :</alinea>
+          <bloccitation>
+            <alinea>The test is : What is the natural result of what the alleged assailant said and            did, in the sense that it was something that could reasonably have been foreseen as the            consequence of what he was saying or doing ? As it was put in on of the old cases, it            had got to be shown to be his act, and if of course the victim does something so            « daft » […] or so unexpected, not that this particular assailant did not actually            foresee it but that no reasonable man could be expected to foresee it, then it is only a            very remote and unreal sense a consequence of his assault, it is really occasioned by a            voluntary act on the part of the victim which could not reasonably be foreseen and which            breaks the chain of causation between the assault and the harm or injury<renvoi id="re1no59" idref="no59" typeref="note">59</renvoi>.</alinea>
+          </bloccitation>
+        </para>
+        <para id="pa31">
+          <no>31</no>
+          <alinea>Au demeurant, la ligne de partage entre les conséquences prévisibles et          imprévisibles se révèle ténue. Une telle prévisibilité de la réaction de la victime, et          incidemment des lésions corporelles ou de la mort, est d’autant plus difficile à établir          lorsqu’une personne en effraie une autre. Un individu peut vouloir causer une vive émotion          chez une personne, sans pour autant envisager son décès. Sans la connaissance des          particularités de la victime pouvant influer sur l’intensité de la peur ressentie, il          apparaît difficile de prétendre à une réelle prévisibilité des effets préjudiciables de la          conduite de l’inculpé. </alinea>
+        </para>
+      </section2>
+      <section2 id="s2n5">
+        <no>3.2</no>
+        <titre>2.2 La prévision des effets de la peur assurée par la connaissance</titre>
+        <para id="pa32">
+          <no>32</no>
+          <alinea>L’être humain a la capacité de réagir de différentes façons devant la peur. Il est          possible d’observer une fluctuation du degré de peur ressentie en présence de situations          inchangées. L’intensité émotive est différente pour chacun, de sorte qu’il est plausible          d’observer des réactions contrastées pour un même événement. Que deux individus redoutent          la même chose, le même fait ou la même situation ne signifie nullement qu’ils les          craignent aussi intensément, aussi durablement. Devant cette fluctuation émotionnelle et          les multiples réactions possibles, de quelle façon la prévisibilité raisonnable de lésions          corporelles résultant d’une situation de peur doit-elle être abordée ? </alinea>
+        </para>
+        <para id="pa33">
+          <no>33</no>
+          <alinea>S’il s’avère essentiel de considérer certains attributs afin d’évaluer valablement          l’intensité de la peur ressentie, une telle assertion doit néanmoins être tempérée pour          d’éviter la condamnation de celui qui n’avait nullement prévu les conséquences dramatiques          de sa conduite. S’agit-il des caractéristiques « stables », soit les déterminants          individuels ou les dispositions qui accompagnent l’individu dans chaque situation, ou, à          l’inverse, de certains états momentanés ? Faut-il aller jusqu’à considérer la sensibilité,          la vulnérabilité physique ou la fragilité psychologique de la personne apeurée ? L’affaire          <marquage typemarq="italique">Williams and Davis</marquage><renvoi id="re1no60" idref="no60" typeref="note">60</renvoi> représente l’une des rares décisions ayant abordé cette question,          alors que le juge Stuart Smith mentionne succinctement la nécessité de considérer les          caractéristiques de la victime : « The jury should consider […] whether the deceased’s          reaction in jumping from the moving car was within the range of responses which might be          expected from a victim placed in the situation which he was. The jury should bear in mind          any particular characteristic of the victim and the fact that in the agony of the moment          he may act without thought and deliberation<renvoi id="re1no61" idref="no61" typeref="note">61</renvoi>. »</alinea>
+        </para>
+        <para id="pa34">
+          <no>34</no>
+          <alinea>Pour notre part, nous estimons qu’un véritable état d’esprit blâmable passe par la          connaissance des éléments contribuant à la variabilité de la peur. Dans la mesure où          l’accusé ne connaît pas les particularités de la personne apeurée, il apparaît difficile          d’établir la prévisibilité objective de lésions corporelles graves résultant de la peur          instaurée chez autrui, exigence essentielle en vue d’obtenir une condamnation pour          l’infraction d’homicide involontaire coupable. Nous soumettons que les caractéristiques de          la victime, tant physiques que psychologiques, doivent être considérées dans l’évaluation          de l’intensité de la peur ressentie et de la réaction suscitée par une telle émotion, dans          la mesure où elles sont <marquage typemarq="italique">connues</marquage> de          l’inculpé<renvoi id="re1no62" idref="no62" typeref="note">62</renvoi>. Le critère de connaissance doit servir à          guider les tribunaux dans le processus d’inclusion ou d’exclusion des particularités          attribuables à la personne raisonnable<renvoi id="re1no63" idref="no63" typeref="note">63</renvoi>. De cette façon,          les caractéristiques aisément identifiables telles que l’âge et le sexe seront assurément          considérées<renvoi id="re1no64" idref="no64" typeref="note">64</renvoi>. </alinea>
+        </para>
+        <para id="pa35">
+          <no>35</no>
+          <alinea>En somme, s’il s’avère juste que le droit pénal sévisse contre celui qui apeure une          personne en sachant que sa cible est particulièrement vulnérable, il doit toutefois          s’abstenir en l’absence d’une connaissance à cet effet de la part de l’accusé. C’est le          caractère malicieux de la conduite qui doit être réprouvé, c’est-à-dire de susciter la          peur chez autrui en sachant qu’il souffre d’une vulnérabilité particulière. Telle est la          conduite qui mérite l’intervention du droit pénal. </alinea>
+        </para>
+      </section2>
+      <section2 id="s2n6">
+        <no>3.3</no>
+        <titre>2.3 L’incertitude liée à l’exigence de la volonté d’effrayer</titre>
+        <para id="pa36">
+          <no>36</no>
+          <alinea>L’état d’esprit exigé à l’article 222 (5) (d) C.cr. mérite de s’y attarder. Cette          disposition prévoit qu’« [u]ne personne commet un homicide coupable lorsqu’elle cause la          mort d’un être humain […] en effrayant <marquage typemarq="italique">volontairement</marquage> cet être humain, dans le cas d’un enfant ou d’une personne          malade ». Se pose notamment la question suivante : faut-il réprimer la conduite de celui          qui effraie volontairement autrui alors qu’il ne connaît pas l’état de santé précaire de          sa cible et qu’il lui est donc impossible de prévoir la crise cardiaque résultant de          l’horreur suscitée ? Afin d’y répondre, nous analyserons la portée du terme          « volontairement ». Ce mot ou des synonymes tels que « volontaire », « intentionnel » et          « intentionnellement » se retrouvent dans le libellé d’un nombre considérable de          dispositions législatives. Cet adverbe se prêtant difficilement à une définition, les          instances judiciaires lui ont attribué un sens relatif selon la gravité de l’infraction          reprochée, pouvant s’agir d’une intention générale ou d’une intention spécifique<renvoi id="re1no65" idref="no65" typeref="note">65</renvoi>. En fait, la jurisprudence n’attribue pas un sens uniforme à ce          terme, bien qu’il marque incontestablement l’exigence de la <marquage typemarq="italique">mens rea </marquage>de l’infraction.</alinea>
+        </para>
+        <para id="pa37">
+          <no>37</no>
+          <alinea>Deux approches ont été mises en évidence relativement à l’interprétation de ce          vocable. La première limite l’application du terme « volontairement » au verbe qui          sous-tend l’infraction, soit le fait d’effrayer autrui<renvoi id="re1no66" idref="no66" typeref="note">66</renvoi>.          Le ministère public doit prouver, d’une part, la perpétration volontaire d’une conduite          vouée à effrayer et, d’autre part, l’intention, l’insouciance ou la négligence quant à          l’état de la victime, à savoir qu’il s’agit d’une personne malade ou d’un enfant. La          possibilité de condamner l’inculpé sur la foi d’une simple négligence n’apparaît pas          opportune, dans la mesure où la vulnérabilité particulière de la victime constitue un          élément fondamental de ce crime. En effet, en réservant cette forme d’homicide à un enfant          ou à une personne malade, le législateur reconnaît que ces individus sont plus          vulnérables, et donc plus susceptibles de réagir fortement à la peur. Puisque « la preuve          d’une circonstance pertinente de l’infraction exige généralement un élément de          connaissance quant à cette circonstance<renvoi id="re1no67" idref="no67" typeref="note">67</renvoi> », la négligence          ne saurait suffire<marquage typemarq="italique">. </marquage>L’accusé ne doit pas, à notre          avis, être condamné en l’absence d’une véritable connaissance des éléments pertinents de          ce crime.</alinea>
+        </para>
+        <para id="pa38">
+          <no>38</no>
+          <alinea>La seconde approche veut que le terme « volontairement » concerne tous les éléments          du crime, de sorte que cet adverbe s’applique tant à l’action d’effrayer qu’à la          connaissance de l’état particulier de la victime. Selon cette approche, l’adverbe          « volontairement » fait référence à l’intention de l’accusé au regard de l’atteinte d’un          objectif, de sorte que l’inculpé doit avoir à l’esprit cette volonté d’effrayer          précisément une personne malade ou un enfant. Cette approche est la plus large et la plus          favorable aux droits de l’accusé. Il s’agit de celle qui doit être privilégiée puisqu’elle          assure la connaissance de l’ensemble des circonstances pertinentes liées au crime et          entraîne une condamnation sur la foi d’un véritable dessein malveillant. Cette seconde          approche s’avère d’autant plus appropriée qu’elle s’harmonise aux précédents propos tenus          au sujet de la prévisibilité objective de lésions corporelles voulant que les          caractéristiques de la victime soient connues de l’accusé afin qu’elles puissent être          considérées. En effet, il apparaît difficile de prétendre à une telle prévisibilité          lorsque celui qui effraie une personne ne connaît pas son état de santé ou son jeune          âge<renvoi id="re1no68" idref="no68" typeref="note">68</renvoi>.</alinea>
+        </para>
+      </section2>
+    </section1>
+    <section1 id="s1n4">
+      <no>4</no>
+      <titre>Conclusion</titre>
+      <para id="pa39">
+        <no>39</no>
+        <alinea>Au terme de notre étude, un constat s’impose : la responsabilité criminelle en          matière d’homicide causé par la peur varie en fonction de la réaction de la personne          apeurée. Pour une même conduite instaurant une telle émotion, le droit pénal formule une          réponse différente en fonction de la réaction de la victime. Celui qui, sous l’effet de la          peur, se sauve et en décède entraîne la condamnation de l’instigateur d’une telle émotion,          alors que la victime qui fige de peur et en meurt ne permet pas de faire condamner          l’accusé, à moins que celle-ci ne soit une personne malade ou un enfant. En d’autres          termes, la peur qui fait fuir permet d’obtenir une condamnation, alors que celle qui          paralyse entraîne l’acquittement. </alinea>
+      </para>
+      <para id="pa40">
+        <no>40</no>
+        <alinea>L’émotion de la peur est donc au coeur de la répression des formes d’homicide          prévues par l’article 222 (5) (c) et (d) C.cr. et requiert incidemment le façonnement de          règles juridiques adaptées à cette singulière situation. Trois éléments ressortent de          notre étude et méritent d’être réitérés pour garantir une meilleure répression juridique          de la peur en matière d’homicide :</alinea>
+      </para>
+      <listeord numeration="decimal">
+        <elemliste>
+          <alinea>d’abord, l’instauration d’un critère de prévisibilité des conséquences, au regard            tant de la réaction de la victime que des lésions corporelles qui en résultent ;          </alinea>
+        </elemliste>
+        <elemliste>
+          <alinea>ensuite, l’application d’un critère de proportionnalité entre la gravité de la            conduite ayant suscité la peur et la réaction de la victime ;</alinea>
+        </elemliste>
+        <elemliste>
+          <alinea>finalement, l’imposition d’un critère de connaissance relativement aux            particularités de la victime ayant contribué à l’intensité de la peur            ressentie.</alinea>
+        </elemliste>
+      </listeord>
+      <para id="pa41">
+        <no>41</no>
+        <alinea>De cette façon, le droit pénal canadien s’assure de réprouver l’unique conduite          véritablement répréhensible, considérant que, de façon générale, effrayer ne rime pas avec          tuer…</alinea>
+      </para>
+    </section1>
+  </corps>
+  <partiesann lang="fr">
+    <merci>
+      <alinea>L’auteure désire remercier son directeur de thèse, le professeur Pierre Rainville, pour les précieux commentaires formulés à l’égard de son texte.</alinea>
+    </merci>
+    <grnote>
+      <note id="no1">
+        <no>1</no>
+        <alinea>David <marquage typemarq="petitecap">Levinson</marquage>, James J. <marquage typemarq="petitecap">Ponzetti</marquage> et Peter F. <marquage typemarq="petitecap">Jorgensen</marquage>, <marquage typemarq="italique">Encyclopedia of Human          Emotions</marquage>, vol. 1, New York, Macmillan Reference USA, 1999, p. 258.</alinea>
+      </note>
+      <note id="no2">
+        <no>2</no>
+        <alinea>Norbert <marquage typemarq="petitecap">Sillamy </marquage>(dir.), <marquage typemarq="italique">Dictionnaire encyclopédique de psychologie</marquage>, vol. 1, Paris,          Bordas, 1980, p. 894.</alinea>
+      </note>
+      <note id="no3">
+        <no>3</no>
+        <alinea>Voir à ce sujet : Claude <marquage typemarq="petitecap">Libersan</marquage>,          <marquage typemarq="italique">Cette peur qui rend violent</marquage>, Montréal, Éditions          Liber, 2003, p. 50-54 ; Pierre <marquage typemarq="petitecap">Mannoni,          </marquage><marquage typemarq="italique">La peur</marquage>, coll. « Que sais-je ? »,          Paris, Presses universitaires de France, 1982, p. 11-16.</alinea>
+      </note>
+      <note id="no4">
+        <no>4</no>
+        <alinea>Les dispositions traitant de la légitime défense sont prévues par les articles 34 à          37 du <marquage typemarq="italique">Code criminel</marquage>, L.R.C. 1985, c.          C-46.</alinea>
+      </note>
+      <note id="no5">
+        <no>5</no>
+        <alinea>La jurisprudence canadienne étant peu abondante, nous avons dû étudier les décisions          des tribunaux anglais afin d’alimenter notre réflexion et d’enrichir notre propos. De          plus, nous ne pouvions passer sous silence l’arrêt <marquage typemarq="italique">R.          </marquage>v. <marquage typemarq="italique">Royall</marquage>, [1991] H.C.A. 27, décision          rendue par la plus haute instance de l’Australie, qui confirme une condamnation pour          meurtre, alors que la victime s’est jetée par la fenêtre de la salle de bain de son          appartement afin d’échapper aux violences imminentes de son conjoint.</alinea>
+      </note>
+      <note id="no6">
+        <no>6</no>
+        <alinea>Gisèle <marquage typemarq="petitecap">Côté-</marquage>H<marquage typemarq="petitecap">arper</marquage>, Pierre <marquage typemarq="petitecap">Rainville</marquage> et Jean <marquage typemarq="petitecap">Turgeon</marquage>, <marquage typemarq="italique">Traité de droit pénal canadien</marquage>, 4<exposant>e</exposant>          éd., Cowansville, Éditions Yvon Blais, 1998, p. 309.</alinea>
+      </note>
+      <note id="no7">
+        <no>7</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, p. 310. </alinea>
+      </note>
+      <note id="no8">
+        <no>8</no>
+        <alinea><marquage typemarq="italique">R. c. Nette</marquage>, [2001] 3 R.C.S. 488, par. 73.        </alinea>
+      </note>
+      <note id="no9">
+        <no>9</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, par. 48.</alinea>
+      </note>
+      <note id="no10">
+        <no>10</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v.<marquage typemarq="italique">          Williams and Davis</marquage>, (1992) 95 Cr. App. R. 1.</alinea>
+      </note>
+      <note id="no11">
+        <no>11</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v<marquage typemarq="italique">.          Pitts</marquage>, (1842) Car. &amp; M. 284, 174 E.R. 509.</alinea>
+      </note>
+      <note id="no12">
+        <no>12</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c<marquage typemarq="italique">.          Valade</marquage>, (1915) 26 C.C.C. 233 (C.A.Q.) ; <marquage typemarq="italique">R.          </marquage>v<marquage typemarq="italique">. Curley</marquage>, [1909] 2 Cr. App. R. 109.          Pour des exemples similaires, mais aux conséquences moins tragiques, c’est-à-dire lorsque          des blessures résultent de la peur, voir notamment : <marquage typemarq="italique">R.          </marquage>c.<marquage typemarq="italique"> Martin</marquage>, (1881) 8 Q.B.D. 54 ;          <marquage typemarq="italique">R. </marquage>v<marquage typemarq="italique">.          Beech</marquage>, (1912) 7 Cr. App. R. 197 ; <marquage typemarq="italique">R.          </marquage>c<marquage typemarq="italique">. Kissick</marquage>, (1937) 69 C.C.C. 403          (Winnipeg Police Court).</alinea>
+      </note>
+      <note id="no13">
+        <no>13</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v<marquage typemarq="italique">.          Mackie</marquage>, (1973) 57 Cr. App. R. 453.</alinea>
+      </note>
+      <note id="no14">
+        <no>14</no>
+        <alinea><marquage typemarq="italique">D.P.P. </marquage>v.<marquage typemarq="italique">          Daley (P.C.)</marquage>, [1980] L.R. 237 (C.A.).</alinea>
+      </note>
+      <note id="no15">
+        <no>15</no>
+        <alinea>Herbert Lionel Adolphus <marquage typemarq="petitecap">Hart </marquage>et          Tony<marquage typemarq="petitecap"> Honoré, </marquage><marquage typemarq="italique">Causation in the Law</marquage>, Oxford, Clarendon Press, 1959, p. 296.</alinea>
+      </note>
+      <note id="no16">
+        <no>16</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c. <marquage typemarq="italique">Bouchard</marquage>, [2009] J.Q. n<exposant>o</exposant> 635 (C.A.).</alinea>
+      </note>
+      <note id="no17">
+        <no>17</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c.<marquage typemarq="italique">          Bouchard</marquage>, [2007] J.Q. n<exposant>o</exposant> 2031, par. 28-31 (C.Q.).</alinea>
+      </note>
+      <note id="no18">
+        <no>18</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c.<marquage typemarq="italique">          Nette</marquage>, préc., note 8.</alinea>
+      </note>
+      <note id="no19">
+        <no>19</no>
+        <alinea>À l’instar du droit pénal canadien, un critère temporel est expressément prévu par          les tribunaux anglais. Le ministère public doit notamment établir « that the victim          <marquage typemarq="italique">immediately</marquage> before he sustained the injuries was          in fear of being hurt physically ; that this fear was such that it caused him to try to          escape [and] that <marquage typemarq="italique">while</marquage> he was trying to escape,          and because he was trying to escape, he met his death » : John Frederick A<marquage typemarq="petitecap">rchbord</marquage>, <marquage typemarq="italique">Archbold :          Criminal, Pleading, Evidence and Practice</marquage>, Londres, Sweet &amp; Maxwell, 2011,          p. 1832 (l’italique est de nous). Voir également : <marquage typemarq="italique">D.P.P.          </marquage>v<marquage typemarq="italique">. Daley (P.C.)</marquage>, préc., note 14, 246 ;          <marquage typemarq="italique">R. </marquage>v<marquage typemarq="italique">.          Mackie</marquage>, préc., note 13, 461. </alinea>
+      </note>
+      <note id="no20">
+        <no>20</no>
+        <alinea>Cette disposition est libellée de la façon suivante :</alinea>
+        <bloccitation>
+          <alinea>228. Nul ne commet un homicide coupable lorsqu’il cause la mort d’un être            humain :</alinea>
+          <alinea>soit par une influence sur l’esprit seulement ;</alinea>
+          <alinea>soit par un désordre ou une maladie résultant d’une influence sur l’esprit            seulement.</alinea>
+          <alinea>Toutefois, le présent article ne s’applique pas lorsqu’une personne cause la mort            d’un enfant ou d’une personne malade en l’effrayant volontairement.</alinea>
+        </bloccitation>
+      </note>
+      <note id="no21">
+        <no>21</no>
+        <alinea>C.cr., art. 222 (5) (a).</alinea>
+      </note>
+      <note id="no22">
+        <no>22</no>
+        <alinea>C.cr., art. 222 (5) (b).</alinea>
+      </note>
+      <note id="no23">
+        <no>23</no>
+        <alinea>C.cr., art. 222 (5) (c).</alinea>
+      </note>
+      <note id="no24">
+        <no>24</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v. <marquage typemarq="italique">A.A</marquage>., [1980] O.J. n<exposant>o</exposant> 2375, par. 31 (P.C.) ; Isabel          <marquage typemarq="petitecap">Grant</marquage>, Dorothy <marquage typemarq="petitecap">Chunn</marquage> et Christine <marquage typemarq="petitecap">Boyle</marquage>, <marquage typemarq="italique">The Law of Homicide</marquage>, Scarborough, Carswell, 1994, p. 4-32 ;          Hugues <marquage typemarq="petitecap">Parent</marquage>, <marquage typemarq="italique">Traité de droit criminel</marquage>, 3<exposant>e</exposant> éd., t. 2, Montréal,          Éditions Thémis, 2008, n<exposant>o</exposant> 92, p. 65 ; Gisèle <marquage typemarq="petitecap">Côté</marquage>-<marquage typemarq="petitecap">Harper</marquage>,          Antoine D. <marquage typemarq="petitecap">Manganas</marquage> et Jean <marquage typemarq="petitecap">Turgeon</marquage>, <marquage typemarq="italique">Droit pénal          canadien</marquage>, 3<exposant>e</exposant> éd., Cowansville, Éditions Yvon Blais, 1989,          p. 239, à la note 178.</alinea>
+      </note>
+      <note id="no25">
+        <no>25</no>
+        <alinea>Certains auteurs remettent en question la pertinence de cette disposition. Voir          notamment : Morris <marquage typemarq="petitecap">Manning</marquage>, Alan W. <marquage typemarq="petitecap">Mewett</marquage> et Peter <marquage typemarq="petitecap">Sankoff</marquage>, <marquage typemarq="italique">Manning, Mewett &amp; Sankoff. Criminal          Law</marquage>, 4<exposant>e</exposant> éd., Markham, LexisNexis, 2009, p. 734 ; Eric          <marquage typemarq="petitecap">Colvin</marquage> et Sanjeev S. <marquage typemarq="petitecap">Anand</marquage>, <marquage typemarq="italique">Principles of          Criminal Law</marquage>, 3<exposant>e</exposant> éd., Toronto, Thomson Carswell, 2007, p.          155 ; I. <marquage typemarq="petitecap">Grant</marquage>, D. <marquage typemarq="petitecap">Chunn</marquage> et C. <marquage typemarq="petitecap">Boyle,          </marquage>préc., note 24, p. 4-6.</alinea>
+      </note>
+      <note id="no26">
+        <no>26</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v.<marquage typemarq="italique">          Howard</marquage>, [1913] 5 W.W.R. 838 (C. pol. Man.).</alinea>
+      </note>
+      <note id="no27">
+        <no>27</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v.<marquage typemarq="italique">          Powder</marquage>, (1981) 29 C.R. (3d) 183 (Alta. C.A.).</alinea>
+      </note>
+      <note id="no28">
+        <no>28</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, 185.</alinea>
+      </note>
+      <note id="no29">
+        <no>29</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, 188.</alinea>
+      </note>
+      <note id="no30">
+        <no>30</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c<marquage typemarq="italique">.          Lépine</marquage>, [1993] R.J.Q. 88 (<marquage typemarq="majuscule">c.a</marquage>.).</alinea>
+      </note>
+      <note id="no31">
+        <no>31</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, 91.</alinea>
+      </note>
+      <note id="no32">
+        <no>32</no>
+        <alinea>Ainsi, nous estimons que dans l’affaire <marquage typemarq="italique">R.          </marquage>c.<marquage typemarq="italique"> A.A.</marquage>, préc., note 24, par. 4, c’est          à tort que les accusés ont été reconnus coupables d’homicide involontaire, alors que          l’expertise médicale soutient que la mort résulte de la « fear or terror leading to a          rhythm disturbance in this diseased heart resulting in heart failure ».</alinea>
+      </note>
+      <note id="no33">
+        <no>33</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c.<marquage typemarq="italique">          Smithers</marquage>, [1978] 1 R.C.S. 506, par. 10.</alinea>
+      </note>
+      <note id="no34">
+        <no>34</no>
+        <alinea>Malgré l’intérêt que revêt cette décision au regard de l’émotion de la peur, une          telle situation n’est pas visée par les articles 222 (5) (c) (d) et 228 C.cr. Il s’agit          plutôt d’un homicide causé par un acte illégal prévu par l’article 222 (5) (a)          C.cr.</alinea>
+      </note>
+      <note id="no35">
+        <no>35</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c.<marquage typemarq="italique">          Nette</marquage>, préc., note 8, par. 79. Ce principe est également appelé « théorie du          crâne fragile ».</alinea>
+      </note>
+      <note id="no36">
+        <no>36</no>
+        <alinea>M. <marquage typemarq="petitecap">Manning</marquage>, A.W. <marquage typemarq="petitecap">Mewett</marquage> et P. <marquage typemarq="petitecap">Sankoff</marquage>, préc., note 25, p. 731. Une telle énumération en rapport avec la          condition physique de la victime soulève la question de savoir si les particularités          psychologiques doivent également être considérées. </alinea>
+      </note>
+      <note id="no37">
+        <no>37</no>
+        <alinea>G. <marquage typemarq="petitecap">Côté-Harper</marquage>, P. <marquage typemarq="petitecap">Rainville</marquage> et J. <marquage typemarq="petitecap">Turgeon,</marquage> préc., note 6, p. 328. </alinea>
+      </note>
+      <note id="no38">
+        <no>38</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c<marquage typemarq="italique">.          Creighton</marquage>, [1993] 3 R.C.S. 3, par. 95.</alinea>
+      </note>
+      <note id="no39">
+        <no>39</no>
+        <alinea>G. <marquage typemarq="petitecap">Côté-Harper</marquage>, P. <marquage typemarq="petitecap">Rainville</marquage> et J. <marquage typemarq="petitecap">Turgeon,</marquage> préc., note 6, p. 330.</alinea>
+      </note>
+      <note id="no40">
+        <no>40</no>
+        <alinea>Don S<marquage typemarq="petitecap">tuart</marquage>, <marquage typemarq="italique">Canadian Criminal Law</marquage>.<marquage typemarq="italique"> A Treatise</marquage>,          6<exposant>e</exposant> éd., Scarborough, Thomson Carswell, 2007, p. 154.</alinea>
+      </note>
+      <note id="no41">
+        <no>41</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, p. 153. D’autres auteurs sont en          désaccord avec l’application du principe de la vulnérabilité particulière de victime en          droit pénal. Voir à cet effet : William <marquage typemarq="petitecap">Glanville,</marquage><marquage typemarq="italique">Textbook of Criminal Law</marquage>,          Londres, Stevens &amp; Sons, 1978, p. 346 ; E. <marquage typemarq="petitecap">Colvin</marquage> et S.S. <marquage typemarq="petitecap">Anand</marquage>, préc., note          25, p. 72.</alinea>
+      </note>
+      <note id="no42">
+        <no>42</no>
+        <alinea>G. <marquage typemarq="petitecap">Côté-Harper</marquage>, P. <marquage typemarq="petitecap">Rainville</marquage> et J. <marquage typemarq="petitecap">Turgeon</marquage>, préc., note 6, p. 330 et 331.</alinea>
+      </note>
+      <note id="no43">
+        <no>43</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v. <marquage typemarq="italique">A.A</marquage>., préc., note 24.</alinea>
+      </note>
+      <note id="no44">
+        <no>44</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, par. 22.</alinea>
+      </note>
+      <note id="no45">
+        <no>45</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, par. 9.</alinea>
+      </note>
+      <note id="no46">
+        <no>46</no>
+        <alinea>
+          <marquage typemarq="italique">Id.</marquage>
+        </alinea>
+      </note>
+      <note id="no47">
+        <no>47</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c<marquage typemarq="italique">.          Creighton</marquage>, préc., note 38, par. 78. Voir également : <marquage typemarq="italique">R. </marquage>c<marquage typemarq="italique">. Nette</marquage>,          préc., note 8, par. 79 ; les professeurs G. <marquage typemarq="petitecap">Côté-Harper</marquage>, P. <marquage typemarq="petitecap">Rainville</marquage> et J.          <marquage typemarq="petitecap">Turgeon</marquage>, préc., note 6, p. 330, sont d’autant          plus catégoriques à ce sujet :</alinea>
+        <bloccitation>
+          <alinea>La reconnaissance de la prévisibilité objective des conséquences, si elle élargit            le spectre de la responsabilité criminelle en adoptant la norme de l’écart marqué par            rapport au comportement de la personne raisonnable, établit une norme quant aux            conséquences qui s’opposent au principe même de la vulnérabilité particulière de la            victime. Cette règle détermine l’étendue du crime en fonction de l’état particulier de            la victime alors que la prévisibilité objective s’en tient à la norme de la personne            raisonnable ordinaire.</alinea>
+        </bloccitation>
+      </note>
+      <note id="no48">
+        <no>48</no>
+        <alinea>I. <marquage typemarq="petitecap">Grant</marquage>, D. <marquage typemarq="petitecap">Chunn</marquage> et C. <marquage typemarq="petitecap">Boyle</marquage>, préc., note 24, p. 4-31.</alinea>
+      </note>
+      <note id="no49">
+        <no>49</no>
+        <alinea>H. <marquage typemarq="petitecap">Parent</marquage>, préc., note 24, p. 69.</alinea>
+      </note>
+      <note id="no50">
+        <no>50</no>
+        <alinea><marquage typemarq="italique">R</marquage>. c. <marquage typemarq="italique">Bouchard</marquage>, préc., note 16. </alinea>
+      </note>
+      <note id="no51">
+        <no>51</no>
+        <alinea><marquage typemarq="italique">R. </marquage>c.<marquage typemarq="italique">          Bouchard</marquage>, préc., note 17, par. 31.</alinea>
+      </note>
+      <note id="no52">
+        <no>52</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v<marquage typemarq="italique">.          Mackie</marquage>, préc., note 13.</alinea>
+      </note>
+      <note id="no53">
+        <no>53</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, 459 et 460 (C.A.). Voir également :          <marquage typemarq="italique">D.P.P. </marquage>v<marquage typemarq="italique">. Daley          (P.C.)</marquage>, préc., note 14, 246 ; John Frederick A<marquage typemarq="petitecap">rchbord</marquage>, préc., note 19, p. 1832.</alinea>
+      </note>
+      <note id="no54">
+        <no>54</no>
+        <alinea>H.L.A. <marquage typemarq="petitecap">Hart</marquage> et T. <marquage typemarq="petitecap">Honoré</marquage>, préc., note 15, p. 297, partagent cet avis et          estiment qu’une réaction déraisonnable de la part de la victime a pour effet de rompre le          lien de causalité. </alinea>
+      </note>
+      <note id="no55">
+        <no>55</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v.<marquage typemarq="italique">          Williams and Davis</marquage>, préc., note 10, 6. Voir également l’arrêt <marquage typemarq="italique">R. </marquage>v. <marquage typemarq="italique">Royall</marquage>,          préc., note 5, par. 3, où le juge Brennan indique qu’une réaction disproportionnée de la          part de la victime devant la situation menaçante a pour effet de rompre le lien de          causalité.</alinea>
+      </note>
+      <note id="no56">
+        <no>56</no>
+        <alinea>W. <marquage typemarq="petitecap">Glanville</marquage>, préc., note 41, p.          334.</alinea>
+      </note>
+      <note id="no57">
+        <no>57</no>
+        <alinea>Victor <marquage typemarq="petitecap">Tadros</marquage>, « The Limits of          Manslaughter », dans Christopher M.V. <marquage typemarq="petitecap">Clarkson          </marquage>et Sally R. <marquage typemarq="petitecap">Cunningham,</marquage><marquage typemarq="italique">Criminal Liability for Non-Aggressive Death</marquage>, Burlington,          Ashgate, 2008, p. 35, à la page 45.</alinea>
+      </note>
+      <note id="no58">
+        <no>58</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v.<marquage typemarq="italique">          Roberts</marquage>, [1972] 56 Cr. App. R. 95.</alinea>
+      </note>
+      <note id="no59">
+        <no>59</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, 102. Dans l’affaire <marquage typemarq="italique">R. </marquage>v.<marquage typemarq="italique"> McEnery</marquage>,          1943 S.R. 158, la réaction de la victime est jugée déraisonnable, ce qui entraînera          incidemment l’acquittement de l’accusé. </alinea>
+      </note>
+      <note id="no60">
+        <no>60</no>
+        <alinea><marquage typemarq="italique">R. </marquage>v.<marquage typemarq="italique">          Williams and Davis</marquage>, préc., note 10.</alinea>
+      </note>
+      <note id="no61">
+        <no>61</no>
+        <alinea><marquage typemarq="italique">Id.</marquage>, 8.</alinea>
+      </note>
+      <note id="no62">
+        <no>62</no>
+        <alinea>Bien que nous abordions dans notre étude les caractéristiques attribuables à la          victime, les particularités de l’accusé nous apparaissent tout autant importantes en vue          d’aspirer à une juste évaluation de la peur ressentie, de même que les circonstances          entourant l’événement tragique. C’est ainsi que dans l’affaire <marquage typemarq="italique">R. </marquage>v<marquage typemarq="italique">. Mackie</marquage>,          préc., note 13, 462, la Cour d’appel confirme les directives données par le juge de          première instance à l’effet que « [t]he previous relationship between the boy and the          accused man is only relevant […] when you are considering what was the boy’s reaction to          whatever the accused man did on the day of the boy’s death ».</alinea>
+      </note>
+      <note id="no63">
+        <no>63</no>
+        <alinea>G. <marquage typemarq="petitecap">Côté-Harper</marquage>, P. <marquage typemarq="petitecap">Rainville</marquage> et J. <marquage typemarq="petitecap">Turgeon</marquage>, préc., note 6, p. 330, opinent en ce sens.</alinea>
+      </note>
+      <note id="no64">
+        <no>64</no>
+        <alinea>Dans l’affaire <marquage typemarq="italique">R. </marquage>v<marquage typemarq="italique">. Mackie</marquage>, préc., note 13, la Cour d’appel énonce que le          jeune âge de l’enfant doit être considéré afin de déterminer si le bambin de 3 ans a réagi          de façon disproportionnée devant la conduite de l’accusé. Voir également l’arrêt <marquage typemarq="italique">R. </marquage>v.<marquage typemarq="italique"> Valade</marquage>,          (1915) 26 C.C.C. 233, 235 (C.A.Q.), où le juge Cross énonce que l’issue de cette affaire          « is affected in a material sense by the fact of the tender age of the girl ».</alinea>
+      </note>
+      <note id="no65">
+        <no>65</no>
+        <alinea>Jacques F<marquage typemarq="petitecap">ortin</marquage>, <marquage typemarq="italique">Droit pénal général. L’infraction</marquage>, 2<exposant>e</exposant>          éd., Montréal, Librairie de l’Université de Montréal, 1973, p. 154.</alinea>
+      </note>
+      <note id="no66">
+        <no>66</no>
+        <alinea>Le professeur Irénée <marquage typemarq="petitecap">Lagarde</marquage>, <marquage typemarq="italique">Droit pénal canadien</marquage>, 2<exposant>e</exposant> éd.,          Montréal, Wilson &amp; Lafleur, 1974, p. 477, opine en ce sens. </alinea>
+      </note>
+      <note id="no67">
+        <no>67</no>
+        <alinea>H. <marquage typemarq="petitecap">Parent</marquage>, préc., note 24,          n<exposant>o</exposant> 310, p. 223.</alinea>
+      </note>
+      <note id="no68">
+        <no>68</no>
+        <alinea>Le professeur H. <marquage typemarq="petitecap">Parent</marquage>, préc., note          24<marquage typemarq="italique">,</marquage> n<exposant>o</exposant> 96, p. 69, partage          cette opinion. </alinea>
+      </note>
+    </grnote>
+  </partiesann>
+</article>

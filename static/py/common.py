@@ -76,10 +76,14 @@ def getElementTree(xmlData):
     """ Convert an XML Element to an Element Tree """    
     return etree.ElementTree(xmlData)
 
-def parseXML(strPath):
+def parseXML(strPath=None, strText=None):
     """ Parse an xml file """
-    xmlDoc = etree.parse(strPath.strip())
-    return xmlDoc
+    if strText is not None:
+        return etree.fromstring(strText)
+    else:
+        f = open(strPath).read()
+        xmlDoc = etree.parse(cStringIO.StringIO(f))
+        return xmlDoc
 
 def parseXMLSchema(strSchemaPath):
     """ Parse an xsd schema file """

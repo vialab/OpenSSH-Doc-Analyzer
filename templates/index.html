@@ -4,14 +4,14 @@
 
 {% block page_content %}
 <div class="container-fluid" id="home-container">
-    <h2>Document Search</h2>
+    <h2>Recherche de Document</h2>
     <div class="row">
         <div class="col-md-12">
-            <input id="search-keyword-home" type="text" placeholder="Keyword Search"/>
+            <input id="search-keyword-home" type="text" placeholder="Recherche par Mot Clé"/>
         </div>
         <div class="col-md-12" id="search-suggestion">
             <div id="search-keyword-container" style="display:none;">
-                <h4>Suggestions for "<span class="keyword-heading"></span>" ...</h4>
+                <h4>Suggestions pour "<span class="keyword-heading"></span>" ...</h4>
                 <div class="custom-keyword-container homepage">
                     <div class="keyword-heading"></div>
                 </div>
@@ -19,7 +19,7 @@
                     <img class="loading" src="{{ url_for('static', filename='css/loading.gif') }}" />
                 </div>
                 <div class="no-keyword" style="display:none;">
-                    No results found
+                    Aucun Résultat Trouvé
                 </div>
             </div>
         </div>
@@ -29,12 +29,12 @@
     </div>
     <div class="row">
         <div class="col-md-12" id="analyze-doc-form">
-            <h4>Upload Document</h4>
+            <h4>Télécharger un document</h4>
             <section>
                 <div id="dropzone">
                     <form action="/upload" class="dropzone needsclick dz-clickable" id="doc-upload">
                         <div class="dz-message needsclick">
-                        Drop files here or click to upload.<br>
+                            Déposer des fichiers ici ou cliquer pour télécharger.<br>
                         </div>
                     </form>
                 </div>

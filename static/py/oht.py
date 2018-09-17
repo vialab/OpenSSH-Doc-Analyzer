@@ -414,15 +414,15 @@ class Wrapper(object):
             line_list.append(new_line)
             parent_list["root"] = False
             # only need children so include all three root categories, the earth
-            new_line = self.getCSVLine("181456","The World","root", cat="1")
+            new_line = self.getCSVLine("181456","Le Monde","root", cat="1")
             line_list.append(new_line)
             parent_list["181456"] = True
             # the mind
-            new_line = self.getCSVLine("295250","The Mind","root", cat="2")
+            new_line = self.getCSVLine("295250","L'Esprit","root", cat="2")
             line_list.append(new_line)
             parent_list["295250"] = True
             # society
-            new_line = self.getCSVLine("325638","Society","root", cat="3")
+            new_line = self.getCSVLine("325638","Société","root", cat="3")
             line_list.append(new_line)
             parent_list["325638"] = True
         else:
@@ -432,14 +432,14 @@ class Wrapper(object):
             if parent_id == "root":
                 heading_name = "root"
             else:
-                h = self.db.execQuery("select heading from heading where id=%s", (parent_id,))
+                h = self.db.execQuery("select fr_heading from heading where id=%s", (parent_id,))
                 heading_name = h[0][0]
             # set our parent as the root
             new_line = self.getCSVLine(parent_id, heading_name, tier="-1")
             line_list.append(new_line)
             parent_list[parent_id] = False
             # then add in us
-            new_line = self.getCSVLine(heading_id, root_heading.en, parent_id, cat=root_cat)
+            new_line = self.getCSVLine(heading_id, root_heading.fr, parent_id, cat=root_cat)
             line_list.append(new_line)
             parent_list[heading_id] = True
     
@@ -502,7 +502,7 @@ class Wrapper(object):
 
 
         new_line = "\"" + str(heading_id) \
-            + "\",\"" + str(name) \
+            + "\",\"" + name \
             + "\",\"" + str(parent) \
             + "\",\"" + str(size) \
             + "\",\"" + str(keyword) \
@@ -541,7 +541,7 @@ class Wrapper(object):
 
         headings = self.db.execQuery("""
             select h.id 
-            , h.heading
+            , h.fr_heading
             , h.t1
             , h.tierindex
             , case when h.t2='NA' then '1'

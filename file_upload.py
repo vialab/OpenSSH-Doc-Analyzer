@@ -42,7 +42,7 @@ results = db.execQuery("select lower(word) word, treetag from stopword where dat
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
-tm = tm.TopicModel(stop_words=aStopWord)
+# tm = tm.TopicModel(stop_words=aStopWord)
 # tm.loadModel()
 # tm.tfidf_vect.fit(tm.tf)
 # with open("./model/pkl/tm.pkl", "w+") as f:
@@ -55,6 +55,33 @@ strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
+    # p = "/Users/jayrsawal/Downloads/raw_essays/"
+    # i = 0
+    # for filename in os.listdir(p):
+    #     if filename.endswith(".xml"):
+    #         i += 1
+    #         xml = cm.parseXML(p+filename)
+    #         topic = xml.xpath("//utterance[@name='header']")
+    #         content = xml.xpath("//utterance[@name='text']")
+    #         topic_text = ""
+    #         code = ""
+    #         if len(topic) > 0:
+    #             topic_text = topic[0].text
+    #             if "Code:" in topic_text:
+    #                 code = topic_text.split(" ")[1]
+    #         db.execUpdate("""
+    #             insert into visas_index
+    #             (file_id, filename, topic, topic_code) 
+    #             values(%s, %s, %s, %s)""", (i, filename, topic_text, code))
+
+    #         full_text = ""
+    #         if len(content) > 0:
+    #             for elem in content:
+    #                 full_text += "\r\n" + elem.text
+    #         db.execUpdate("""
+    #             insert into visas
+    #             (file_id, content) 
+    #             values(%s, %s)""", (i, full_text))
     # saveParentHeadings()
     # countKeywords()
     # tm.tfidf_vect.fit(tm.tf)
@@ -132,8 +159,10 @@ def upload():
         file = request.files['file']
         # make sure upload is support file type
         if file and cm.isSupportedFile(file.filename):
-            # strText = pd.read_csv(file.stream).to_string()
             strText = file.read()
+            if file.filename.split(".")[-1] == u"xml":
+                xmlDoc = cm.parseXML(strText=strText)
+                strText = erudit.getTextFromXML(None, xmlDoc)
             if strText == "":
                 return
             # remove stopwords
@@ -218,7 +247,7 @@ def search():
                 , (search_id, k["keyword"], k["weight"], k["order"]))
 
     # find matches in the corpus
-    rank_list = corpus.matchKeyword(keyword_list, 100)
+    rank_list = corpus.matchKeyword(keyword_list, 50)
     # attach meta info for display on the documents
     search = getSearchMetaInfo(rank_list)
     return json.dumps(search)
@@ -580,7 +609,7 @@ def filterOHTWordList(words):
     for word in words:
         temp = {}
         temp["id"] = word["word"].id
-        temp["name"] = word["word"].fr
+        temp["name"] = word["word"].en
         temp["pos"] = word["word"].pos
         temp["heading_id"] = word["word"].headingid
         if word["enable"]:
@@ -1001,7 +1030,7 @@ def createMapJSON():
         doc["lat"] = result[8]
         doc["lng"] = result[9]
         doc["authorid"] = result[10]
-        doc["entitiyid"] = result[11]
+        doc["entityid"] = result[11]
         documents.append(doc)
     strCleanPath = "./model/entities.json"
     entities = createEntityMapJSON()

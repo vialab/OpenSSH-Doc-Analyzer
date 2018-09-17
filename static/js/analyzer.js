@@ -238,14 +238,14 @@ function showKeywordResults(data, cb_keyword) {
         var $box = $("<div class='keyword-container' id='keyword-" 
                 + clean_tier_index + "' tier-index='" + data[i][4] 
                 +"' heading-id='" + data[i][0] + "'>\
-            <div class='keyword-heading'>" + data[i][1] + "</div>\
+            <div class='keyword-heading'>" + data[i][2] + "</div>\
             <div class='keyword-vis' id='" + svg_path + "'></div>\
         </div>");
         $(".custom-keyword-container").after($box);
         // draw the mini-vis to the dom element
-        createNewVis("#"+svg_path, "mini-"+clean_tier_index, "/oht/"
-            , data[i][4], 100, 100, 1, false, false, false
-            , data[i][0]);
+        // createNewVis("#"+svg_path, "mini-"+clean_tier_index, "/oht/"
+        //     , data[i][4], 100, 100, 1, false, false, false
+        //     , data[i][0]);
     }
     $(".custom-keyword-container").off("click");
     $(".custom-keyword-container").on("click", function() {
@@ -392,6 +392,7 @@ function headingClicked(d, quick_search=false) {
             $(".word-box #heading-words", ".part-of-speech h4", "").html("");
             populateBOW(response.words, quick_search);
             populatePOS(response.pos, "n");
+            console.log(response);
             // set title and go
             $(".part-of-speech h4").html(response.name);
             $("#modal-tier-index").val(response.tierindex);

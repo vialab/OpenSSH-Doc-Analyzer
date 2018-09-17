@@ -15,7 +15,7 @@
             <div class="col-sm-9" id="search-dialog-main"></div>
             <div style="float: left;">
                 <div class="search-side part-of-speech">
-                    <h4>Select a Word:</h4>
+                    <h4>Sélectionner un Mot:</h4>
                     <div id="pos-words">
                     </div>
                 </div>
@@ -33,7 +33,7 @@
         <span>&times;</span>
     </button>
     <div id="search-keyword-container">
-        <h1>Search results for "<span class="keyword-heading"></span>" ...</h1>
+        <h1>Suggestions pour "<span class="keyword-heading"></span>" ...</h1>
         <div class="custom-keyword-container">
             <div class="keyword-heading"></div>
         </div>
@@ -41,18 +41,18 @@
             <img class="loading" src="{{ url_for('static', filename='css/loading.gif') }}" />
         </div>
         <div class="no-keyword" style="display:none;">
-            No results found
+            Aucun Résultat Trouvé
         </div>
     </div>
 </div>
 <div id="search-term-container">
     <div id="search-keyword-box">
-        <input type="text" id="search-keyword" placeholder="Search Keyword"/>
+        <input type="text" id="search-keyword" placeholder="Recherche par Mot Clé"/>
     </div>
     <div id="search-term-box">
         <div id="add-term"><span>+</span></div>
     </div>
-    <button id="search-btn" onclick="search();">Search</button>
+    <button id="search-btn" onclick="search();">Chercher</button>
 </div>
 <div id="search-result-container">
     <div id="journal-count">
@@ -66,7 +66,7 @@
             <div class="doc-title">{{ result["title"]|safe }}</div>
             <div class="doc-author">{{ result["author"]|safe }}</div>
             <div class="doc-cite">{{ result["citation"]|safe }}</div>
-            <h3>TOP KEYWORDS</h3>
+            <h3>MOTS CLÉS</h3>
             <ul class="doc-term" id="doc-topic">
             {% for topic in result["topiclist"] %}
             {% if topic['dist'] > 0.1 %}
@@ -76,7 +76,7 @@
             {% endif %}
             {% endfor %}
             </ul>
-            <h3>SEARCH TERMS</h3>
+            <h3>TERMES DE RECHERCHE</h3>
             <ul class="doc-term" id="doc-people">
             {% for entity in result["entitylist"] %}
             {% if entity["type"] == "nompers" %}                
