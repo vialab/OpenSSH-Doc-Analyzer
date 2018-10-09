@@ -55,6 +55,10 @@ strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
+    # results = db.execQuery("select file_id, content from toefl;")
+    # for result in results:
+    #     with open("./model/toefl/"+result[0]+".xml", "w+") as f:
+    #         f.write("<xml><essay>"+result[1]+"</essay></xml>")
     # p = "/Users/jayrsawal/Downloads/raw_essays/"
     # i = 0
     # for filename in os.listdir(p):

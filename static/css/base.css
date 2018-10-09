@@ -371,18 +371,19 @@ text {
 }
 
 .search-side {
-    position: absolute;
+    /* position: absolute; */
 }
 
 .search-side.part-of-speech {
     top: 0px;
-    height: 30%;
+    /* height: 30%; */
 }
 
 .search-side.part-of-speech #pos-words {
     height: 100%;
     border-bottom: 5px solid #eee;
     padding-bottom: 15px;
+    overflow-y: scroll;
 }
 
 #pos-words .pos-container {
@@ -390,7 +391,7 @@ text {
     padding: 5px;
     margin: 5px;
     cursor: pointer;
-    float: left;
+    /* float: left; */
 }
 
 #pos-words .pos-container.active {
@@ -408,7 +409,21 @@ text {
 
 .search-side.word-box {
     bottom: 0px;
-    height: 65%;
+    /* height: 65%; */
+}
+
+.search-side.word-box #heading-words {
+    overflow-y: scroll;
+}
+
+.search-side.word-box #heading-words .bow-word {
+    display: inline-block;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.search-side.word-box #heading-words .bow-word:hover {
+    background-color: rgba(168,209,255,0.6);
 }
 
 #search-dialog svg {
@@ -559,6 +574,114 @@ fill: brown;
 }
 
 #journal-count {
+    margin-top: 25px;
     max-width: 100%;
     overflow: scroll;
+}
+
+.node circle {
+    /* fill: #fff; */
+    stroke: steelblue;
+    stroke-width: 3px;
+  }
+  
+.node text {
+    font: 12px sans-serif;
+}
+
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 2px;
+}
+
+.select-path {
+    fill: none;
+    stroke: rgb(255, 165, 0);
+    stroke-width: 2px;
+}
+
+.node foreignObject body {
+    font-size: 1em;
+    background-color: rgba(255,255,255,0);
+    /* white-space: nowrap; */
+    overflow: visible;
+    padding-left: 5px;
+    color:black;
+}
+
+.node foreignObject body.hl-label {
+    background-color: rgba(255, 165, 0, 0.5);
+    /* color: white; */
+}
+
+
+.node circle.selected {
+    stroke: rgba(255, 165, 0);    
+}
+
+.node foreignObject body div {
+    white-space: nowrap;
+}
+
+.node foreignObject body div span.node-label {
+    white-space: nowrap;
+    display:inline-block;
+}
+
+.node foreignObject body div span.super-script {
+    position: absolute;
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.area.old {
+    fill: rgba(70, 130, 180, 0.5);
+}
+.area.new {
+    fill: rgba(255, 165, 0, 0.5);
+}
+.line {
+    fill: none;
+    stroke-width: 1.5px;
+}
+.line.old {
+    stroke: rgb(70, 130, 180);
+}
+.line.new {
+    stroke: rgb(255, 165, 0);
+}
+
+.dot {
+  stroke-width: 1.5px;
+  cursor: pointer;
+}
+.dot.old {
+    fill: steelblue;
+    stroke: steelblue;
+}
+.dot.new {
+    fill: orange;
+    stroke: orange;
+}
+
+.tool-tip {
+    position: absolute;		
+    width: 100px;					
+    height: 50px;
+    pointer-events: none;
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: black;	
+    border: 0px;		
+    border-radius: 8px;		
+    text-align: center;
+    color: white;
 }

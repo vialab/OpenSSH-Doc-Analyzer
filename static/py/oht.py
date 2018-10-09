@@ -530,7 +530,8 @@ class Wrapper(object):
                 query_tier += "."
 
             if found_na and count < 1:
-                query_tier += "%"
+                # redundant, but here to be able to wild card more tiers
+                query_tier += "NA"
                 count += 1
             elif t == "NA" and not found_na:
                 found_na = True

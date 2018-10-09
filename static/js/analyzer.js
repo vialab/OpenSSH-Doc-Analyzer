@@ -1,14 +1,14 @@
-var searching = true, peeking = false, keyword_searching = true; // toggle modes
-var target = ""; // retain which element we are editting
-var target_parent = ""; // element parent
-var target_index = ""; // element tier index
-var type_timeout; // interval that listens for last keypress
-var vis_width = $("#search-dialog-main").width();
-var selected_heading = "";
+let searching = true, peeking = false, keyword_searching = true; // toggle modes
+let target = ""; // retain which element we are editting
+let target_parent = ""; // element parent
+let target_index = ""; // element tier index
+let type_timeout; // interval that listens for last keypress
+let vis_width = $("#search-dialog-main").width();
+let selected_heading = "";
 
 // whenever a vis is clicked, open up our search dialog
 $(document).on("click", ".term-vis svg", function() {
-    var $parent = $(this).parent().parent();
+    let $parent = $(this).parent().parent();
     // deselect all other svgs
     $(".term-container").removeClass("selected");
     // select the one we just clicked
@@ -25,15 +25,15 @@ $(document).on("click", ".term-vis svg", function() {
     target_parent = $(this).parent().attr("id");
     target_index = $(this).attr("tier-index");
     // draw vis of current tier in search dialog
-    var vis_height = $(window).height()-$("#search-term-container").height();
-    var heading_id = $(".term-heading-id", $parent).val();
+    let vis_height = $(window).height()-$("#search-term-container").height();
+    let heading_id = $(".term-heading-id", $parent).val();
 
     createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
         , target_index, vis_width, vis_height, 1
         , true, true, true, heading_id, headingClicked);
 
     // set up the weight slider bar to match selection
-    var weight = $(".term-heading-weight", $parent).val();
+    let weight = $(".term-heading-weight", $parent).val();
     setWeightValue(weight);
     $("#search-dialog .slider").css("bottom"
         , $("#search-term-container").height() + 15);
@@ -55,7 +55,7 @@ $("#search-dialog").on("click", function() {
 // add a new term
 $("#add-term").on("click", function() {
     // draw vis of current tier in search dialog
-    var vis_height = $(window).height()-$("#search-term-container").height()-120;
+    let vis_height = $(window).height()-$("#search-term-container").height()-120;
     d3.select("#search-dialog-vis").remove();
     d3.select("#search-dialog-vis-parent").remove();
     d3.select("#search-dialog-vis-child").remove();
@@ -63,21 +63,9 @@ $("#add-term").on("click", function() {
         , home_tier, vis_width, vis_height, 1
         , true, true, true, null, headingClicked
     );
-    // getOhtDirectory();
-    // set up the weight slider bar to match selection
-    // setWeightValue(1);
-    // $("#search-dialog .slider").css("bottom"
-    //     , $("#search-term-container").height() + 15);
-    
+
     searching = false;
     toggleSearchDialog();
-
-    // draw the search term to dom
-    // drawSearchTerm("1.NA.NA.NA.NA.NA.NA.1", 181456, "The world", 0);
-    // open up search dialog to new term
-    // var idx = $(".term-container").length-1;
-    // if(idx < 0) idx = 0;
-    // $($(".term-container svg")[idx]).click();
 });
 
 // if we resize the screen, close the search dialog and adjust elements
@@ -89,7 +77,7 @@ $(window).on("resize", function() {
 });
 
 $("#search-keyword, #search-keyword-home").on("input click", function() {
-    var keyword = $(this).val();
+    let keyword = $(this).val();
     $(".no-keyword").hide();    
     if(!keyword_searching) {
         if(keyword != "") {
@@ -112,8 +100,8 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
         clearTimeout(type_timeout);
     }
 
-    var cb_keyword = function() {
-        var heading_id = $(this).attr("heading-id");
+    let cb_keyword = function() {
+        let heading_id = $(this).attr("heading-id");
         openExploreVis(heading_id);
     };
     
@@ -155,10 +143,10 @@ $(document).ready(function() {
     });
     $("#modal-synset").modal({show:false});
     $("#weight-slider").slider();
-    var search_id = getParameterByName("searchid");
-    var quick_search = getParameterByName("quicksearch");
-    var heading_id = getParameterByName("headingid");
-    var tier_index = getParameterByName("tierindex");
+    let search_id = getParameterByName("searchid");
+    let quick_search = getParameterByName("quicksearch");
+    let heading_id = getParameterByName("headingid");
+    let tier_index = getParameterByName("tierindex");
     if(quick_search) { 
         if(heading_id) {
             openExploreVis(heading_id);
@@ -191,13 +179,13 @@ function recoverSearch(search_id) {
         , type: "GET"
         , contentType: "application/json"
         , success: function(content) {
-            var tiers = content["tier_index"];
+            let tiers = content["tier_index"];
             home_tier = tiers.home;
             parent_tier = tiers.parent;
             child_tier = tiers.child;
-            var data = content["content"];
-            for(var i = 0; i < data.length; i++) {
-                // var weight = parseInt(data[i].weight);
+            let data = content["content"];
+            for(let i = 0; i < data.length; i++) {
+                // let weight = parseInt(data[i].weight);
                 if(data[i].keyword) {
                     drawKeyword(data[i].keyword, data[i].heading_id);
                 } else {
@@ -231,11 +219,11 @@ function showKeywordResults(data, cb_keyword) {
         $(".no-keyword").show();    
     }
     for(i in data) {
-        var clean_tier_index = data[i][4].replace(/\./g, "-");
-        var svg_path = "keyword-vis-" + clean_tier_index;
+        let clean_tier_index = data[i][4].replace(/\./g, "-");
+        let svg_path = "keyword-vis-" + clean_tier_index;
         svg_path += "-" + $("[id^=" + svg_path + "]").length.toString();
         // create the container and add to dom
-        var $box = $("<div class='keyword-container' id='keyword-" 
+        let $box = $("<div class='keyword-container' id='keyword-" 
                 + clean_tier_index + "' tier-index='" + data[i][4] 
                 +"' heading-id='" + data[i][0] + "'>\
             <div class='keyword-heading'>" + data[i][2] + "</div>\
@@ -273,7 +261,7 @@ function deleteTerm(e) {
         toggleSearchDialog();
     }
     updateJournalCount(true);
-    var e = window.event;
+    let e = window.event;
     e.cancelBubble = true;
 }
 
@@ -359,8 +347,8 @@ function toggleCarousel() {
 function togglePeek() {
     if(searching) {
         // only relevant when search dialog is open
-        var result_offset = $(window).width()-$("#search-result-container").width();
-        var search_offset = ($("#search-dialog").width()+$("#search-result-container").width()) - $(window).width();
+        let result_offset = $(window).width()-$("#search-result-container").width();
+        let search_offset = ($("#search-dialog").width()+$("#search-result-container").width()) - $(window).width();
         if(peeking) {
             // need to close
             $("#search-dialog").css("left", 0);
@@ -392,7 +380,6 @@ function headingClicked(d, quick_search=false) {
             $(".word-box #heading-words", ".part-of-speech h4", "").html("");
             populateBOW(response.words, quick_search);
             populatePOS(response.pos, "n");
-            console.log(response);
             // set title and go
             $(".part-of-speech h4").html(response.name);
             $("#modal-tier-index").val(response.tierindex);
@@ -420,8 +407,8 @@ function getSynset(elem, heading_id) {
 // populate pos for this heading onto vis
 function populatePOS(data, selected_pos) {
     $(".part-of-speech #pos-words").html("");
-    for(var i = 0; i < data.length; i ++) {
-        var html = "<div class='pos-container";
+    for(let i = 0; i < data.length; i ++) {
+        let html = "<div class='pos-container";
         if(selected_pos == data[i].pos) {
             html += " active";
         }
@@ -435,9 +422,12 @@ function populatePOS(data, selected_pos) {
 // populate bag of words for this heading onto vis
 function populateBOW(data, quick_search) {
     $(".word-box #heading-words").html("");
+    $(".search-side #heading-words").height($(window).height() 
+        - $(".search-side.part-of-speech").height() - 330);
+    $(".search-side.part-of-speech #pos-words").css("max-height", $(window).height() * 0.3);
     // add new keywords from synset
-    for(var i = 0; i < data.length; i ++) {
-        var html = "<div class='term-container text-center";
+    for(let i = 0; i < data.length; i ++) {
+        let html = "<div class='bow-word text-center";
         if(data[i]["enable"]) {
             if(quick_search) {
                 html += "' onclick='window.location.href=\"/analyzer?quicksearch=" + data[i]["id"] + "\"');'";
@@ -468,11 +458,11 @@ function reorderVis() {
 
 // what happens when a keyword is clicked in search dialog vis
 function keywordClicked(d) {
-    var new_tier_index = d.data.parent;
-    var $target = $("#"+target, "#"+target_parent);
-    var $container = $target.parent().parent();
-    var weight = ($("#weight-slider").val()-1) * 0.25;
-    var vis_size = min_size + (add_size * weight);
+    let new_tier_index = d.data.parent;
+    let $target = $("#"+target, "#"+target_parent);
+    let $container = $target.parent().parent();
+    let weight = ($("#weight-slider").val()-1) * 0.25;
+    let vis_size = min_size + (add_size * weight);
     
     // save relevant identifiers to dom for later
     saveSelection($container, d.data.heading_id
@@ -527,7 +517,7 @@ function getSearchResults( data ){
 function showSearchResults( data ) {
     $("#search-result-container .doc").remove();
     for(i in data) {
-        var $format = $("<div class='doc'> \
+        let $format = $("<div class='doc'> \
             <h3>ARTICLE</h3>\
             <div class='doc-title'></div>\
             <div class='doc-author'></div>\
@@ -538,27 +528,27 @@ function showSearchResults( data ) {
             <ul class='doc-term' id='doc-people'></ul>\
         </div>");
 
-        var doc = data[i];
+        let doc = data[i];
         $format.attr("id", doc.id);
         $("#search-result-container").append($format);
-        var $container = $(".doc#" + doc.id);
+        let $container = $(".doc#" + doc.id);
         $(".doc-title", $container).html( doc.title );
         $(".doc-author", $container).html( doc.author );
         $(".doc-cite", $container).html( doc.citation );
 
         // insert topics
-        var n = 0;
+        let n = 0;
         for(y in doc.topiclist) {
-            var topic = doc.topiclist[y];
+            let topic = doc.topiclist[y];
             if(topic.dist < 0.1) continue;
-            var dist = topic.dist * 100;
-            // var $docterm = $("<li><a id='" + topic.id 
+            let dist = topic.dist * 100;
+            // let $docterm = $("<li><a id='" + topic.id 
             //     + "' onclick='drawSearchTerm(\"" + topic.tier_index 
             //     + "\", \"" + topic.heading_id + "\",\"" + topic.heading 
             //     + "\");' class='search-term'>" + topic.thematicheading 
             //     + " | " + topic.heading + " ( " + dist.toFixed(2) 
             //     + " % )</a></li>");
-            var $docterm = $("<li><a id='" + topic.id 
+            let $docterm = $("<li><a id='" + topic.id 
                 + "' onclick='drawKeyword(\"" + topic.name+ "\",\""
                 + topic.heading_id + "\");' class='search-term'>" 
                 + (++n) + ". "+ topic.name 

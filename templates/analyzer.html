@@ -13,7 +13,7 @@
     <div id="row">
         <div class="col-sm-12">
             <div class="col-sm-9" id="search-dialog-main"></div>
-            <div style="float: left;">
+            <div class="col-sm-3">
                 <div class="search-side part-of-speech">
                     <h4>Sélectionner un Mot:</h4>
                     <div id="pos-words">
@@ -47,7 +47,7 @@
 </div>
 <div id="search-term-container">
     <div id="search-keyword-box">
-        <input type="text" id="search-keyword" placeholder="Recherche par Mot Clé"/>
+        <input type="text" id="search-keyword" placeholder="Chercher par Mot Clé"/>
     </div>
     <div id="search-term-box">
         <div id="add-term"><span>+</span></div>
@@ -57,7 +57,7 @@
 <div id="search-result-container">
     <div id="journal-count">
         <!-- <svg id="corpus-count" width="960" height="450"></svg> -->
-        <svg id="search-count" width="2880" height="250"></svg>
+        <svg id="search-count" height="250"></svg>
     </div>
     {% if search_result %}
         {% for result in search_result %}
