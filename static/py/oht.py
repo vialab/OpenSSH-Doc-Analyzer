@@ -104,11 +104,7 @@ class Heading(object):
             temp["name"] = result[1]
             temp["pos"] = result[2]
             temp["heading_id"] = result[3]
-            if result[4]:
-                bEnable = True
-            else:
-                bEnable = False
-            temp["enable"] = bEnable
+            temp["enable"] = result[4]
             words.append(temp)
         return words
 
@@ -874,6 +870,7 @@ class Wrapper(object):
                     t["tier_index"] = term[7]
                 t["weight"] = term[2]
                 t["order"] = term[3]
+                t["term_id"] = term[8]
                 # save duplicates to an array
                 if t["word"] not in term_list:
                     term_list[t["word"]] = [t]

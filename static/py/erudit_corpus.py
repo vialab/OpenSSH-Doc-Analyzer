@@ -10,27 +10,15 @@ db = db.Database()
 def matchKeyword(keyword_list, n=100):
     if len(keyword_list) == 0:
         return []
-
-    # clean list of special characters
-    clean_list = []
-    for word in keyword_list:
-        clean_list.append(re.sub('[^A-Za-z0-9]+', '', word))
-    # put them for regex search
-    keywords = " ".join(clean_list)
-    return db.execQuery("""select d.documentid
+    format_strings = ','.join(['%s'] * len(keyword_list))
+    query = """select d.documentid
         , sum(d.tfidf) score
         from doctfidf d
-        where d.termid in (
-            select termid
-            from tfidf 
-            where match(word) against(%s in boolean mode) 
-        )
+        where d.termid in (%s)
         group by d.documentid
-        order by sum(d.tfidf) desc
-        limit %s
-        """, (keywords, n))
-
-
+        order by sum(d.tfidf) desc""" % format_strings
+    return db.execQuery(query+" limit %s", tuple(keyword_list+[n]))
+    
 
 def getJournalCount(keyword_list):
     if len(keyword_list) == 0:

@@ -42,7 +42,7 @@ results = db.execQuery("select lower(word) word, treetag from stopword where dat
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
-# tm = tm.TopicModel(stop_words=aStopWord)
+tm = tm.TopicModel(stop_words=aStopWord)
 # tm.loadModel()
 # tm.tfidf_vect.fit(tm.tf)
 # with open("./model/pkl/tm.pkl", "w+") as f:
@@ -241,19 +241,21 @@ def search():
         search_id = result[0][0]
 
     keyword_list = []
+    term_list = []
+    clean_list = []
     if len(content["keyword_list"]) > 0:
         # get all keywords
         for k in content["keyword_list"]:
             keyword_list.append(k["keyword"])
+            term_list.append(k["term_id"])
             if "search_id" not in content:
                 db.execQuery("""insert into searchterm(searchid, keyword, weight, rank)
                 values(%s, %s, %s, %s); commit;"""
                 , (search_id, k["keyword"], k["weight"], k["order"]))
-
     # find matches in the corpus
-    rank_list = corpus.matchKeyword(keyword_list, 50)
+    rank_list = corpus.matchKeyword(term_list, 50)
     # attach meta info for display on the documents
-    search = getSearchMetaInfo(rank_list)
+    search = getSearchMetaInfo(rank_list, term_list)
     return json.dumps(search)
 
 
@@ -433,6 +435,7 @@ def recoverSearch(search_id):
     , h.heading
     , w.headingid
     , concat(h2.tierindex, '.', h2.tiering)
+    , th.termid
     from searchterm st
     left join search s on s.id=st.searchid
     left join heading h on h.id=st.headingid
@@ -534,7 +537,7 @@ def getJournalSearchResults(tfidf, n=10):
     return rank_list
 
 
-def getSearchMetaInfo(rank_list):
+def getSearchMetaInfo(rank_list, term_list):
     """ Get the meta info for a list of document ids """
     results = []
     start = time.time()
@@ -566,6 +569,7 @@ def getSearchMetaInfo(rank_list):
         if result[11]:
             doc["citation"] += "-" + result[11]
         doc["topiclist"] = []
+        doc["keywordlist"] = []
         doc["cossim"] = result[12]
         # get document distributions
         aTopicDist = db.execQuery("""
@@ -578,9 +582,9 @@ def getSearchMetaInfo(rank_list):
         left join heading h on h.id=t.headingid
         left join thematicheading th on th.id=h.thematicheadingid
         where d.documentid=%s
-        order by d.tfidf desc limit %s""", (doc["id"],CONST.DS_MAXTOPIC))
-
-        for topic in aTopicDist:
+        order by d.tfidf desc""", (doc["id"],))
+        unused_terms = term_list
+        for i, topic in enumerate(aTopicDist):
             temp = {}
             temp["id"] = topic[0]
             temp["name"] = topic[1]
@@ -589,8 +593,32 @@ def getSearchMetaInfo(rank_list):
             temp["thematicheading"] = topic[4]
             temp["tier_index"] = topic[5]
             temp["heading_id"] = topic[6]
-            doc["topiclist"].append(temp)
-        
+            temp["is_keyword"] = None
+            added = True
+            if topic[0] in term_list:
+                temp["is_keyword"] = 1
+            if len(doc["topiclist"]) < CONST.DS_MAXTOPIC:
+                doc["topiclist"].append(temp)
+            else:
+                if topic[0] in term_list:   
+                    temp["rank"] = i
+                    doc["keywordlist"].append(temp)
+                else:
+                    added = False
+            if added and temp["is_keyword"]==1:
+                unused_terms.remove(topic[0])
+                
+        if len(unused_terms) > 0:
+            format_string = ",".join(['%s']*len(unused_terms))
+            query = """select distinct termid, word
+            from tfidf 
+            where termid in (%s)""" % format_string
+            unused_list = db.execQuery(query, tuple(unused_terms))
+            for term in unused_list:
+                temp = {}
+                temp["id"] = term[0]
+                temp["name"] = term[1]
+                doc["keywordlist"].append(temp)
         # pull any named entities saved for this document
         doc["entitylist"] = []
         # aEntity = db.execQuery("""select entity, txt from entity where documentid=%s 

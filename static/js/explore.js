@@ -11,7 +11,7 @@ let oneclick = false;
 let click_to;
 let chart_data;
 let max_node_size = 0;
-let max_circle_size = 20;
+let max_circle_size = 50;
 let min_circle_size = 10;
 // hierarchical data conversion function from csv
 let stratify = d3.stratify()
@@ -73,7 +73,7 @@ function clicked(cb_keyword) {
             // d3.select(this).style("stroke", "rgb(220,100,100)");
             let self = this;
             d3.selectAll(".select-path").remove();
-            d3.select(this).append("path")
+            d3.select(self).append("path")
                 .attr("class", "link")
                 .attr("class", "select-path")
                 .attr('d', function(d){
@@ -94,7 +94,7 @@ function clicked(cb_keyword) {
             d3.selectAll("circle.node")
                 .attr("class", "node");
 
-            d3.select(this)
+            d3.select(self)
                 .select("foreignObject body")
                 .attr("class", "hl-label")
                 .attr("style", function(d) {
@@ -103,7 +103,7 @@ function clicked(cb_keyword) {
                     return "width:" + r + "px;";
                 });
 
-            d3.select(this)
+            d3.select(self)
                 .select("circle.node")
                 .attr("class", "node selected")
         } else {
@@ -123,7 +123,10 @@ function clicked(cb_keyword) {
             //     .paddingOuter(padding)
             //     .tile(d3.treemapBinary);
             let pack = d3.tree().size([height, width]);
-            
+            last_heading = "";
+            selected_heading = "";
+            $(".hl-label").removeClass("hl-label");
+            $(".selected").removeClass("selected");
             // update the circle pack to show new tier
             update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, true
                 , true, true, d.data.heading_id, cb_keyword);
@@ -225,8 +228,15 @@ function drawJournalCount(data, merge) {
     y.domain([0, max_freq]);
     
     let y_ticks = [];
-    for(let i=0; i<=max_freq; i++) {
-        y_ticks.push(i);
+    if(max_freq > 10) {
+        let incr = max_freq / 10;
+        for(let i=0; i<=max_freq; i=i+incr) {
+            y_ticks.push(i);
+        }
+    } else {
+        for(let i=0; i<=max_freq; i++) {
+            y_ticks.push(i);
+        }
     }
     
     let area = d3.area()
@@ -556,7 +566,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             } else {
                 d.y = 80;
             }
-            if(d.data.child_size > max_node_size) max_node_size = d.data.child_size;
+            if(parseInt(d.data.child_size) > max_node_size) max_node_size = d.data.child_size;
         });
 
         // ****************** Nodes section ***************************
@@ -567,7 +577,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
 
         // Enter any new modes at the parent's previous position.
         let nodeEnter = node.enter().append('g')
-            .attr('class', 'node')
+            .attr('class', function(d) { return 'node ' + d.id; })
             .attr("transform", function(d) {
                 if(d.parent!=null) {
                     return "translate(" + d.parent.y + "," + d.parent.x + ")";
@@ -607,13 +617,18 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             .duration(duration)
             .attr("transform", function(d) { 
                 return "translate(" + d.y + "," + d.x + ")";
+            })
+            .on("end", function(d) {
+                if(selected_heading != last_heading) {
+                    $("g.node."+selected_heading).d3click();
+                }
             });
 
         // Update the node attributes and style
         nodeUpdate.select("circle.node")
             .attr("r", function(d) {
                 let r = max_circle_size*(d.data.child_size/max_node_size)+8;
-                // if(r < min_circle_size) return min_circle_size;
+                // if(r > max_circle_size) return max_circle_size;
                 return r;
             })
             .style("fill", function(d) {
@@ -712,7 +727,6 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             }
             update(d);
         }
-
         processNextUpdateRequest();
     });
 }
@@ -814,13 +828,13 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
 }
 
 // draw the keyword in the search query box
-function drawKeyword(keyword, heading_id, draw_count = false) {
+function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
     let id = heading_id;
     if(typeof(heading_id) == "undefined") {
         id = "";
     }
     let $box = $("<div class='term-container text-center custom-keyword' id='keyword-"
-    + (new Date()).getTime() + "' onclick='openExploreVis(\"" 
+    + (new Date()).getTime() + "' data-termid='" + term_id + "' onclick='openExploreVis(\"" 
     + id + "\")'><button class='close' style='z-index:999;' onclick='deleteTerm(this);'>\
     <span>&times;</span></button><input type='hidden' class='custom-keyword-weight' value='1'/>\
     <div class='custom-keyword-heading' heading-id='" + id + "'>" + keyword + "</div></div>");
@@ -901,6 +915,7 @@ function getSearchTerms() {
             keyword_list.push( {
                 "heading_id": $(".custom-keyword-heading", $(this)).attr("heading-id"),
                 "keyword": $(".custom-keyword-heading", $(this)).html(),
+                "term_id": $(this).data("termid"),
                 "weight": $(".custom-keyword-weight", $(this)).val()-1,
                 "order": i+1
             });

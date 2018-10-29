@@ -16,7 +16,7 @@ img.loading {
 #search-result-container, #add-term, #search-box
 , #search-box table, #search-dialog, #search-dialog-title
 , #search-dialog svg, #search-dialog .slider, .term-container
-, #search-keyword-dialog, .recent-search, .recent-doc { 
+, #search-keyword-dialog, .recent-search, .recent-doc, #search-keyword { 
     -webkit-transition: all 0.2s ease;
     transition: all 0.2s ease;
 }
@@ -86,15 +86,27 @@ ul.doc-term li {
     z-index: 2;
     background-color: white;
     border-top: 1px solid lightgray;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
 }
 
 #search-keyword-box {
     position: absolute;
-    top: -50px;
+    top: -70px;
+    left: 15px
 }
 
 #search-keyword-box #search-keyword {
     height: 50px;
+    min-width: 200px;
+    padding: 0 15px;
+    border-radius: 50px;
+    border: 2px solid lightgray;
+    opacity: 0.5;
+    text-align: center;
+}
+
+#search-keyword-box #search-keyword:hover {
+    opacity: 1;
     min-width: 250px;
 }
 
@@ -157,6 +169,7 @@ ul.doc-term li {
     position: relative;
     padding: 15px;
     cursor: pointer;
+    margin: 10px;
 }
 
 .term-container:hover {
@@ -244,6 +257,15 @@ a.search-term {
     line-height: 15px;
 }
 
+a.search-term.existent {
+    background: rgba(118, 172, 98, 0.2);
+}
+
+a.search-term.non-existent {
+    text-decoration: line-through;
+    color: rgb(182, 154, 154);
+}
+
 a.search-term.active {
     background: lightgray;
     color: white;
@@ -252,7 +274,7 @@ a.search-term.active {
 a.search-term:hover {
     text-decoration: none;
     background: lightgray;
-    color: #777;
+    color: white;
 }
 
 #search-box {
@@ -326,6 +348,10 @@ text {
 .node--hover circle {
     stroke: rgba(0,150,200,0.8);
     stroke-width: 1.2px;
+}
+
+#search-dialog, #search-keyword-dialog {
+    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
 }
 
 #search-dialog, #search-keyword-dialog {

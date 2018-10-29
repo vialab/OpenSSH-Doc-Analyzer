@@ -4,7 +4,15 @@ let target_parent = ""; // element parent
 let target_index = ""; // element tier index
 let type_timeout; // interval that listens for last keypress
 let vis_width = $("#search-dialog-main").width();
+let last_heading = "";
 let selected_heading = "";
+// d3 does not support jquery.click() events for some reason
+jQuery.fn.d3click = function () {
+    this.each(function (i, e) {
+        var evt = new MouseEvent("click");
+        e.dispatchEvent(evt);
+    });
+};
 
 // whenever a vis is clicked, open up our search dialog
 $(document).on("click", ".term-vis svg", function() {
@@ -27,7 +35,7 @@ $(document).on("click", ".term-vis svg", function() {
     // draw vis of current tier in search dialog
     let vis_height = $(window).height()-$("#search-term-container").height();
     let heading_id = $(".term-heading-id", $parent).val();
-
+    selected_heading = heading_id;
     createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
         , target_index, vis_width, vis_height, 1
         , true, true, true, heading_id, headingClicked);
@@ -63,8 +71,8 @@ $("#add-term").on("click", function() {
         , home_tier, vis_width, vis_height, 1
         , true, true, true, null, headingClicked
     );
-
     searching = false;
+    selected_heading = "";
     toggleSearchDialog();
 });
 
@@ -187,7 +195,7 @@ function recoverSearch(search_id) {
             for(let i = 0; i < data.length; i++) {
                 // let weight = parseInt(data[i].weight);
                 if(data[i].keyword) {
-                    drawKeyword(data[i].keyword, data[i].heading_id);
+                    drawKeyword(data[i].keyword, data[i].heading_id, false, data[i].term_id);
                 } else {
                     drawSearchTerm(data[i].tier_index
                         , data[i].heading_id, data[i].heading, weight);
@@ -261,8 +269,7 @@ function deleteTerm(e) {
         toggleSearchDialog();
     }
     updateJournalCount(true);
-    let e = window.event;
-    e.cancelBubble = true;
+    window.event.cancelBubble = true;
 }
 
 // open or close keyword search dialog
@@ -270,10 +277,13 @@ function toggleKeywordDialog() {
     if(keyword_searching) {
         $("#search-keyword-dialog").css("left", -$(window).width()-75);
         keyword_searching = false;
+        $("#search-keyword-box").hide();
+        $("#search-keyword").val("");
     } else {
         if(searching) {
             toggleSearchDialog();
         }
+        $("#search-keyword-box").show();
         $("#search-keyword-dialog").css("left", 0);
         keyword_searching = true;
     }
@@ -295,7 +305,8 @@ function toggleSearchDialog() {
         $("#search-dialog .slider").css("margin-left", 0);
         searching = false;
         peeking = false;
-        $(".term-container").removeClass("selected");    
+        $(".term-container").removeClass("selected");
+        $("#search-keyword-box").hide();
     } else {
         if(keyword_searching) {
             toggleKeywordDialog();
@@ -310,6 +321,7 @@ function toggleSearchDialog() {
             "padding-right": "0"
         });
         searching = true;
+        $("#search-keyword-box").show();
     }
 }
 
@@ -384,7 +396,6 @@ function headingClicked(d, quick_search=false) {
             $(".part-of-speech h4").html(response.name);
             $("#modal-tier-index").val(response.tierindex);
             $("#modal-heading-id").val(d.data.heading_id);
-            selected_heading = d.data.heading_id;
         }
     });
 }
@@ -432,7 +443,7 @@ function populateBOW(data, quick_search) {
             if(quick_search) {
                 html += "' onclick='window.location.href=\"/analyzer?quicksearch=" + data[i]["id"] + "\"');'";
             } else {
-                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\", true);'";
+                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\", true, \""+data[i]["enable"]+"\");'";
             }
         } else {
             html += " no-click'";
@@ -522,10 +533,10 @@ function showSearchResults( data ) {
             <div class='doc-title'></div>\
             <div class='doc-author'></div>\
             <div class='doc-cite'></div>\
-            <h3>TOP KEYWORDS</h3>\
+            <h3>MOTS CLÉS</h3>\
             <ul class='doc-term' id='doc-topic'></ul>\
-            <h3>SEARCH TERMS</h3>\
-            <ul class='doc-term' id='doc-people'></ul>\
+            <h3>TERMES DE RECHERCHE</h3>\
+            <ul class='doc-term' id='doc-topic-term'></ul>\
         </div>");
 
         let doc = data[i];
@@ -548,12 +559,28 @@ function showSearchResults( data ) {
             //     + "\");' class='search-term'>" + topic.thematicheading 
             //     + " | " + topic.heading + " ( " + dist.toFixed(2) 
             //     + " % )</a></li>");
-            let $docterm = $("<li><a id='" + topic.id 
-                + "' onclick='drawKeyword(\"" + topic.name+ "\",\""
-                + topic.heading_id + "\");' class='search-term'>" 
-                + (++n) + ". "+ topic.name 
-                + "</a></li>");
+            let html = "<li><a id='" + topic.id 
+            + "' onclick='drawKeyword(\"" + topic.name+ "\",\""
+            + topic.heading_id + "\", false, \"" + topic.id 
+            + "\");' class='search-term";
+            if(topic.is_keyword) {
+                html += " existent";
+            }
+            html += "'>" + (++n) + ". "+ topic.name 
+            + "</a></li>";
+            let $docterm = $(html);
             $("#doc-topic", $container).append($docterm);
+        }
+        for(y in doc.keywordlist) {
+            let topic = doc.keywordlist[y];
+            let html = "<li><a id='" + topic.id + "' class='search-term ";
+            if(topic.rank) {
+                html += "existent'>" + topic.rank + ". "
+            } else {
+                html += "non-existent'>"
+            }
+            html += topic.name + "</a></li>";
+            $("#doc-topic-term", $container).append($(html));
         }
     }
 }
@@ -575,8 +602,13 @@ function animate(animation, $target) {
 
 // open up the exploration tool at a specific heading
 function openExploreVis(heading_id) {
+    if(heading_id == selected_heading) return;
     home_tier = heading_id;
     $("#add-term").click();
+    if(heading_id != selected_heading) {
+        last_heading = selected_heading;
+        selected_heading = heading_id;
+    } 
     headingClicked({"data":{"heading_id":heading_id}});
 }
 
