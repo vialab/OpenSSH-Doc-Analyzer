@@ -7,7 +7,7 @@ from lz4.frame import compress, decompress
 
 db = db.Database()
 
-def matchKeyword(keyword_list, n=100):
+def matchKeyword(keyword_list, n=100, force_include=[]):
     if len(keyword_list) == 0:
         return []
     format_strings = ','.join(['%s'] * len(keyword_list))
@@ -17,8 +17,10 @@ def matchKeyword(keyword_list, n=100):
         where d.termid in (%s)
         group by d.documentid
         order by sum(d.tfidf) desc""" % format_strings
-    return db.execQuery(query+" limit %s", tuple(keyword_list+[n]))
-    
+    results = db.execQuery(query+" limit %s", tuple(keyword_list+[n]))
+
+    return results
+
 
 def getJournalCount(keyword_list):
     if len(keyword_list) == 0:

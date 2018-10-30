@@ -583,7 +583,7 @@ def getSearchMetaInfo(rank_list, term_list):
         left join thematicheading th on th.id=h.thematicheadingid
         where d.documentid=%s
         order by d.tfidf desc""", (doc["id"],))
-        unused_terms = term_list
+        unused_terms = term_list[:]
         for i, topic in enumerate(aTopicDist):
             temp = {}
             temp["id"] = topic[0]

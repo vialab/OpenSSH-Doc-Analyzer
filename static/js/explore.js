@@ -829,15 +829,25 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
 
 // draw the keyword in the search query box
 function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
+    if(term_id != "") {
+        let $elem = $(".custom-keyword[data-termid='"+term_id+"'] .star");
+        if($elem.length > 0) {
+            $.each($elem, function() {
+                toggleStar(this);
+            });
+            return;
+        }
+    }
     let id = heading_id;
     if(typeof(heading_id) == "undefined") {
         id = "";
     }
     let $box = $("<div class='term-container text-center custom-keyword' id='keyword-"
     + (new Date()).getTime() + "' data-termid='" + term_id + "' onclick='openExploreVis(\"" 
-    + id + "\")'><button class='close' style='z-index:999;' onclick='deleteTerm(this);'>\
-    <span>&times;</span></button><input type='hidden' class='custom-keyword-weight' value='1'/>\
-    <div class='custom-keyword-heading' heading-id='" + id + "'>" + keyword + "</div></div>");
+    + id + "\")'><button class='close' style='z-index:999;'\
+     onclick='deleteTerm(this);'><span>&times;</span></button><input type='hidden' \
+     class='custom-keyword-weight' value='1'/><div class='custom-keyword-heading' heading-id='" 
+     + id + "'>" + keyword + "</div><span onclick='toggleStar(this);' class='star'>&star;</span></div>");
     $("#add-term").before($box);
     resortable();
     // we want the journal counts to show potential changes
@@ -845,6 +855,18 @@ function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
     if(draw_count) {
         updateJournalCount(true);
     }
+}
+
+// sets an html element to toggle a force inclusion for the search query 
+function toggleStar(elem, cancel_bubble=true) {
+    if($(elem).hasClass("active")) {
+        $(elem).removeClass("active");
+        $(elem).html("&star;");
+    } else {
+        $(elem).addClass("active");
+        $(elem).html("&starf;");
+    }
+    if(cancel_bubble) window.event.cancelBubble = true;
 }
 
 function resortable() {
@@ -908,9 +930,13 @@ function getJournalCount( data, merge_chart=true ) {
 }
 
 // get the current search terms in a json format
-function getSearchTerms() {
+function getSearchTerms(only_words=false) {
     let keyword_list = [];
     $("#search-term-box .term-container").each(function(i) {
+        if(only_words) {
+            keyword_list.push($(".custom-keyword-heading", $(this)).html());
+            return;
+        }
         if($(this).hasClass("custom-keyword")) {
             keyword_list.push( {
                 "heading_id": $(".custom-keyword-heading", $(this)).attr("heading-id"),

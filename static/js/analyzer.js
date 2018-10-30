@@ -527,6 +527,7 @@ function getSearchResults( data ){
 // format and display search results
 function showSearchResults( data ) {
     $("#search-result-container .doc").remove();
+    search_terms = getSearchTerms(true);
     for(i in data) {
         let $format = $("<div class='doc'> \
             <h3>ARTICLE</h3>\
@@ -535,8 +536,6 @@ function showSearchResults( data ) {
             <div class='doc-cite'></div>\
             <h3>MOTS CLÉS</h3>\
             <ul class='doc-term' id='doc-topic'></ul>\
-            <h3>TERMES DE RECHERCHE</h3>\
-            <ul class='doc-term' id='doc-topic-term'></ul>\
         </div>");
 
         let doc = data[i];
@@ -562,8 +561,9 @@ function showSearchResults( data ) {
             let html = "<li><a id='" + topic.id 
             + "' onclick='drawKeyword(\"" + topic.name+ "\",\""
             + topic.heading_id + "\", false, \"" + topic.id 
-            + "\");' class='search-term";
-            if(topic.is_keyword) {
+            + "\");' data-keyword='" + topic.name + "' class='search-term";
+            if(topic.is_keyword || $.inArray(topic.name,search_terms) != -1) {
+                topic.is_keyword = 1;
                 html += " existent";
             }
             html += "'>" + (++n) + ". "+ topic.name 
@@ -571,20 +571,49 @@ function showSearchResults( data ) {
             let $docterm = $(html);
             $("#doc-topic", $container).append($docterm);
         }
+        let has_keywords = false;
+        let has_missing = false;
+        let last_rank = 5;
+        let list_id = "#doc-topic";
+        let top_keywords = [];
+        $.each($("#doc-topic a", $container), function() {
+            top_keywords.push($(this).data("keyword"));
+        })
         for(y in doc.keywordlist) {
             let topic = doc.keywordlist[y];
             let html = "<li><a id='" + topic.id + "' class='search-term ";
+            if($.inArray(topic.name, top_keywords) != -1) continue;
             if(topic.rank) {
-                html += "existent'>" + topic.rank + ". "
+                if(!has_keywords) {
+                    has_keywords = true;
+                }
+                html = "<li>";
+                if((topic.rank - last_rank) > 1) html += "<span>...</span>";
+                html += "<a id='" + topic.id + "' class='search-term ";
+                html += "existent' onclick='forceIncludeTerm(" + topic.id + ");'>" + (topic.rank+1) + ". ";
+                last_rank = topic.rank;
             } else {
-                html += "non-existent'>"
+                if(!has_missing) {
+                    has_missing = true;
+                    $container.append($("<h3>MISSING / MUST INCLUDE (?)</h3><ul class='doc-term' id='doc-missing-term'></ul>"));
+                    list_id = "#doc-missing-term";
+                }
+                html += "non-existent' onclick='forceIncludeTerm(" + topic.id + ");'>"
             }
             html += topic.name + "</a></li>";
-            $("#doc-topic-term", $container).append($(html));
+            $(list_id, $container).append($(html));
         }
     }
 }
 
+// force the inclusion of a term (i.e. toggle its star ON)
+function forceIncludeTerm(term_id) {
+    let $elem = $(".custom-keyword[data-termid='" + term_id + "'] .star");
+    if($elem.length == 0 || $elem.hasClass("active")) return;
+    $.each($elem, function() {
+        toggleStar(this);
+    });
+}
 
 // handle animations here so we can reuse
 function animate(animation, $target) {
