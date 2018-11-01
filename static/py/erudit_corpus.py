@@ -7,18 +7,31 @@ from lz4.frame import compress, decompress
 
 db = db.Database()
 
-def matchKeyword(keyword_list, n=100, force_include=[]):
+def matchKeyword(keyword_list, n=100, must_include=[]):
     if len(keyword_list) == 0:
         return []
+    having = ""
     format_strings = ','.join(['%s'] * len(keyword_list))
-    query = """select d.documentid
-        , sum(d.tfidf) score
-        from doctfidf d
-        where d.termid in (%s)
-        group by d.documentid
-        order by sum(d.tfidf) desc""" % format_strings
-    results = db.execQuery(query+" limit %s", tuple(keyword_list+[n]))
-
+    if len(must_include) > 0:
+        query = """select d.documentid
+            , sum(d.tfidf) score
+            from doctfidf d
+            where d.termid in (%s)
+            group by d.documentid """ % format_strings
+        format_strings = ','.join(['%s'] * len(must_include))
+        having = """ having sum(case when termid in (%s) then 1 
+            else 0 end) = """ % format_strings
+        query += having + "%s order by sum(d.tfidf) desc limit %s"
+        results = db.execQuery(query, tuple(keyword_list+must_include
+        +[len(must_include)]+[n]))
+    else:
+        query = """select d.documentid
+            , sum(d.tfidf) score
+            from doctfidf d
+            where d.termid in (%s)
+            group by d.documentid
+            order by sum(d.tfidf) desc""" % format_strings
+        results = db.execQuery(query+" limit %s", tuple(keyword_list+[n]))
     return results
 
 

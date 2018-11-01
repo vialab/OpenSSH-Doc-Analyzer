@@ -30,7 +30,7 @@ img.loading {
 }
 
 .doc:hover {
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
 }
 
 .doc ul {
@@ -162,12 +162,12 @@ ul.doc-term li span {
 
 .term-container .star:hover {
     opacity: 1;
-    color: orange;
+    color: gray;
 }
 
 .term-container.custom-keyword .star.active {
     opacity: 1;
-    color: orange;
+    color: black;
     display: block;
 }
 

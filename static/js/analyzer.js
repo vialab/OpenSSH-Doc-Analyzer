@@ -195,7 +195,7 @@ function recoverSearch(search_id) {
             for(let i = 0; i < data.length; i++) {
                 // let weight = parseInt(data[i].weight);
                 if(data[i].keyword) {
-                    drawKeyword(data[i].keyword, data[i].heading_id, false, data[i].term_id);
+                    drawKeyword(data[i].keyword, data[i].heading_id, false, data[i].term_id, data[i].posdesc);
                 } else {
                     drawSearchTerm(data[i].tier_index
                         , data[i].heading_id, data[i].heading, weight);
@@ -437,13 +437,14 @@ function populateBOW(data, quick_search) {
         - $(".search-side.part-of-speech").height() - 330);
     $(".search-side.part-of-speech #pos-words").css("max-height", $(window).height() * 0.3);
     // add new keywords from synset
+    console.log(data);
     for(let i = 0; i < data.length; i ++) {
         let html = "<div class='bow-word text-center";
         if(data[i]["enable"]) {
             if(quick_search) {
                 html += "' onclick='window.location.href=\"/analyzer?quicksearch=" + data[i]["id"] + "\"');'";
             } else {
-                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\", true, \""+data[i]["enable"]+"\");'";
+                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\", true, \""+data[i]["enable"]+"\", \"" + data[i]["posdesc"] + "\");'";
             }
         } else {
             html += " no-click'";
@@ -548,6 +549,7 @@ function showSearchResults( data ) {
 
         // insert topics
         let n = 0;
+        console.log(search_terms);
         for(y in doc.topiclist) {
             let topic = doc.topiclist[y];
             if(topic.dist < 0.1) continue;
@@ -558,10 +560,10 @@ function showSearchResults( data ) {
             //     + "\");' class='search-term'>" + topic.thematicheading 
             //     + " | " + topic.heading + " ( " + dist.toFixed(2) 
             //     + " % )</a></li>");
-            let html = "<li><a id='" + topic.id 
-            + "' onclick='drawKeyword(\"" + topic.name+ "\",\""
-            + topic.heading_id + "\", false, \"" + topic.id 
-            + "\");' data-keyword='" + topic.name + "' class='search-term";
+            let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\"" 
+            + topic.name+ "\",\""+ topic.heading_id + "\", false, \"" 
+            + topic.id + "\",\"" + topic.posdesc + "\");' data-keyword='" 
+            + topic.name + "' class='search-term";
             if(topic.is_keyword || $.inArray(topic.name,search_terms) != -1) {
                 topic.is_keyword = 1;
                 html += " existent";

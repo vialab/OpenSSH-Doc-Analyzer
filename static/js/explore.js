@@ -828,7 +828,7 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
 }
 
 // draw the keyword in the search query box
-function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
+function drawKeyword(keyword, heading_id, draw_count = false, term_id = "", pos_desc = "") {
     if(term_id != "") {
         let $elem = $(".custom-keyword[data-termid='"+term_id+"'] .star");
         if($elem.length > 0) {
@@ -844,10 +844,10 @@ function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
     }
     let $box = $("<div class='term-container text-center custom-keyword' id='keyword-"
     + (new Date()).getTime() + "' data-termid='" + term_id + "' onclick='openExploreVis(\"" 
-    + id + "\")'><button class='close' style='z-index:999;'\
+    + id + "\")' title='" + pos_desc + "'><button class='close' style='z-index:999;'\
      onclick='deleteTerm(this);'><span>&times;</span></button><input type='hidden' \
      class='custom-keyword-weight' value='1'/><div class='custom-keyword-heading' heading-id='" 
-     + id + "'>" + keyword + "</div><span onclick='toggleStar(this);' class='star'>&star;</span></div>");
+     + id + "'>" + keyword + "</div><span onclick='toggleStar(this);' class='star'>&#9698;</span></div>");
     $("#add-term").before($box);
     resortable();
     // we want the journal counts to show potential changes
@@ -861,10 +861,10 @@ function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
 function toggleStar(elem, cancel_bubble=true) {
     if($(elem).hasClass("active")) {
         $(elem).removeClass("active");
-        $(elem).html("&star;");
+        $(elem).html("&#9698;");
     } else {
         $(elem).addClass("active");
-        $(elem).html("&starf;");
+        $(elem).html("&#9698;");
     }
     if(cancel_bubble) window.event.cancelBubble = true;
 }
@@ -943,7 +943,8 @@ function getSearchTerms(only_words=false) {
                 "keyword": $(".custom-keyword-heading", $(this)).html(),
                 "term_id": $(this).data("termid"),
                 "weight": $(".custom-keyword-weight", $(this)).val()-1,
-                "order": i+1
+                "order": i+1,
+                "must_include": $(".star", $(this)).hasClass("active")
             });
         }
     });

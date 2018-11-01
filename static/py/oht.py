@@ -92,9 +92,10 @@ class Heading(object):
 				, case when wc.termid in (select termid from term_cache)
 					then wc.termid
                     else null end
+                , ifnull(p.posdesc, 'noun')
             from word w
             left join tfidf wc on wc.wordid=w.id
-            left join pos p on p.pos=wc.pos
+            left join pos p on p.oht=w.pos
             where w.headingid=%s
             order by wc.id desc;""", (self.id,))
         words = []
@@ -105,6 +106,7 @@ class Heading(object):
             temp["pos"] = result[2]
             temp["heading_id"] = result[3]
             temp["enable"] = result[4]
+            temp["posdesc"] = result[5]
             words.append(temp)
         return words
 
@@ -789,6 +791,7 @@ class Wrapper(object):
         aHeading = {}
         top_freq = 0
         top_tier = ""
+        top_index = "1.NA.NA.NA.NA.NA.NA"
         for term in search_term:
             if term is None or term["heading_id"] is None:
                 continue
@@ -871,6 +874,8 @@ class Wrapper(object):
                 t["weight"] = term[2]
                 t["order"] = term[3]
                 t["term_id"] = term[8]
+                t["pos"] = term[9]
+                t["posdesc"] = term[10]
                 # save duplicates to an array
                 if t["word"] not in term_list:
                     term_list[t["word"]] = [t]

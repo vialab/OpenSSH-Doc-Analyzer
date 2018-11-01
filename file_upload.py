@@ -243,6 +243,7 @@ def search():
     keyword_list = []
     term_list = []
     clean_list = []
+    must_include = []
     if len(content["keyword_list"]) > 0:
         # get all keywords
         for k in content["keyword_list"]:
@@ -252,8 +253,10 @@ def search():
                 db.execQuery("""insert into searchterm(searchid, keyword, weight, rank)
                 values(%s, %s, %s, %s); commit;"""
                 , (search_id, k["keyword"], k["weight"], k["order"]))
+            if k["must_include"] is True:
+                must_include.append(k["term_id"])            
     # find matches in the corpus
-    rank_list = corpus.matchKeyword(term_list, 50)
+    rank_list = corpus.matchKeyword(term_list, 50, must_include)
     # attach meta info for display on the documents
     search = getSearchMetaInfo(rank_list, term_list)
     return json.dumps(search)
@@ -436,12 +439,15 @@ def recoverSearch(search_id):
     , w.headingid
     , concat(h2.tierindex, '.', h2.tiering)
     , th.termid
+    , ifnull(p.pos, 'n')
+    , ifnull(p.posdesc, 'noun')
     from searchterm st
     left join search s on s.id=st.searchid
     left join heading h on h.id=st.headingid
     left join word w on w.fr_translation = st.keyword
     left join heading h2 on h2.id=w.headingid
     left join tfidf_heading th on th.wordid=w.id
+    left join pos p on p.oht=w.pos
     where st.searchid=%s and s.ipaddr=%s
     order by st.rank""", (search_id,user_ip))
     data = oht_wrapper.aggregateByRelevance(results)
@@ -537,7 +543,7 @@ def getJournalSearchResults(tfidf, n=10):
     return rank_list
 
 
-def getSearchMetaInfo(rank_list, term_list):
+def getSearchMetaInfo(rank_list, term_list, must_include=[]):
     """ Get the meta info for a list of document ids """
     results = []
     start = time.time()
@@ -577,10 +583,13 @@ def getSearchMetaInfo(rank_list, term_list):
             , concat(h.tierindex, case when h.tiering is not null 
                 then concat('.', h.tiering) else '' end)
             , t.headingid
+            , ifnull(p.pos, 'n')
+            , ifnull(p.posdesc, 'noun')
         from doctfidf d 
         left join tfidf t on t.termid=d.termid
         left join heading h on h.id=t.headingid
         left join thematicheading th on th.id=h.thematicheadingid
+        left join pos p on p.pos=t.pos
         where d.documentid=%s
         order by d.tfidf desc""", (doc["id"],))
         unused_terms = term_list[:]
@@ -593,6 +602,8 @@ def getSearchMetaInfo(rank_list, term_list):
             temp["thematicheading"] = topic[4]
             temp["tier_index"] = topic[5]
             temp["heading_id"] = topic[6]
+            temp["pos"] = topic[7]
+            temp["posdesc"] = topic[8]
             temp["is_keyword"] = None
             added = True
             if topic[0] in term_list:
