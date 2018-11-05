@@ -204,7 +204,6 @@ def upload():
                     values(%s, %s, %s, %s, %s);
                     """, (dochash_id, idx, tfidf[idx]["tf"], tfidf[idx]["idf"]
                             , tfidf[idx]["tfidf"]))
-
             # add data to session for later
             key_term = oht_wrapper.getTfidfHeadingList(tfidf)
             session["keyterm"] = key_term
@@ -240,20 +239,18 @@ def search():
         """, close_cursor=True)
         search_id = result[0][0]
 
-    keyword_list = []
     term_list = []
     clean_list = []
     must_include = []
     if len(content["keyword_list"]) > 0:
         # get all keywords
         for k in content["keyword_list"]:
-            keyword_list.append(k["keyword"])
             term_list.append(k["term_id"])
             if "search_id" not in content:
                 db.execQuery("""insert into searchterm(searchid, keyword, weight, rank)
                 values(%s, %s, %s, %s); commit;"""
                 , (search_id, k["keyword"], k["weight"], k["order"]))
-            if k["must_include"] is True:
+            if k["must_include"]:
                 must_include.append(k["term_id"])            
     # find matches in the corpus
     rank_list = corpus.matchKeyword(term_list, 50, must_include)
@@ -325,6 +322,8 @@ def oht_csv(tier_index=None):
 @app.route("/oht/synset/<heading_id>")
 def oht_synset(heading_id):
     """ Web hook for retrieving a word heading synset """
+    if heading_id=="null":
+        heading_id = 181456
     heading = oht.Heading(heading_id)
     words = heading.Synset()
     pos = heading.PartOfSpeech()
@@ -342,12 +341,15 @@ def oht_synset(heading_id):
 def erudit_journal():
     """ Get over-arching journal distribution based on search """
     content = request.get_json()
-    keyword_list = []
+    term_list = []
+    must_include = []
     if len(content["keyword_list"]) > 0:
         # get all keywords
         for k in content["keyword_list"]:
-            keyword_list.append(k["keyword"])
-    dist = corpus.getJournalCount(keyword_list)
+            term_list.append(k["term_id"])
+            if k["must_include"]:
+                must_include.append(k["term_id"])
+    dist = corpus.getJournalCount(term_list, must_include)
     return jsonify(dist)
 
 

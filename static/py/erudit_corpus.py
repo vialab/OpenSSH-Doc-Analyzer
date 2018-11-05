@@ -35,37 +35,42 @@ def matchKeyword(keyword_list, n=100, must_include=[]):
     return results
 
 
-def getJournalCount(keyword_list):
+def getJournalCount(keyword_list, must_include):
     if len(keyword_list) == 0:
-        results = db.execQuery("""select titrerev
-            , count(*) 
-            from meta where documentid in (
-                select distinct documentid from doctfidf 
-                where termid in (select distinct termid from tfidf 
-                )
-            ) group by titrerev
-            """)
-    else:
-        # clean list of special characters
-        clean_list = []
-        for word in keyword_list:
-            clean_list.append(re.sub('[^A-Za-z0-9]+', '', word))
-        # put them for regex search
-        keywords = " ".join(clean_list)
-        results = db.execQuery("""select m.titrerev, ifnull(x.freq, 0) from meta m
+        return []
+    having = ""
+    format_strings = ','.join(['%s'] * len(keyword_list))
+    if len(must_include):
+        query = """select m.titrerev, ifnull(x.freq, 0) from meta m
             left join (
                     select titrerev, count(*) freq from meta where documentid in (
                         select distinct documentid from doctfidf 
-                        where termid in (
-                            select termid
-                            from tfidf 
-                            where match(word) against(%s in boolean mode) 
-                        )
+                        where termid in (%s)
+                        group by documentid""" % format_strings
+        format_strings = ','.join(['%s'] * len(must_include))
+        having = """ having sum(case when termid in (%s) then 1 
+            else 0 end) = """ % format_strings
+        query += having + """) group by titrerev
+                ) x on x.titrerev=m.titrerev
+            group by m.titrerev, x.freq
+            having x.freq > 0
+            order by x.freq desc;
+            """
+        results = db.execQuery(query, tuple(keyword_list+must_include
+        +[len(must_include)]))
+    else:
+        query = """select m.titrerev, ifnull(x.freq, 0) from meta m
+            left join (
+                    select titrerev, count(*) freq from meta where documentid in (
+                        select distinct documentid from doctfidf 
+                        where termid in (%s)
+                        group by documentid
                     ) group by titrerev
                 ) x on x.titrerev=m.titrerev
             group by m.titrerev, x.freq
-            order by m.titrerev;
-            """, (keywords,))
+            having x.freq > 0
+            order by x.freq desc;""" % format_strings
+        results = db.execQuery(query, tuple(keyword_list))
     freq = []
     for result in results:
         freq.append({ "name": result[0], "freq": result[1] })

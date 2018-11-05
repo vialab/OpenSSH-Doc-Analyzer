@@ -437,7 +437,6 @@ function populateBOW(data, quick_search) {
         - $(".search-side.part-of-speech").height() - 330);
     $(".search-side.part-of-speech #pos-words").css("max-height", $(window).height() * 0.3);
     // add new keywords from synset
-    console.log(data);
     for(let i = 0; i < data.length; i ++) {
         let html = "<div class='bow-word text-center";
         if(data[i]["enable"]) {
@@ -527,7 +526,12 @@ function getSearchResults( data ){
 
 // format and display search results
 function showSearchResults( data ) {
-    $("#search-result-container .doc").remove();
+    $("#search-result-container .doc").remove();    
+    if(data.length == 0) {
+        let $format = $("<div class='doc'>Sorry, no search results found.</div>");
+        $("#search-result-container").append($format);
+        return;        
+    }
     search_terms = getSearchTerms(true);
     for(i in data) {
         let $format = $("<div class='doc'> \
@@ -549,7 +553,6 @@ function showSearchResults( data ) {
 
         // insert topics
         let n = 0;
-        console.log(search_terms);
         for(y in doc.topiclist) {
             let topic = doc.topiclist[y];
             if(topic.dist < 0.1) continue;

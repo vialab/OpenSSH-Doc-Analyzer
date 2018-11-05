@@ -44,7 +44,6 @@ let default_color = d3.scaleLinear()
 $.fn.textWidth = function(){
         let html_org = $(this).html();
         let html_calc = '<span>' + html_org + '</span>';
-        console.log(html_org);
         $(this).html(html_calc);
         let width = $(this).find('span:first').width();
         $(this).html(html_org);
@@ -201,98 +200,118 @@ function drawJournalCount(data, merge) {
     }
     if(has_new) new_chart_data.push(new_query);
 
+    let flat_data = flattenQueryData(new_chart_data);
+    
     // start-up vis letiables
-    let svg = d3.select("#search-count").attr("width", $(window).width());
-    let color = d3.scaleOrdinal()
-      .domain(["PVkW", "TBLkW"])
-      .range(["rgba(249, 208, 87, 0.7)", "rgba(54, 174, 175, 0.65)"]);
-    
-    let margin = {top: 40, right: 40, bottom: 40, left: 40},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom;
-    
-    let x = d3.scaleLinear()
-        .range([0, width]);
-    
-    let y = d3.scaleLinear()
-        .range([height, 0]);
-    
-    let max_freq = d3.max(chart_data, function(d) {
-        if(d.new) {
-            if(d.new > d.freq) return d.new; 
-        }
-        return d.freq;
-    });
+    var barHeight        = 20,
+        groupHeight      = barHeight * new_chart_data.length,
+        gapBetweenGroups = 10,
+        spaceForLabels   = 250,
+        spaceForLegend   = 150;
 
-    x.domain([0,--count]);
-    y.domain([0, max_freq]);
-    
-    let y_ticks = [];
-    if(max_freq > 10) {
-        let incr = max_freq / 10;
-        for(let i=0; i<=max_freq; i=i+incr) {
-            y_ticks.push(i);
-        }
-    } else {
-        for(let i=0; i<=max_freq; i++) {
-            y_ticks.push(i);
-        }
-    }
-    
-    let area = d3.area()
-        // .curve(d3.curveMonotoneX)
-        .x(function(d) { return x(d.x); })
-        .y0(y(0))
-        .y1(function(d) { return y(d.y); });
+    // Color scale
+    let margin = {top: 40, right: 40, bottom: 40, left: 40};
+    let height = barHeight * flat_data.length + gapBetweenGroups * new_chart_data[0].values.length,
+    width = $(window).width() - margin.left - margin.right;
 
-    let valueline = d3.line()
-        // .curve(d3.curveMonotoneX)
-        .x(function(d) { return x(d.x); })
-        .y(function(d) { return y(d.y); });
+    let svg = d3.select("#search-count")
+        .attr("class", "chart")
+        .attr("width", width)
+        .attr("height", height);
 
-    let div = d3.select("body").append("div")	
-        .attr("class", "tool-tip")				
-        .style("opacity", 0);
-        
-    svg.selectAll("g").remove();
-    let g = svg.append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    let color = d3.scaleOrdinal(d3.schemeCategory20);
 
-    g.append("g")
-        .attr("class", "y axis")
-        .call(d3.axisLeft(y).tickValues(y_ticks).tickFormat(d3.format(".0f")));
-    
-    let source = g.selectAll(".area").data(new_chart_data).enter().append("g")
-        .attr("class", function(d) { return `area ${d.id}`; });
+    var x = d3.scaleLinear()
+        .domain([0, d3.max(flat_data)])
+        .range([0, width - spaceForLabels - spaceForLegend]);
 
-    source.append("path")
-        .attr("d", function(d) { return valueline(d.values); })
-        .attr("class", function(d) { return `line ${d.id}`; });
-        
-    source.append("path")
-        .attr("d", function(d) { return area(d.values);})
-        .attr("class", "area");
+    var y = d3.scaleLinear()
+        .range([height + gapBetweenGroups, 0]);
 
-    g.selectAll(".dot.old").data(new_chart_data[0].values).enter().append("circle")
-        .attr("class", "dot old")
-        .attr("cx", function(d) { return x(d.x); })
-        .attr("cy", function(d) { return y(d.y); })
-        .attr("r", 3.5);
+    var yAxis = d3.axisLeft(y)
+        .tickFormat('')
+        .tickSize(0);
 
-    if(has_new) {
-        g.selectAll(".dot.new").data(new_chart_data[1].values).enter().append("circle")
-            .attr("class", "dot new")
-            .attr("cx", function(d) { return x(d.x); })
-            .attr("cy", function(d) { return y(d.y); })
-            .attr("r", 3.5);
-    }
-    g.selectAll(".dot")
-        .on("mouseover", function(d) { journalToolTip(div, d); })
-        .on("mouseout", function(d) {		
-            div.transition()		
-                .duration(500)		
-                .style("opacity", 0);	
+    svg.selectAll("g").remove();    
+
+    // Create bars
+    var bar = svg.selectAll("g")
+        .data(flat_data)
+        .enter().append("g")
+        .attr("transform", function(d, i) {
+            return "translate(" + spaceForLabels + "," + (i * barHeight + gapBetweenGroups * (0.5 + Math.floor(i/new_chart_data.length))) + ")";
         });
+
+    // Create rectangles of the correct width
+    bar.append("rect")
+        .attr("fill", function(d,i) { return color(i % new_chart_data.length); })
+        .attr("class", "bar")
+        .attr("width", x)
+        .attr("height", barHeight - 1);
+
+    // Add text label in bar
+    bar.append("text")
+        .attr("x", function(d) { return x(d) - 3; })
+        .attr("y", barHeight / 2)
+        .attr("fill", "red")
+        .attr("dy", ".35em")
+        .text(function(d) { return d; });
+
+    // Draw labels
+    bar.append("text")
+        .attr("class", "label")
+        .attr("x", function(d) { return - 10; })
+        .attr("y", groupHeight / 2)
+        .attr("dy", ".35em")
+        .text(function(d,i) {
+            if (i % new_chart_data.length === 0)
+                return new_chart_data[0].values[Math.floor(i/new_chart_data.length)].name;
+            else
+                return ""
+        });
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + spaceForLabels + ", " + -gapBetweenGroups/2 + ")")
+        .call(yAxis);
+
+    // Draw legend
+    var legendRectSize = 18,
+        legendSpacing  = 4;
+
+    var legend = svg.selectAll('.legend')
+        .data(new_chart_data)
+        .enter()
+        .append('g')
+        .attr('transform', function (d, i) {
+            var height = legendRectSize + legendSpacing;
+            var offset = -gapBetweenGroups/2;
+            var horz = spaceForLabels + width + 40 - legendRectSize - spaceForLabels - spaceForLegend;
+            var vert = i * height - offset;
+            return 'translate(' + horz + ',' + vert + ')';
+        });
+
+    legend.append('rect')
+        .attr('width', legendRectSize)
+        .attr('height', legendRectSize)
+        .style('fill', function (d, i) { return color(i); })
+        .style('stroke', function (d, i) { return color(i); });
+
+    legend.append('text')
+        .attr('class', 'legend')
+        .attr('x', legendRectSize + legendSpacing)
+        .attr('y', legendRectSize - legendSpacing)
+        .text(function (d) { return d.id; });
+}
+
+function flattenQueryData(data) {
+    let zip_data = [];
+    for(let i in data[0].values) {
+        for(let j in data) {
+            zip_data.push(data[j].values[i].y);
+        }   
+    }
+    return zip_data;
 }
 
 function journalToolTip(div, d) {
@@ -303,157 +322,6 @@ function journalToolTip(div, d) {
         .style("left", (d3.event.pageX) + "px")		
         .style("top", (d3.event.pageY - 28) + "px");	
 }
-
-// create a barchart to display distribution
-function drawJournalCount2(data, merge) {
-    let keys = ["freq"];
-    let y_mean = 0;
-    // append new query data to current if we have new search query
-    // also calculate the mean for label filtering
-    if(merge && typeof(chart_data) != "undefined") {
-        let n = 0, sum = 0;
-        for(let i = 0; i < chart_data.length; i++) {
-            chart_data[i].new = data[i].freq;
-            chart_data[i].total = data[i].freq + chart_data[i].freq;
-            sum += chart_data[i].total;
-            n += 2;
-        }
-        y_mean = sum / n;
-        keys.push("new");
-    } else {
-        // not appending, but we still want to calculate the mean
-        chart_data = data;
-        let n = 0, sum = 0;
-        for(let i = 0; i < chart_data.length; i++) {
-            chart_data[i].total = chart_data[i].freq;
-            sum += chart_data[i].total;
-            n += 1;
-        }
-        y_mean = sum / n;
-    }
-    let new_chart_data = [];
-    for(let i = 0; i < chart_data.length; i++) {
-        if(chart_data[i].total > 0) {
-            new_chart_data.push(chart_data[i]);
-        }
-    }
-    // start-up vis letiables
-    let svg = d3.select("#search-count");
-    svg.attr("width", $(window).width());
-    svg.selectAll("g").remove(); // clear current svg
-    let margin = {top: 20, right: 10, bottom: 80, left: 40},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom,
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    // create the bands to set domains
-    // we need two x-axis bands: one for ticks, the other for the bars within ticks
-    let x0 = d3.scaleBand().rangeRound([0, width]).paddingInner(0.1);
-    let x1 = d3.scaleBand().padding(0.05);
-    let y = d3.scaleLinear().rangeRound([height, 0]);
-    let z = d3.scaleOrdinal()
-        .range(["rgb(0, 100, 150)", "rgba(0, 150, 100, 0.5)"]);
-
-    x0.domain(new_chart_data.map(function(d) { return d.name; }));
-    x1.domain(keys).rangeRound([0, x0.bandwidth()]);
-    y.domain([0, d3.max(new_chart_data, function(d) { 
-        return d3.max(keys, function(key) { return d[key]; }); 
-        })]).nice();
-    // draw our bars
-    g.append("g")
-        .selectAll("g")
-        .data(new_chart_data)
-        .enter().append("g")
-            .attr("transform", function(d) { return "translate(" + x0(d.name) + ",0)"; })
-        .selectAll("rect")
-        .data(function(d) {
-            return keys.map(function(key) {
-                return { key: key, value: d[key], name:d.name };
-            });
-        })
-        .enter().append("rect")
-            .attr("x", function(d) { return x1(d.key); })
-            .attr("y", function(d) { return y(d.value); })
-            .attr("height", function(d) { return height - y(d.value); })
-            .attr("width", x1.bandwidth())
-            .attr("class", "bar")
-            .attr("fill", function(d) { return z(d.key);})
-        .append("title")
-            .text(function(d) { return d.name + ": " + d.value; });
-    
-    // list all the data points that deserve a label
-    // i.e. frequency > mean frequency
-    // this is to avoid clutter because we have 181 x-axis ticks
-    let label_x = {};
-    for(let i = 0; i < new_chart_data.length; i++) {
-        if(new_chart_data[i].freq > y_mean) {
-            label_x[new_chart_data[i].name] = true;
-        } else {
-            if(typeof(new_chart_data[i].new) != "undefined") {
-                if(new_chart_data[i].new > y_mean) {
-                    label_x[new_chart_data[i].name] = true;                    
-                }
-            }
-        }
-    }
-    // label the x axis
-    g.append("g")
-        .attr("class", "axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x0))
-        .selectAll("text")
-            .style("text-anchor", "start")
-            .style("font-size", "8px")
-            .style("visibility", function(d) {
-                if(typeof(label_x[d]) == "undefined") {
-                    return "hidden";
-                } else {
-                    return "visible";
-                }
-            })
-            .attr("transform", "translate(5,3)rotate(35)")
-        .append("title")
-            .text(function(d) { return d; });
-    // label the y axis
-    g.append("g")
-        .attr("class", "axis")
-        .call(d3.axisLeft(y).ticks(10).tickFormat(d3.format(".0s")))
-        .append("text")
-        .attr("x", 2)
-        .attr("y", y(y.ticks().pop()) + 0.5)
-        .attr("dy", "0.32em")
-        .attr("fill", "#000")
-        .attr("font-weight", "bold")
-        .attr("text-anchor","end");
-    // draw a legend
-    let legend = g.append("g")
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 10)
-        .attr("text-anchor", "start")
-        .selectAll("g")
-        .data(keys.slice().reverse())
-        .enter().append("g")
-        .attr("transform", function(d, i) { 
-            return "translate(0," + i * 20 + ")"; 
-        });
-    // squares to depict color
-    legend.append("rect")
-        .attr("x", 5)
-        .attr("width", 15)
-        .attr("height", 15)
-        .attr("fill", z);
-    // and now label
-    legend.append("text")
-        .attr("x", 25)
-        .attr("y", 7.5)
-        .attr("dy", "0.32em")
-        .text(function(d) { 
-            if(d == "freq") return "Résultats Actuels";
-            else return "Nouveaux Résultats";
-            return d; 
-        });
-}
-
 
 // unstack the barchart that displays journal counts
 function resetJournalCount() {

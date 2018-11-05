@@ -753,3 +753,32 @@ fill: brown;
     text-align: center;
     color: white;
 }
+
+
+.chart .legend {
+    fill: black;
+    text-anchor: start;
+    font-size: 12px;
+  }
+  
+  .chart text {
+    fill: white;
+    text-anchor: end;
+  }
+  
+  .chart .label {
+    fill: black;
+    text-anchor: end;
+  }
+  
+  .bar:hover {
+    fill: orange;
+  }
+  
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+  

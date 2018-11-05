@@ -25,7 +25,6 @@ class TopicModel(object):
     db = db.Database()
     tagger = treetaggerwrapper.TreeTagger(TAGLANG="fr")
     # ner = nltk.tag.stanford.StanfordNERTagger("C:/stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz", "C:/stanford-ner/stanford-ner.jar", encoding="utf-8")
-    
     # TDIF NMF
     nmf = NMF(n_components=CONST.TM_TOPICS, random_state=CONST.TM_RANDOM,
             alpha=CONST.TM_ALPHA, l1_ratio=CONST.TM_L1RATIO)

@@ -763,6 +763,8 @@ class Wrapper(object):
         """ Get term information associated with OHT """
         search_term = []
         for term in aTF:
+            if term is None:
+                continue
             aWord = {}
             heading = self.db.execQuery("""select t.termid
             , t.word
