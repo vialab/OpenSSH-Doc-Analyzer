@@ -564,7 +564,7 @@ function showSearchResults( data ) {
             //     + " | " + topic.heading + " ( " + dist.toFixed(2) 
             //     + " % )</a></li>");
             let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\"" 
-            + topic.name+ "\",\""+ topic.heading_id + "\", false, \"" 
+            + topic.name+ "\",\""+ topic.heading_id + "\", true, \"" 
             + topic.id + "\",\"" + topic.posdesc + "\");' data-keyword='" 
             + topic.name + "' class='search-term";
             if(topic.is_keyword || $.inArray(topic.name,search_terms) != -1) {
@@ -616,8 +616,9 @@ function forceIncludeTerm(term_id) {
     let $elem = $(".custom-keyword[data-termid='" + term_id + "'] .star");
     if($elem.length == 0 || $elem.hasClass("active")) return;
     $.each($elem, function() {
-        toggleStar(this);
+        toggleStar(this, true, false);
     });
+    updateJournalCount(true);
 }
 
 // handle animations here so we can reuse

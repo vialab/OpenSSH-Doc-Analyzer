@@ -726,7 +726,7 @@ function drawKeyword(keyword, heading_id, draw_count = false, term_id = "", pos_
 }
 
 // sets an html element to toggle a force inclusion for the search query 
-function toggleStar(elem, cancel_bubble=true) {
+function toggleStar(elem, cancel_bubble=true, draw_count=true) {
     if($(elem).hasClass("active")) {
         $(elem).removeClass("active");
         $(elem).html("&#9698;");
@@ -734,6 +734,7 @@ function toggleStar(elem, cancel_bubble=true) {
         $(elem).addClass("active");
         $(elem).html("&#9698;");
     }
+    if(draw_count) updateJournalCount(true);
     if(cancel_bubble) window.event.cancelBubble = true;
 }
 

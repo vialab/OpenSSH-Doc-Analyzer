@@ -10,71 +10,60 @@ db = db.Database()
 def matchKeyword(keyword_list, n=100, must_include=[]):
     if len(keyword_list) == 0:
         return []
-    having = ""
-    format_strings = ','.join(['%s'] * len(keyword_list))
+    # put them for regex search
+    keywords = " ".join(keyword_list)
+    results = db.execQuery("""select d.documentid
+        , sum(d.tfidf) score
+        from doctfidf d
+        where d.termid in (
+            select termid
+            from tfidf 
+            where match(word) against(%s in boolean mode) 
+        )
+        group by d.documentid
+        order by sum(d.tfidf) desc
+        limit 100
+        """, (keywords,))
     if len(must_include) > 0:
-        query = """select d.documentid
-            , sum(d.tfidf) score
-            from doctfidf d
-            where d.termid in (%s)
-            group by d.documentid """ % format_strings
-        format_strings = ','.join(['%s'] * len(must_include))
-        having = """ having sum(case when termid in (%s) then 1 
-            else 0 end) = """ % format_strings
-        query += having + "%s order by sum(d.tfidf) desc limit %s"
-        results = db.execQuery(query, tuple(keyword_list+must_include
-        +[len(must_include)]+[n]))
-    else:
-        query = """select d.documentid
-            , sum(d.tfidf) score
-            from doctfidf d
-            where d.termid in (%s)
-            group by d.documentid
-            order by sum(d.tfidf) desc""" % format_strings
-        results = db.execQuery(query+" limit %s", tuple(keyword_list+[n]))
+        return forceInclusion(results, must_include)
     return results
 
 
 def getJournalCount(keyword_list, must_include):
     if len(keyword_list) == 0:
         return []
-    having = ""
-    format_strings = ','.join(['%s'] * len(keyword_list))
-    if len(must_include):
-        query = """select m.titrerev, ifnull(x.freq, 0) from meta m
-            left join (
-                    select titrerev, count(*) freq from meta where documentid in (
-                        select distinct documentid from doctfidf 
-                        where termid in (%s)
-                        group by documentid""" % format_strings
-        format_strings = ','.join(['%s'] * len(must_include))
-        having = """ having sum(case when termid in (%s) then 1 
-            else 0 end) = """ % format_strings
-        query += having + """) group by titrerev
-                ) x on x.titrerev=m.titrerev
-            group by m.titrerev, x.freq
-            having x.freq > 0
-            order by x.freq desc;
-            """
-        results = db.execQuery(query, tuple(keyword_list+must_include
-        +[len(must_include)]))
-    else:
-        query = """select m.titrerev, ifnull(x.freq, 0) from meta m
-            left join (
-                    select titrerev, count(*) freq from meta where documentid in (
-                        select distinct documentid from doctfidf 
-                        where termid in (%s)
-                        group by documentid
-                    ) group by titrerev
-                ) x on x.titrerev=m.titrerev
-            group by m.titrerev, x.freq
-            having x.freq > 0
-            order by x.freq desc;""" % format_strings
-        results = db.execQuery(query, tuple(keyword_list))
+    results = matchKeyword(keyword_list, must_include=must_include)
+    if len(results) == 0:
+        return []
+    docs = [result[0] for result in results]
+    format_strings = ",".join(["%s"] * len(docs))
+    results = db.execQuery("""select m.titrerev, ifnull(x.freq, 0) from meta m
+        left join (
+                select titrerev, count(*) freq from meta 
+                where documentid in (%s) group by titrerev
+            ) x on x.titrerev=m.titrerev
+        group by m.titrerev, x.freq
+        order by m.titrerev;
+        """ % format_strings, tuple(docs))
     freq = []
     for result in results:
         freq.append({ "name": result[0], "freq": result[1] })
     return freq
+
+
+def forceInclusion(results, must_include):
+    new_results = []
+    for result in results:
+        doc_tfidf = db.execQuery("""select word 
+        from doctfidf
+        where documentid=%s""", (result[0],))
+        unused_terms = must_include[:]
+        for tfidf in doc_tfidf:
+            if tfidf[0] in unused_terms:
+                unused_terms.remove(tfidf[0])
+        if len(unused_terms) == 0:
+            new_results.append(result)
+    return new_results
 
 
 def getDocumentInfo(document_id):
@@ -103,8 +92,6 @@ def getDocumentInfo(document_id):
         left join titre t on t.documentid=d.id
         where d.id=%s
         """, (document_id,))
-
-
 
 def calculateCosSim(dochash_id, document_id):
     """ Calculate cosine similarity between input and compressed corpus doc """

@@ -245,17 +245,20 @@ def search():
     if len(content["keyword_list"]) > 0:
         # get all keywords
         for k in content["keyword_list"]:
+            # clean_word = re.sub('[^A-Za-z0-9]+', '', k["keyword"])
+            clean_word = k["keyword"]
+            clean_list.append(clean_word)
             term_list.append(k["term_id"])
             if "search_id" not in content:
                 db.execQuery("""insert into searchterm(searchid, keyword, weight, rank)
                 values(%s, %s, %s, %s); commit;"""
                 , (search_id, k["keyword"], k["weight"], k["order"]))
             if k["must_include"]:
-                must_include.append(k["term_id"])            
+                must_include.append(clean_word)
     # find matches in the corpus
-    rank_list = corpus.matchKeyword(term_list, 50, must_include)
+    rank_list = corpus.matchKeyword(clean_list, 50, must_include)
     # attach meta info for display on the documents
-    search = getSearchMetaInfo(rank_list, term_list)
+    search = getSearchMetaInfo(rank_list, clean_list, must_include)
     return json.dumps(search)
 
 
@@ -341,15 +344,16 @@ def oht_synset(heading_id):
 def erudit_journal():
     """ Get over-arching journal distribution based on search """
     content = request.get_json()
-    term_list = []
+    clean_list = []
     must_include = []
     if len(content["keyword_list"]) > 0:
         # get all keywords
         for k in content["keyword_list"]:
-            term_list.append(k["term_id"])
+            clean_word = re.sub('[^A-Za-z0-9]+', '', k["keyword"])
+            clean_list.append(clean_word)
             if k["must_include"]:
-                must_include.append(k["term_id"])
-    dist = corpus.getJournalCount(term_list, must_include)
+                must_include.append(clean_word)
+    dist = corpus.getJournalCount(clean_list, must_include)
     return jsonify(dist)
 
 
@@ -545,7 +549,7 @@ def getJournalSearchResults(tfidf, n=10):
     return rank_list
 
 
-def getSearchMetaInfo(rank_list, term_list, must_include=[]):
+def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
     """ Get the meta info for a list of document ids """
     results = []
     start = time.time()
@@ -594,8 +598,15 @@ def getSearchMetaInfo(rank_list, term_list, must_include=[]):
         left join pos p on p.pos=t.pos
         where d.documentid=%s
         order by d.tfidf desc""", (doc["id"],))
-        unused_terms = term_list[:]
-        for i, topic in enumerate(aTopicDist):
+        unused_terms = keyword_list[:]
+        used_terms = []
+        i = 0
+        for topic in aTopicDist:
+            if topic[1] in used_terms:
+                continue
+            else:
+                used_terms.append(topic[1])
+            i += 1
             temp = {}
             temp["id"] = topic[0]
             temp["name"] = topic[1]
@@ -608,29 +619,22 @@ def getSearchMetaInfo(rank_list, term_list, must_include=[]):
             temp["posdesc"] = topic[8]
             temp["is_keyword"] = None
             added = True
-            if topic[0] in term_list:
+            if topic[0] in keyword_list:
                 temp["is_keyword"] = 1
             if len(doc["topiclist"]) < CONST.DS_MAXTOPIC:
                 doc["topiclist"].append(temp)
             else:
-                if topic[0] in term_list:   
+                if topic[0] in keyword_list:   
                     temp["rank"] = i
                     doc["keywordlist"].append(temp)
                 else:
                     added = False
             if added and temp["is_keyword"]==1:
                 unused_terms.remove(topic[0])
-                
         if len(unused_terms) > 0:
-            format_string = ",".join(['%s']*len(unused_terms))
-            query = """select distinct termid, word
-            from tfidf 
-            where termid in (%s)""" % format_string
-            unused_list = db.execQuery(query, tuple(unused_terms))
-            for term in unused_list:
+            for term in unused_terms:
                 temp = {}
-                temp["id"] = term[0]
-                temp["name"] = term[1]
+                temp["name"] = term
                 doc["keywordlist"].append(temp)
         # pull any named entities saved for this document
         doc["entitylist"] = []
