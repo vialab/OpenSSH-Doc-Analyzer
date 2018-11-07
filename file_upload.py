@@ -619,18 +619,18 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
             temp["posdesc"] = topic[8]
             temp["is_keyword"] = None
             added = True
-            if topic[0] in keyword_list:
+            if topic[1] in keyword_list:
                 temp["is_keyword"] = 1
             if len(doc["topiclist"]) < CONST.DS_MAXTOPIC:
                 doc["topiclist"].append(temp)
             else:
-                if topic[0] in keyword_list:   
+                if topic[1] in keyword_list:   
                     temp["rank"] = i
                     doc["keywordlist"].append(temp)
                 else:
                     added = False
             if added and temp["is_keyword"]==1:
-                unused_terms.remove(topic[0])
+                unused_terms.remove(topic[1])
         if len(unused_terms) > 0:
             for term in unused_terms:
                 temp = {}
