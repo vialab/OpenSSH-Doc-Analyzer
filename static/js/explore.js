@@ -135,7 +135,7 @@ function clicked(cb_keyword) {
 
 
 // create a barchart to display distribution
-function drawJournalCount(data, merge) {
+function drawJournalCount(data, merge, minimize=true) {
     let keys = ["freq"];
     let y_mean = 0;
     let has_new = false;
@@ -214,6 +214,17 @@ function drawJournalCount(data, merge) {
     let height = barHeight * flat_data.length + gapBetweenGroups * new_chart_data[0].values.length,
     width = $(window).width() - margin.left - margin.right;
 
+    if(minimize) {
+        height = $("#search-term-box").height();
+        width = $("#search-btn").width();
+        $("#journal-count").css({"top":0, "right":$("#search-btn").width()});
+        barHeight = height / new_chart_data[0].values.length;
+        groupHeight = barHeight * new_chart_data.length;
+        gapBetweenGroups = 0;
+        spaceForLabels = 0;
+        spaceForLegend = 0;
+    }
+
     let svg = d3.select("#search-count")
         .attr("class", "chart")
         .attr("width", width)
@@ -249,16 +260,16 @@ function drawJournalCount(data, merge) {
         .attr("width", x)
         .attr("height", barHeight - 1);
 
-    // Add text label in bar
-    bar.append("text")
-        .attr("x", function(d) { return x(d) - 3; })
-        .attr("y", barHeight / 2)
-        .attr("fill", "red")
-        .attr("dy", ".35em")
-        .text(function(d) { return d; });
-
     // Draw labels
-    bar.append("text")
+    if(!minimize) {
+        // Add text label in bar
+        bar.append("text")
+            .attr("x", function(d) { return x(d) - 3; })
+            .attr("y", barHeight / 2)
+            .attr("fill", "red")
+            .attr("dy", ".35em")
+            .text(function(d) { return d; });
+        bar.append("text")
         .attr("class", "label")
         .attr("x", function(d) { return - 10; })
         .attr("y", groupHeight / 2)
@@ -269,11 +280,14 @@ function drawJournalCount(data, merge) {
             else
                 return ""
         });
+    }
 
     svg.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(" + spaceForLabels + ", " + -gapBetweenGroups/2 + ")")
         .call(yAxis);
+
+    if(minimize) return;
 
     // Draw legend
     var legendRectSize = 18,
@@ -697,20 +711,23 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
 
 // draw the keyword in the search query box
 function drawKeyword(keyword, heading_id, draw_count = false, term_id = "", pos_desc = "") {
-    if(term_id != "") {
-        let $elem = $(".custom-keyword[data-termid='"+term_id+"'] .star");
-        if($elem.length > 0) {
-            $.each($elem, function() {
+    let already_used = false;
+    $("#search-term-box .term-container").each(function(i) {
+        let used_keyword = $(".custom-keyword-heading", $(this)).html()
+        if(keyword == used_keyword) {
+            already_used = true;
+            $.each($(".star", $(this)), function() {
                 toggleStar(this);
             });
-            return;
         }
-    }
+    });
+    if(already_used) return;
+
     let id = heading_id;
     if(typeof(heading_id) == "undefined") {
         id = "";
     }
-    let $box = $("<div class='term-container text-center custom-keyword' id='keyword-"
+    let $box = $("<div class='term-container text-center custom-keyword new-search-term' id='keyword-"
     + (new Date()).getTime() + "' data-termid='" + term_id + "' onclick='openExploreVis(\"" 
     + id + "\")' title='" + pos_desc + "'><button class='close' style='z-index:999;'\
      onclick='deleteTerm(this);'><span>&times;</span></button><input type='hidden' \
@@ -729,10 +746,11 @@ function drawKeyword(keyword, heading_id, draw_count = false, term_id = "", pos_
 function toggleStar(elem, cancel_bubble=true, draw_count=true) {
     if($(elem).hasClass("active")) {
         $(elem).removeClass("active");
-        $(elem).html("&#9698;");
+        $(elem).removeClass("new");
+        $(elem).addClass("old");
     } else {
         $(elem).addClass("active");
-        $(elem).html("&#9698;");
+        $(elem).addClass("new");
     }
     if(draw_count) updateJournalCount(true);
     if(cancel_bubble) window.event.cancelBubble = true;

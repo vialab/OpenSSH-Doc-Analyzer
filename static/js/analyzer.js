@@ -519,6 +519,9 @@ function getSearchResults( data ){
         , type: "POST"
         , success: function(data) {
             showSearchResults(data);
+            $(".new-search-term").removeClass("new-search-term");
+            $(".star.new").removeClass("new");
+            $(".star.old").removeClass("old");
         }
     });
 }
@@ -595,7 +598,7 @@ function showSearchResults( data ) {
                 html = "<li>";
                 if((topic.rank - last_rank) > 1) html += "<span>...</span>";
                 html += "<a id='" + topic.id + "' class='search-term ";
-                html += "existent' onclick='forceIncludeTerm(" + topic.id + ");'>" + (topic.rank+1) + ". ";
+                html += "existent' onclick='forceIncludeTerm(" + topic.id + ");'>" + (topic.rank) + ". ";
                 last_rank = topic.rank;
             } else {
                 if(!has_missing) {

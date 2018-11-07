@@ -165,10 +165,20 @@ ul.doc-term li span {
     color: gray;
 }
 
-.term-container.custom-keyword .star.active {
+.term-container.custom-keyword .star.active.new
+,.term-container.custom-keyword .star.active
+,.term-container.custom-keyword .star.old {
     opacity: 1;
-    color: black;
     display: block;
+    color: slategray;
+}
+
+.term-container.custom-keyword .star.old {
+    color: lightgray;
+}
+
+.term-container.custom-keyword .star.active {
+    color: black;
 }
 
 #add-term {
@@ -214,7 +224,7 @@ ul.doc-term li span {
     margin: 10px;
 }
 
-.term-container:hover {
+.term-container:hover, .term-container.new-search-term {
     background-color: rgba(168,209,255,0.5);
 }
 
@@ -642,8 +652,8 @@ fill: brown;
 }
 
 #journal-count {
-    margin-top: 25px;
-    max-width: 100%;
+    position: absolute;
+    /* max-width: 100%; */
     overflow: scroll;
 }
 

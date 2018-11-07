@@ -349,7 +349,8 @@ def erudit_journal():
     if len(content["keyword_list"]) > 0:
         # get all keywords
         for k in content["keyword_list"]:
-            clean_word = re.sub('[^A-Za-z0-9]+', '', k["keyword"])
+            # clean_word = re.sub('[^A-Za-z0-9]+', '', k["keyword"])
+            clean_word = k["keyword"]
             clean_list.append(clean_word)
             if k["must_include"]:
                 must_include.append(clean_word)
@@ -624,7 +625,7 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
             if len(doc["topiclist"]) < CONST.DS_MAXTOPIC:
                 doc["topiclist"].append(temp)
             else:
-                if topic[1] in keyword_list:   
+                if topic[1] in keyword_list:
                     temp["rank"] = i
                     doc["keywordlist"].append(temp)
                 else:
