@@ -1,5 +1,5 @@
 body {
-    font-family: "Arial" !important;
+    font-family: "Roboto", sans-serif !important;
     overflow-x: hidden;
 }
 
@@ -16,7 +16,8 @@ img.loading {
 #search-result-container, #add-term, #search-box
 , #search-box table, #search-dialog, #search-dialog-title
 , #search-dialog svg, #search-dialog .slider, .term-container
-, #search-keyword-dialog, .recent-search, .recent-doc, #search-keyword, .doc { 
+, #search-keyword-dialog, .recent-search, .recent-doc, #search-keyword
+, .doc, #journal-count { 
     -webkit-transition: all 0.2s ease;
     transition: all 0.2s ease;
 }
@@ -97,7 +98,7 @@ ul.doc-term li span {
     width: 100%;
     z-index: 2;
     background-color: white;
-    border-top: 1px solid lightgray;
+    border-top: 1px solid gray;
     box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
 }
 
@@ -136,6 +137,10 @@ ul.doc-term li span {
     position: relative;
     vertical-align: middle;
     white-space: normal;
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
 }
 
 .term-container.custom-keyword {
@@ -653,8 +658,24 @@ fill: brown;
 
 #journal-count {
     position: absolute;
-    /* max-width: 100%; */
+    bottom: 15px;
+    right: 15px;
     overflow: scroll;
+    border: 1px solid gray;
+    box-shadow: 0px 0px 10px #ccc;
+    padding: 5px;
+    background: white;
+    z-index: 99;
+    display:none;
+}
+
+#journal-count:hover {
+    box-shadow: 0px 0px 15px #aaa;
+}
+
+#journal-count button.close {
+    position: fixed;
+    right: 25px;
 }
 
 .node circle {

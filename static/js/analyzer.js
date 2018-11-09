@@ -291,7 +291,10 @@ function toggleKeywordDialog() {
 
 // open or close the search dialog
 function toggleSearchDialog() {
-    if(searching) { 
+    if(searching) {
+        $("#journal-count").css({
+            "right": journal_count_margin
+        });
         // need to close
         $("#search-dialog").css("left", -$(window).width()-75);
         $("#search-result-container").css({
@@ -308,6 +311,12 @@ function toggleSearchDialog() {
         $(".term-container").removeClass("selected");
         $("#search-keyword-box").hide();
     } else {
+        if(!journal_count_minimized) {
+            redrawJournalCount(true);
+        }
+        $("#journal-count").css({
+            "right": -($(window).width()*journal_size_ratio)+journal_count_margin
+        });
         if(keyword_searching) {
             toggleKeywordDialog();
         }
@@ -368,6 +377,9 @@ function togglePeek() {
             $("#search-dialog-title").css("margin-left", 0);
             $("#search-dialog .slider").css("margin-left", 0);
             $("#search-result-container").css("left", $("#search-dialog").width());
+            $("#journal-count").css({
+                "right": -($(window).width()*journal_size_ratio)+journal_count_margin
+            });
             peeking = false;
         } else {
             // need to open
@@ -376,6 +388,9 @@ function togglePeek() {
             $("#search-dialog-title").css("margin-left", search_offset/2);
             $("#search-dialog .slider").css("margin-left", search_offset/2);
             $("#search-result-container").css("left", result_offset);
+            $("#journal-count").css({
+                "right": journal_count_margin
+            });
             peeking = true;
         }
     }

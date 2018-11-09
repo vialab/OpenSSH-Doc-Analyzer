@@ -13,6 +13,9 @@ let chart_data;
 let max_node_size = 0;
 let max_circle_size = 50;
 let min_circle_size = 10;
+let journal_size_ratio = 0.15;
+let journal_count_margin = 15;
+let journal_count_minimized = true;
 // hierarchical data conversion function from csv
 let stratify = d3.stratify()
     .id(function(d) { return d.heading_id; })
@@ -133,9 +136,26 @@ function clicked(cb_keyword) {
     }
 }
 
+function maximizeJournalCount(e) {
+    let height = $(window).height() - (journal_count_margin*2)
+    - ($(".navbar-collapse").height() + $("#search-term-box").height());
+    let width = $(window).width()-(journal_count_margin*2);
+    $(this).css({"width": width, "height": height, "right":journal_count_margin});
+    redrawJournalCount(false);
+    $("button.close", this).show();
+    e.stopPropagation();
+}
+
+// redisplay journal count without changing data
+function redrawJournalCount(minimize, cancel_bubble=false) {
+    drawJournalCount(chart_data, false, minimize);
+    if(cancel_bubble) window.event.cancelBubble = true;
+}
 
 // create a barchart to display distribution
 function drawJournalCount(data, merge, minimize=true) {
+    journal_count_minimized = minimize;
+    $("#journal-count").unbind();
     let keys = ["freq"];
     let y_mean = 0;
     let has_new = false;
@@ -215,14 +235,26 @@ function drawJournalCount(data, merge, minimize=true) {
     width = $(window).width() - margin.left - margin.right;
 
     if(minimize) {
-        height = $("#search-term-box").height();
-        width = $("#search-btn").width();
-        $("#journal-count").css({"top":0, "right":$("#search-btn").width()});
+        height = $(window).height()*journal_size_ratio;
+        width = $(window).width()*journal_size_ratio;
+        right = journal_count_margin
+        if(searching && !peeking) {
+            right = -width+journal_count_margin
+        }
+        $("#journal-count").css({
+            "bottom": $("#search-term-box").height()+journal_count_margin
+            , "right": right
+            , "height": height
+            , "width": width
+        });
         barHeight = height / new_chart_data[0].values.length;
+        if(barHeight > 20) barHeight = 20;
         groupHeight = barHeight * new_chart_data.length;
         gapBetweenGroups = 0;
         spaceForLabels = 0;
         spaceForLegend = 0;
+        $("button.close","#journal-count").hide();
+        $("#journal-count").click(maximizeJournalCount);
     }
 
     let svg = d3.select("#search-count")
@@ -287,6 +319,8 @@ function drawJournalCount(data, merge, minimize=true) {
         .attr("transform", "translate(" + spaceForLabels + ", " + -gapBetweenGroups/2 + ")")
         .call(yAxis);
 
+    $("#journal-count").show();
+    
     if(minimize) return;
 
     // Draw legend
@@ -409,6 +443,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
 
     let url_path = path + id;
     hook_busy = true;
+    max_node_size = 0;
     // get the new tier nodes from the server
     d3.csv(url_path, function(error, data) {
         if (error) throw error;
@@ -448,7 +483,9 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             } else {
                 d.y = 80;
             }
-            if(parseInt(d.data.child_size) > max_node_size) max_node_size = d.data.child_size;
+            if(parseInt(d.data.child_size) > max_node_size) {
+                max_node_size = d.data.child_size;
+            }
         });
 
         // ****************** Nodes section ***************************
@@ -509,7 +546,13 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         // Update the node attributes and style
         nodeUpdate.select("circle.node")
             .attr("r", function(d) {
-                let r = max_circle_size*(d.data.child_size/max_node_size)+8;
+                let circle_size = max_circle_size;
+                if(d.depth == 2) {
+                    let height = $("#search-dialog-main").height();
+                    circle_size = (height / d.parent.children.length)-(journal_count_margin);
+                    if(circle_size < min_circle_size) circle_size = min_circle_size;
+                }
+                let r = circle_size*(d.data.child_size/max_node_size)+8;
                 // if(r > max_circle_size) return max_circle_size;
                 return r;
             })

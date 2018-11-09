@@ -45,16 +45,17 @@
         </div>
     </div>
 </div>
+<div id="journal-count">
+    <!-- <svg id="corpus-count" width="960" height="450"></svg> -->
+    <button class="close" style="z-index:999" onclick="redrawJournalCount(true, true);"><span>x</span></button>
+    <svg id="search-count"></svg>
+</div>
 <div id="search-term-container">
     <div id="search-keyword-box">
         <input type="text" id="search-keyword" placeholder="Chercher par Mot Clé"/>
     </div>
     <div id="search-term-box">
         <div id="add-term"><span>+</span></div>
-    </div>
-    <div id="journal-count">
-        <!-- <svg id="corpus-count" width="960" height="450"></svg> -->
-        <svg id="search-count"></svg>
     </div>
     <button id="search-btn" onclick="search();">Chercher</button>
 </div>
