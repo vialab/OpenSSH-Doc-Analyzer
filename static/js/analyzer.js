@@ -129,15 +129,18 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
 
 $(document).keyup(function(e) {
     // doesn't matter if search dialog closed
-    if(!searching && !keyword_searching) {        
+    if(!searching && !keyword_searching && journal_count_minimized) {        
         return;
     }
     if (e.keyCode === 27) { // ESC key
         if(searching) {
-            toggleSearchDialog();            
+            toggleSearchDialog();
         }
         if(keyword_searching) {
             toggleKeywordDialog();
+        }
+        if(!journal_count_minimized) {
+            redrawJournalCount(true);
         }
     }
 });

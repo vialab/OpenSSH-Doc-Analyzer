@@ -10,6 +10,7 @@ let format = d3.format(",d");
 let oneclick = false;
 let click_to;
 let chart_data;
+let old_chart_data;
 let max_node_size = 0;
 let max_circle_size = 50;
 let min_circle_size = 10;
@@ -147,13 +148,13 @@ function maximizeJournalCount(e) {
 }
 
 // redisplay journal count without changing data
-function redrawJournalCount(minimize, cancel_bubble=false) {
-    drawJournalCount(chart_data, false, minimize);
+function redrawJournalCount(minimize, cancel_bubble=false, use_old=true) {
+    drawJournalCount(chart_data, false, minimize, use_old);
     if(cancel_bubble) window.event.cancelBubble = true;
 }
 
 // create a barchart to display distribution
-function drawJournalCount(data, merge, minimize=true) {
+function drawJournalCount(data, merge, minimize=true, use_old=false) {
     journal_count_minimized = minimize;
     $("#journal-count").unbind();
     let keys = ["freq"];
@@ -172,7 +173,7 @@ function drawJournalCount(data, merge, minimize=true) {
         y_mean = sum / n;
         keys.push("new");
         has_new = true;
-    } else {
+    } else if(!use_old) {
         // not appending, but we still want to calculate the mean
         chart_data = data;
         let n = 0, sum = 0;
@@ -183,7 +184,6 @@ function drawJournalCount(data, merge, minimize=true) {
         }
         y_mean = sum / n;
     }
-    
     let new_chart_data = [{
         "id":"old",
         "values":[]
@@ -218,7 +218,16 @@ function drawJournalCount(data, merge, minimize=true) {
             continue;
         }
     }
-    if(has_new) new_chart_data.push(new_query);
+
+    if(has_new) { 
+        new_chart_data.push(new_query);
+    }
+
+    if(use_old) {
+        new_chart_data = old_chart_data;
+    } else {
+        old_chart_data = new_chart_data;
+    }
 
     let flat_data = flattenQueryData(new_chart_data);
     
@@ -853,7 +862,7 @@ function getJournalCount( data, merge_chart=true ) {
             , dataType: "json"
             , type: "POST"
             , success: function(data) {
-                drawJournalCount(data, merge_chart);
+                drawJournalCount(data, merge_chart, journal_count_minimized);
             }
         });
     }, 500);
