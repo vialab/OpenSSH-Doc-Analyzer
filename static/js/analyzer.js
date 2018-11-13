@@ -133,14 +133,15 @@ $(document).keyup(function(e) {
         return;
     }
     if (e.keyCode === 27) { // ESC key
+        if(!journal_count_minimized) {
+            redrawJournalCount(true);
+            return;
+        }
         if(searching) {
             toggleSearchDialog();
         }
         if(keyword_searching) {
             toggleKeywordDialog();
-        }
-        if(!journal_count_minimized) {
-            redrawJournalCount(true);
         }
     }
 });
@@ -198,7 +199,7 @@ function recoverSearch(search_id) {
             for(let i = 0; i < data.length; i++) {
                 // let weight = parseInt(data[i].weight);
                 if(data[i].keyword) {
-                    drawKeyword(data[i].keyword, data[i].heading_id, false, data[i].term_id, data[i].posdesc);
+                    drawKeyword(data[i].keyword, data[i].heading_id, false, data[i].term_id);
                 } else {
                     drawSearchTerm(data[i].tier_index
                         , data[i].heading_id, data[i].heading, weight);
@@ -373,6 +374,7 @@ function togglePeek() {
         // only relevant when search dialog is open
         let result_offset = $(window).width()-$("#search-result-container").width();
         let search_offset = ($("#search-dialog").width()+$("#search-result-container").width()) - $(window).width();
+        if(!journal_count_minimized) redrawJournalCount(true);
         if(peeking) {
             // need to close
             $("#search-dialog").css("left", 0);
@@ -461,12 +463,12 @@ function populateBOW(data, quick_search) {
             if(quick_search) {
                 html += "' onclick='window.location.href=\"/analyzer?quicksearch=" + data[i]["id"] + "\"');'";
             } else {
-                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\", true, \""+data[i]["enable"]+"\", \"" + data[i]["posdesc"] + "\");'";
+                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\", true, \""+data[i]["enable"]+"\");'";
             }
         } else {
             html += " no-click'";
         }
-        html += ">" + data[i]["pos"] + ". " + data[i]["name"] + "</div>";
+        html += ">" + data[i]["name"] + "</div>";
         $(".word-box #heading-words").append(html);
     }
 }
@@ -586,7 +588,7 @@ function showSearchResults( data ) {
             //     + " % )</a></li>");
             let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\"" 
             + topic.name+ "\",\""+ topic.heading_id + "\", true, \"" 
-            + topic.id + "\",\"" + topic.posdesc + "\");' data-keyword='" 
+            + topic.id + "\");' data-keyword='" 
             + topic.name + "' class='search-term";
             if(topic.is_keyword || $.inArray(topic.name,search_terms) != -1) {
                 topic.is_keyword = 1;

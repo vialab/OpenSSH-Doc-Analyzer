@@ -561,8 +561,8 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                     circle_size = (height / d.parent.children.length)-(journal_count_margin);
                     if(circle_size < min_circle_size) circle_size = min_circle_size;
                 }
+                if(circle_size > max_circle_size) circle_size = max_circle_size;
                 let r = circle_size*(d.data.child_size/max_node_size)+8;
-                // if(r > max_circle_size) return max_circle_size;
                 return r;
             })
             .style("fill", function(d) {
@@ -762,7 +762,7 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
 }
 
 // draw the keyword in the search query box
-function drawKeyword(keyword, heading_id, draw_count = false, term_id = "", pos_desc = "") {
+function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
     let already_used = false;
     $("#search-term-box .term-container").each(function(i) {
         let used_keyword = $(".custom-keyword-heading", $(this)).html()
@@ -781,7 +781,7 @@ function drawKeyword(keyword, heading_id, draw_count = false, term_id = "", pos_
     }
     let $box = $("<div class='term-container text-center custom-keyword new-search-term' id='keyword-"
     + (new Date()).getTime() + "' data-termid='" + term_id + "' onclick='openExploreVis(\"" 
-    + id + "\")' title='" + pos_desc + "'><button class='close' style='z-index:999;'\
+    + id + "\")'><button class='close' style='z-index:999;'\
      onclick='deleteTerm(this);'><span>&times;</span></button><input type='hidden' \
      class='custom-keyword-weight' value='1'/><div class='custom-keyword-heading' heading-id='" 
      + id + "'>" + keyword + "</div><span onclick='toggleStar(this);' class='star'>&#9698;</span></div>");

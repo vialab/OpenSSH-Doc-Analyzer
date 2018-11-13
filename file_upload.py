@@ -55,37 +55,15 @@ strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
-    # results = db.execQuery("select file_id, content from toefl;")
+    # results = db.execQuery("select id, word, fr_translation from word where en_docs is null and fr_docs is null;")
+    # n = 0
     # for result in results:
-    #     with open("./model/toefl/"+result[0]+".xml", "w+") as f:
-    #         f.write("<xml><essay>"+result[1]+"</essay></xml>")
-    # p = "/Users/jayrsawal/Downloads/raw_essays/"
-    # i = 0
-    # for filename in os.listdir(p):
-    #     if filename.endswith(".xml"):
-    #         i += 1
-    #         xml = cm.parseXML(p+filename)
-    #         topic = xml.xpath("//utterance[@name='header']")
-    #         content = xml.xpath("//utterance[@name='text']")
-    #         topic_text = ""
-    #         code = ""
-    #         if len(topic) > 0:
-    #             topic_text = topic[0].text
-    #             if "Code:" in topic_text:
-    #                 code = topic_text.split(" ")[1]
-    #         db.execUpdate("""
-    #             insert into visas_index
-    #             (file_id, filename, topic, topic_code) 
-    #             values(%s, %s, %s, %s)""", (i, filename, topic_text, code))
-
-    #         full_text = ""
-    #         if len(content) > 0:
-    #             for elem in content:
-    #                 full_text += "\r\n" + elem.text
-    #         db.execUpdate("""
-    #             insert into visas
-    #             (file_id, content) 
-    #             values(%s, %s)""", (i, full_text))
+    #     en = db.execQuery("select count(distinct documentid) from doctfidf where match(word) against (%s)", ("\""+result[1]+"\"",))
+    #     fr = db.execQuery("select count(distinct documentid) from doctfidf where match(word) against (%s)", ("\""+result[2]+"\"",))
+    #     db.execUpdate("update word set en_docs=%s, fr_docs=%s where id=%s", (en[0][0],fr[0][0],result[0]))
+    #     n += 1
+    #     if n % 10000 == 0:
+    #         print(n)
     # saveParentHeadings()
     # countKeywords()
     # tm.tfidf_vect.fit(tm.tf)
