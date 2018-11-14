@@ -492,8 +492,8 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             } else {
                 d.y = 80;
             }
-            if(parseInt(d.data.child_size) > max_node_size) {
-                max_node_size = d.data.child_size;
+            if(parseInt(d.data.set_size) > max_node_size) {
+                max_node_size = d.data.set_size;
             }
         });
 
@@ -527,13 +527,13 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
         nodeEnter.append('text')
             .attr("dy", ".35em")
             .attr("dx", function(d) {
-                return -3 + (d.data.child_size.toString().length * -2) + 1;
+                return -3 + (d.data.set_size.toString().length * -2) + 1;
             })
             .attr("fill", function(d) {
-                return d.data.child_size > 0 ? "rgb(0,0,0)" : "rgb(255,255,255)";
+                return d.data.length > 0 ? "rgb(0,0,0)" : "rgb(255,255,255)";
             })
             .text(function(d) { 
-                return d.data.child_size; 
+                return d.data.set_size; 
             });
 
 
@@ -562,11 +562,12 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                     if(circle_size < min_circle_size) circle_size = min_circle_size;
                 }
                 if(circle_size > max_circle_size) circle_size = max_circle_size;
-                let r = circle_size*(d.data.child_size/max_node_size)+8;
+                let r = circle_size*(d.data.set_size/max_node_size);
+                if(r < min_circle_size) r = min_circle_size;
                 return r;
             })
             .style("fill", function(d) {
-                return d.data.child_size > 0 ? "rgb(255,255,255)" : "rgb(155,155,155)";
+                return d.data.length > 0 ? "rgb(255,255,255)" : "rgb(155,155,155)";
             })
             .attr("cursor", "pointer");
 
@@ -579,7 +580,7 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             .append('xhtml:body')
             .html(function(d) { 
                 return "<div><span class='node-label'>" + d.data.name 
-                    + "</span><span class='super-script'>" + d.data.set_size 
+                    + "</span><span class='super-script'>" + d.data.length 
                     + "</span>" + "</div>"; 
             });
 

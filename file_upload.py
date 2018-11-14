@@ -55,14 +55,20 @@ strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
-    # results = db.execQuery("select id, word, fr_translation from word where en_docs is null and fr_docs is null;")
+    # results = db.execQuery("""select h.id, h.tierindex 
+    # from heading h 
+    # left join wordsize w on w.headingid = h.id
+    # where h.pos='n' and h.subcat='' and w.pos_size is null;""")
     # n = 0
     # for result in results:
-    #     en = db.execQuery("select count(distinct documentid) from doctfidf where match(word) against (%s)", ("\""+result[1]+"\"",))
-    #     fr = db.execQuery("select count(distinct documentid) from doctfidf where match(word) against (%s)", ("\""+result[2]+"\"",))
-    #     db.execUpdate("update word set en_docs=%s, fr_docs=%s where id=%s", (en[0][0],fr[0][0],result[0]))
+    #     pos = db.execQuery("""select h.id, sum(w.size) from heading h
+    #     left join heading h2 on h2.tierindex=h.tierindex and h2.subcat=''
+    #     left join wordsize w on w.headingid=h2.id
+    #     where h.pos='n' and h.subcat='' and h.tierindex=%s
+    #     group by h.id;""", (result[1],))
+    #     db.execUpdate("update wordsize set pos_size=%s where headingid=%s", (pos[0][1],result[0]))
     #     n += 1
-    #     if n % 10000 == 0:
+    #     if n % 1000 == 0:
     #         print(n)
     # saveParentHeadings()
     # countKeywords()

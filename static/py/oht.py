@@ -72,8 +72,9 @@ class Heading(object):
 
     def PartOfSpeech(self):
         """ Returns all parts of speech for a given tier """
-        results = self.db.execQuery("""select h.id
+        results = self.db.execQuery("""select h.id, w.size
             from heading h
+            left join wordsize w on w.headingid=h.id
             where h.tierindex=%s and h.subcat=''
             """, (self.tierindex,))
         pos_list = []
@@ -93,7 +94,8 @@ class Heading(object):
             from word w
             where w.headingid=%s
             group by w.id, w.fr_translation, w.headingid
-            order by w.fr_translation desc;""", (self.id,))
+            order by case when (w.en_docs+w.fr_docs) > 0 then 1 else 0 end desc
+            , w.fr_translation;""", (self.id,))
         words = []
         for result in results:
             temp = {}
@@ -174,13 +176,12 @@ class Wrapper(object):
 
     def __init__(self):
         self.db.execProc("sp_tfidf_cache")
-        counts = self.db.execQuery("""select x.id, ifnull(y.n, 0) count
-            from heading x
-            left join (select parentid, count(*) n
-				from heading
-				where parentid is not null and pos='n' and subcat=''
-				group by parentid) y on x.id=y.parentid
-			where x.pos='n' and x.subcat='';
+        counts = self.db.execQuery("""select h.id, count(h2.id)
+            from heading h
+            left join heading h2 on h2.parentid=h.id and h2.pos='n' and h2.subcat=''
+            left join wordsize w on w.headingid=h2.id
+            where h.pos='n' and h.subcat='' and w.size > 0
+            group by h.id;
         """)
         # synsets = self.db.execQuery("""select w.headingid
         #       , count(*)
@@ -226,7 +227,7 @@ class Wrapper(object):
             #     if h_id in pos:
             #         n += pos[h_id][0]
             # self.synset_count[_heading_id]["children"] = n
-        # cached this because it made startup take ~5 mins
+        # # cached this because it made startup take ~5 mins
         # with open("./model/pkl/synset.pkl", "w+") as f:
         #     pickle.dump(self.synset_count, f)
         with open("./model/pkl/synset.pkl", "r") as f:
@@ -479,18 +480,19 @@ class Wrapper(object):
             else:
                 length = "0"
         
-        if set_size == "":
-            if heading_id in self.synset_count:
-                set_size = self.synset_count[heading_id]["heading"]
-            else:
-                set_size = "0"
-        
-        if child_size == "":
-            if heading_id in self.synset_count:
-                child_size = self.synset_count[heading_id]["children"]
-            else:
-                child_size = "0"
-
+        if (set_size == "" or child_size == "") and heading_id!="root":
+            result = self.db.execQuery("select size, pos_size from wordsize where headingid=%s"
+                , (heading_id,))
+            set_size = result[0][1]
+            child_size = result[0][0]
+            # headings = self.getHeadingChildrenCSVList(heading_id=heading_id, output_csv=False)
+            # _set_size = 0
+            # _child_size = 0
+            # for h in headings:
+            #     _set_size+=int(h[6])
+            #     _child_size+=int(h[7])
+            # set_size = str(_set_size)
+            # child_size = str(_child_size)
 
         new_line = "\"" + str(heading_id) \
             + "\",\"" + name \
@@ -544,7 +546,10 @@ class Wrapper(object):
                 when h.t7='NA' then '6'
                 else 0 end
             , case when h.parentid=0 then 'root' else h.parentid end
+            , ifnull(w.pos_size, 0)
+            , ifnull(w.size, 0)
             from heading h
+            left join wordsize w on w.headingid=h.id
             where h.tierindex like %s and h.pos='n' and h.subcat=''
             and h.parentid is not null
             and t""" + str(last_index) + "!= 'NA'", (query_tier,))
@@ -556,8 +561,7 @@ class Wrapper(object):
             h_id = str(h[0])
             if h_id in parent_list:
                 continue
-            if self.synset_count[h_id]["heading"] == 0 \
-                and self.synset_count[h_id]["children"] == 0:
+            if h[6] == 0 and h[7] == 0:
                 continue
             parent_list[h_id] = True
             p_id = str(h[5])
@@ -581,8 +585,8 @@ class Wrapper(object):
                     break
                 p_id = str(p[0][5])
                 parent_list[str(p[0][0])] = True
-                csv += self.getCSVLine(str(p[0][0]), p[0][1], p_id, "10", "1", str(p[0][4]), p[0][2])                
-            csv += self.getCSVLine(str(h[0]), h[1], p_id, "10", "1", str(h[4]), h[2])
+                csv += self.getCSVLine(str(p[0][0]), p[0][1], p_id, "10", "1", str(p[0][4]), p[0][2], set_size=h[6], child_size=h[7])
+            csv += self.getCSVLine(str(h[0]), h[1], p_id, "10", "1", str(h[4]), h[2], set_size=h[6], child_size=h[7])
         return csv
 
 
