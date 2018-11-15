@@ -618,7 +618,8 @@ function showSearchResults( data ) {
                 html = "<li>";
                 if((topic.rank - last_rank) > 1) html += "<span>...</span>";
                 html += "<a id='" + topic.id + "' class='search-term ";
-                html += "existent' onclick='forceIncludeTerm(" + topic.id + ");'>" + (topic.rank) + ". ";
+                html += "existent' onclick='forceIncludeTerm(\"" + topic.name + "\", \"" 
+                + topic.heading_id + "\", \"" + topic.id + "\");'>" + (topic.rank) + ". ";
                 last_rank = topic.rank;
             } else {
                 if(!has_missing) {
@@ -626,7 +627,8 @@ function showSearchResults( data ) {
                     $container.append($("<h3>MISSING / MUST INCLUDE (?)</h3><ul class='doc-term' id='doc-missing-term'></ul>"));
                     list_id = "#doc-missing-term";
                 }
-                html += "non-existent' onclick='forceIncludeTerm(" + topic.id + ");'>"
+                html += "non-existent' onclick='forceIncludeTerm(\"" + topic.name + "\", \"" 
+                + topic.heading_id + "\", \"" + topic.id + "\");'>"
             }
             html += topic.name + "</a></li>";
             $(list_id, $container).append($(html));
@@ -635,12 +637,20 @@ function showSearchResults( data ) {
 }
 
 // force the inclusion of a term (i.e. toggle its star ON)
-function forceIncludeTerm(term_id) {
-    let $elem = $(".custom-keyword[data-termid='" + term_id + "'] .star");
-    if($elem.length == 0 || $elem.hasClass("active")) return;
-    $.each($elem, function() {
-        toggleStar(this, true, false);
+function forceIncludeTerm(keyword, heading_id, id) {
+    let already_used = false;
+    $("#search-term-box .term-container").each(function(i) {
+        let used_keyword = $(".custom-keyword-heading", $(this)).html()
+        if(keyword == used_keyword) {
+            already_used = true;
+            $.each($(".star", $(this)), function() {
+                toggleStar(this);
+            });
+        }
     });
+    if(!already_used) {
+        drawKeyword(keyword, heading_id, true, id);
+    }
     updateJournalCount(true);
 }
 

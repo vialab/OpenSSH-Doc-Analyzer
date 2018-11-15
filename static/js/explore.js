@@ -141,7 +141,11 @@ function maximizeJournalCount(e) {
     let height = $(window).height() - (journal_count_margin*2)
     - ($(".navbar-collapse").height() + $("#search-term-box").height());
     let width = $(window).width()-(journal_count_margin*2);
-    $(this).css({"width": width, "height": height, "right":journal_count_margin});
+    $(this).css({"width": width
+        , "height": height
+        , "right":journal_count_margin
+        , "opacity": 1
+    });
     redrawJournalCount(false);
     $("button.close", this).show();
     e.stopPropagation();
@@ -255,6 +259,7 @@ function drawJournalCount(data, merge, minimize=true, use_old=false) {
             , "right": right
             , "height": height
             , "width": width
+            , "opacity": 0.5
         });
         barHeight = height / new_chart_data[0].values.length;
         if(barHeight > 20) barHeight = 20;
