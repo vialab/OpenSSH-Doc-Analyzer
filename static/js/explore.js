@@ -112,7 +112,10 @@ function clicked(cb_keyword) {
         } else {
             oneclick = false;
             clearTimeout(click_to);
-            if(d.data.length == "0" && d.data.heading_id != "root") {
+            if((d.data.length == "0" && d.data.heading_id != "root") 
+                || d.data.heading_id == selected_heading) {
+                // don't update if there's nothing to load
+                // or if we already have this heading loaded
                 return;
             }
             // otherwise we double clicked another tier
@@ -120,23 +123,18 @@ function clicked(cb_keyword) {
             let svg_id = $container.attr("id");
             let width = $container.attr("width");
             let height = $container.attr("height");
-            // let pack = d3.pack().size([width, height]).padding(padding);  
-            // let pack = d3.treemap()
-            //     .size([width, height])
-            //     .paddingOuter(padding)
-            //     .tile(d3.treemapBinary);
             let pack = d3.tree().size([height, width]);
             last_heading = "";
             selected_heading = "";
             $(".hl-label").removeClass("hl-label");
             $(".selected").removeClass("selected");
             // update the circle pack to show new tier
-            update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, true
-                , true, true, d.data.heading_id, cb_keyword);
+            update(d3.select("svg#" + svg_id), pack, "/oht/", d.id, cb_keyword);
         }
     }
 }
 
+// maximize the journal count vis modal
 function maximizeJournalCount(e) {
     let height = $(window).height() - (journal_count_margin*2)
     - ($(".navbar-collapse").height() + $("#search-term-box").height());
@@ -402,9 +400,8 @@ function resetJournalCount() {
 // svg_id   - id of the svg
 // path     - base URL for data requet
 // id       - tier-index
-function createNewVis(svg_path, svg_id, path, id, width, height, weight
-                    , change_focus=true, add_label=true, add_event=true, heading_id
-                    , cb_keyword) {
+function createNewVis(svg_path, svg_id, path, id, width, height, cb_keyword) {
+    selected_heading = id;    
     svg_id = svg_id.replace(/\./g, "-");
     let svg = null;
     if($(svg_path + " #"+svg_id).length > 0) {
@@ -419,17 +416,9 @@ function createNewVis(svg_path, svg_id, path, id, width, height, weight
     // set svg attributes
     svg.attr("width", width);
     svg.attr("height", height);
-    svg.attr("weight", weight);
     svg.attr("id", svg_id);
     svg.attr("tier-index", id);
-    
-    // let pack = d3.pack().size([width-5, height-5]).padding(padding);
-    // let pack = d3.treemap()
-    // .size([width, height])
-    // .paddingOuter(padding)
-    // .tile(d3.treemapBinary);
     let pack = d3.tree().size([height, width]);
-    
     if(hook_busy) {
         // queue this request and wait for others to finish first
         let temp = {
@@ -437,24 +426,17 @@ function createNewVis(svg_path, svg_id, path, id, width, height, weight
             , "pack":pack
             , "path":path
             , "id":id
-            , "change_focus":change_focus
-            , "add_label":add_label
-            , "add_event":add_event
-            , "heading_id":heading_id
             , "cb_keyword":cb_keyword
         }
         vis_queue.push(temp);
     } else {
         // draw the circle pack
-        update(svg, pack, path, id, change_focus, add_label, add_event
-            , heading_id, cb_keyword);
+        update(svg, pack, path, id, cb_keyword);
     }
 }
 
 // update a vis with new tier index
-function update(svg, pack, path, id, change_focus=true, add_label=true
-                , add_event=true, heading_id, cb_keyword) {
-
+function update(svg, pack, path, id, cb_keyword) {
     let url_path = path + id;
     hook_busy = true;
     max_node_size = 0;
@@ -521,10 +503,17 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             .on('click', clicked(cb_keyword));
 
         // Add Circle for the nodes
+        let circle_size = max_circle_size;
         nodeEnter.append('circle')
         .attr('class', 'node')
         .attr('r', 1e-6)
         .style("fill", function(d) {
+            if(d.depth == 2) {
+                let height = $("#search-dialog-main").height();
+                circle_size = (height / d.parent.children.length)/2;
+                if(circle_size < min_circle_size) circle_size = min_circle_size;
+            }
+            if(circle_size > max_circle_size) circle_size = max_circle_size;
             return d._children ? "lightsteelblue" : "#fff";
         });
 
@@ -544,7 +533,6 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
 
         // UPDATE
         let nodeUpdate = nodeEnter.merge(node);
-
         // Transition to the proper position for the node
         nodeUpdate.transition()
             .duration(duration)
@@ -556,17 +544,9 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
                     $("g.node."+selected_heading).d3click();
                 }
             });
-
         // Update the node attributes and style
         nodeUpdate.select("circle.node")
             .attr("r", function(d) {
-                let circle_size = max_circle_size;
-                if(d.depth == 2) {
-                    let height = $("#search-dialog-main").height();
-                    circle_size = (height / d.parent.children.length)-(journal_count_margin);
-                    if(circle_size < min_circle_size) circle_size = min_circle_size;
-                }
-                if(circle_size > max_circle_size) circle_size = max_circle_size;
                 let r = circle_size*(d.data.set_size/max_node_size);
                 if(r < min_circle_size) r = min_circle_size;
                 return r;
@@ -667,6 +647,8 @@ function update(svg, pack, path, id, change_focus=true, add_label=true
             }
             update(d);
         }
+
+        selected_heading = id;
         processNextUpdateRequest();
     });
 }
@@ -715,9 +697,7 @@ function wrap(text) {
 function processNextUpdateRequest() {
     if(vis_queue.length > 0) {
         let temp = vis_queue.pop();
-        update(temp.svg, temp.pack, temp.path, temp.id, temp.change_focus
-            , temp.add_label, temp.add_event, temp.heading_id
-            , temp.cb_keyword);
+        update(temp.svg, temp.pack, temp.path, temp.id, temp.cb_keyword);
     } else {
         hook_busy = false;
     }
@@ -760,8 +740,7 @@ function drawSearchTerm(tier_index, heading_id, heading_text, weight) {
         .interpolate(d3.interpolateHcl);
     // draw mini-vis to this element
     createNewVis(svg_path, "mini-" + tier_id
-        , "/oht/", tier_index, vis_size, vis_size, weight, false, false
-        , false, heading_id, color);
+        , "/oht/", tier_index, vis_size, vis_size, color);
     
     // re-instantiate sortable (drag and drop) dom elements
     resortable();

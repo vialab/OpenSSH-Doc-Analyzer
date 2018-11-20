@@ -37,8 +37,7 @@ $(document).on("click", ".term-vis svg", function() {
     let heading_id = $(".term-heading-id", $parent).val();
     selected_heading = heading_id;
     createNewVis("#search-dialog", "search-dialog-vis", "/oht/"
-        , target_index, vis_width, vis_height, 1
-        , true, true, true, heading_id, headingClicked);
+        , target_index, vis_width, vis_height, headingClicked);
 
     // set up the weight slider bar to match selection
     let weight = $(".term-heading-weight", $parent).val();
@@ -68,9 +67,7 @@ $("#add-term").on("click", function() {
     d3.select("#search-dialog-vis-parent").remove();
     d3.select("#search-dialog-vis-child").remove();
     createNewVis("#search-dialog-main", "search-dialog-vis-parent", "/oht/"
-        , home_tier, vis_width, vis_height, 1
-        , true, true, true, null, headingClicked
-    );
+        , home_tier, vis_width, vis_height, headingClicked);
     searching = false;
     selected_heading = "";
     toggleSearchDialog();
@@ -242,10 +239,6 @@ function showKeywordResults(data, cb_keyword) {
             <div class='keyword-vis' id='" + svg_path + "'></div>\
         </div>");
         $(".custom-keyword-container").after($box);
-        // draw the mini-vis to the dom element
-        // createNewVis("#"+svg_path, "mini-"+clean_tier_index, "/oht/"
-        //     , data[i][4], 100, 100, 1, false, false, false
-        //     , data[i][0]);
     }
     $(".custom-keyword-container").off("click");
     $(".custom-keyword-container").on("click", function() {
@@ -501,8 +494,7 @@ function keywordClicked(d) {
 
     // draw the mini-vis to the dom element
     createNewVis("#search-term-box #"+target_parent, target, "/oht/"
-        , new_tier_index, vis_size, vis_size, weight
-        , false, false, false, d.data.heading_id);
+        , new_tier_index, vis_size, vis_size);
 
     $target.attr("tier-index", new_tier_index);
 

@@ -246,7 +246,9 @@ class Wrapper(object):
         from word w
         left join heading h on h.id=w.headingid
         left join thematicheading th on th.id=h.thematicheadingid
+        left join wordsize ws on ws.headingid=h.id
         where w.word like %s and h.id in (select headingid from tfidf_cache) and h.pos='n'
+        and (ws.size > 0 or ws.pos_size > 0)
         limit %s
         """, ("%" + keyword + "%", n))
 

@@ -674,6 +674,13 @@ fill: brown;
     opacity: 1 !important;
 }
 
+#journal-count span {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 #journal-count button.close {
     position: fixed;
     right: 25px;
