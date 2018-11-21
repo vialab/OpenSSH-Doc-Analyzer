@@ -538,7 +538,6 @@ function getSearchResults( data ){
     });
 }
 
-
 // format and display search results
 function showSearchResults( data ) {
     $("#search-result-container .doc").remove();    
@@ -615,8 +614,11 @@ function showSearchResults( data ) {
                 last_rank = topic.rank;
             } else {
                 if(!has_missing) {
+                    $(list_id, $container).append("<li><a class='see-all-terms' \
+                    onclick='showDocumentKeywords(\"" + doc.id + "\",\"" + doc.title
+                    + "\");'>voir tout &raquo;</a></li>")
                     has_missing = true;
-                    $container.append($("<h3>MISSING / MUST INCLUDE (?)</h3><ul class='doc-term' id='doc-missing-term'></ul>"));
+                    $container.append($("<h3>TERMES MANQUANTS</h3><ul class='doc-term' id='doc-missing-term'></ul>"));
                     list_id = "#doc-missing-term";
                 }
                 html += "non-existent' onclick='forceIncludeTerm(\"" + topic.name + "\", \"" 
@@ -626,6 +628,33 @@ function showSearchResults( data ) {
             $(list_id, $container).append($(html));
         }
     }
+}
+
+// view all the keywords that we have saved for a single document
+function showDocumentKeywords(doc_id, doc_title) {
+    $("#see-all-modal .modal-title").html(doc_title);
+    $.ajax({
+        type:"GET"
+        , url: "/document/keywords/" + doc_id
+        , success: function(data) {
+            let search_Terms = getSearchTerms(true);
+            let $list = $("<ul class='doc-term'></ul>");
+            for(y in data) {
+                let topic = data[y];
+                let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\"" 
+                + topic.name+ "\",\""+ topic.heading_id + "\", true, \"" 
+                + topic.id + "\");' data-keyword='" 
+                + topic.name + "' class='search-term";
+                if($.inArray(topic.name,search_terms) != -1) {
+                    html += " existent";
+                }
+                html += "'>" + topic.rank + ". "+ topic.name + "</a></li>";
+                $list.append(html);
+            }
+            $("#see-all-modal .modal-body").html($list);
+            $("#see-all-modal").modal("show");
+        }
+    });
 }
 
 // force the inclusion of a term (i.e. toggle its star ON)

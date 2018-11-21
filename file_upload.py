@@ -139,6 +139,32 @@ def journal_view():
     return render_template("journal_view.html", doc_list=documents)
 
 
+@app.route("/document/keywords/<doc_id>", methods=["GET"])
+def getKeywords(doc_id):
+    """ Get a keyword list for a single document """
+    results = db.execQuery("""select d.termid, d.word
+    , d.tfidf, t.headingid 
+    from doctfidf d 
+    left join tfidf t on t.termid=d.termid
+    where d.documentid=%s
+    order by d.tfidf desc""", (doc_id,))
+    used_terms = []
+    keywords = []
+    i = 0
+    for topic in results:
+        if topic[1] in used_terms:
+            continue
+        i += 1
+        used_terms.append(topic[1])
+        temp = {}
+        temp["id"] = topic[0]
+        temp["name"] = topic[1]
+        temp["dist"] = topic[2]
+        temp["heading_id"] = topic[3]
+        temp["rank"] = i
+        keywords.append(temp)
+    return jsonify(keywords)
+
 
 @app.route("/upload", methods=["GET","POST"])
 def upload():

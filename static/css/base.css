@@ -74,10 +74,17 @@ ul.doc-term {
 ul.doc-term li {
     display: inline-block;
     padding-right: 16px;
+    margin: 10px 0;
 }
 
 ul.doc-term li span {
     margin-right: 15px;
+}
+
+ul.doc-term li a.see-all-terms {
+    color: lightgray;
+    cursor: pointer;
+    font-size: 12px;
 }
 
 #search-result-container {
