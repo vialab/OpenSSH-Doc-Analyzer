@@ -436,7 +436,12 @@ function populatePOS(data, selected_pos) {
         if(selected_pos == data[i].pos) {
             html += " active";
         }
-        html += "' onclick='getSynset(this, \"" + data[i].id + "\");'>";
+        if(parseInt(data[i].size) == 0) {
+            html += " empty'";
+        } else {
+            html += "' onclick='getSynset(this, \"" + data[i].id + "\");'"
+        }
+        html += ">";
         html += data[i].pos + ". " + data[i].name + " (" + data[i].size + ")";
         html += "</div>";
         $(".part-of-speech #pos-words").append(html);

@@ -488,8 +488,14 @@ text {
     background-color: rgba(168,209,255,0.4);
 }
 
+#pos-words .pos-container.empty {
+    color: #ccc !important;
+    background-color: rgba(200,200,200,0.1);
+    cursor: default;
+}
 
-#pos-words .pos-container:hover {
+
+#pos-words .pos-container:not(.empty):hover {
     background-color: rgba(168,209,255,0.6);    
 }
 
