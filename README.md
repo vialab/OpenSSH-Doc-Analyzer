@@ -8,63 +8,91 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+This software was created in PYTHON 2.7 and is not compatible with more up to date versions.
+
+A database connection is required for proper functioning of this software. Please create your own `dbconfig.py` file in the `./static/py/` directory. An example is provided:
 
 ```
-Give examples
+mysql = {
+    "host":"localhost",
+    "port":2251,
+    "user":"root",
+    "passwd":"123456789",
+    "db":"mydatabasename"
+}
+```
+
+Along with this, you will also need to install some packages (UNIX):
+
+```
+apt-get update && apt-get install -y \
+        build-essential \
+        python-dev \
+        python-pip \
+        python-tk \
+        libmagickwand-dev \
+        libmysqlclient-dev
 ```
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+In order a local (non-containerized) version running on your machine, please run the provided commands (UNIX). 
 
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
+Install and activate a Python 2.7 virtual environment (virtualenv):
 
 ```
-until finished
+cd /path/to/OpenSSH-Doc-Analyzer
+virtualenv venv
+source venv/bin/activate
 ```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
+Install Python dependencies:
 
 ```
-Give an example
+pip install flask numpy scikit-learn scipy pypdf2 pdfminer wand matplotlib \
+opencv-python pandas textstat mysqlclient lxml simplejson nltk lz4 \
+treetaggerwrapper unicodecsv pathlib2
 ```
 
-### And coding style tests
+### Running Flask
 
-Explain what these tests test and why
+After successfully installing you should be able to run the Flask server with the following commands:
 
 ```
-Give an example
+export FLASK_APP=file_upload.py
+flask run
+```
+
+### Debugging
+
+All development was done using [Visual Studio Code] (https://code.visualstudio.com/), and thus the `/.vscode` files have been provided in order for easy debugging of code. Simple install the IDE, along with the Python package (in the IDE), select your debug options to Flask (note this is not the same as Flask (Old)) and press play.
+
+URL:
+```
+http://localhost:5000/
 ```
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+Deployment is made simple due to the use of Docker. Before deploying in a live system, please contact the project authors in order to receive a copy of the database. 
+
+Once a database connection can be made (locally), all that is left to do is to run the shell script using the command provided below, and ensure that the appropriate routing/proxies have been setup on your web server.
+
+```
+./run.sh
+```
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [Flask](http://flask.pocoo.org/) - The web framework used (PYTHON 2.7)
+* [Jinja2](http://jinja.pocoo.org/docs/2.10/) - Template engine
+* [Bootstrap](https://getbootstrap.com/) - Front-end component library
+* [D3](https://d3js.org/) - JS visualization library
+* [MySQL](https://www.mysql.com/) - Database back-end
+* [Docker](https://www.docker.com/) - Container / Dependency management
 
 ## Versioning
 
-This project is being developed using an iterative approach. Therefore, now releases have yet been made and the project will be subject to drastic changes. No versioning practices will be followed until release. To see a history of changes made to this project, see (https://github.com/vialab/OpenSSH-Doc-Analyzer/commits/).
+This project is being developed using an iterative approach. Therefore, now releases have yet been made and the project will be subject to drastic changes. No versioning practices will be followed until release. To see a history of changes made to this project, see [commit history](https://github.com/vialab/OpenSSH-Doc-Analyzer/commits/).
 
 ## Authors
 
