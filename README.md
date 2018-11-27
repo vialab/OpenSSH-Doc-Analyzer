@@ -64,9 +64,9 @@ flask run
 
 ### Debugging
 
-All development was done using [Visual Studio Code] (https://code.visualstudio.com/), and thus the `/.vscode` files have been provided in order for easy debugging of code. Simple install the IDE, along with the Python package (in the IDE), select your debug options to Flask (note this is not the same as Flask (Old)) and press play.
+All development was done using [Visual Studio Code] (https://code.visualstudio.com/), and thus the `/.vscode` files have been provided in order for easy debugging of code. Simply, install the IDE, along with the Python package (in the IDE), select your debug options to Flask (note this is not the same as Flask (Old)) and press play.
 
-URL:
+The project should be available at the URL:
 ```
 http://localhost:5000/
 ```
@@ -75,7 +75,9 @@ http://localhost:5000/
 
 Deployment is made simple due to the use of Docker. Before deploying in a live system, please contact the project authors in order to receive a copy of the database. 
 
-Once a database connection can be made (locally), all that is left to do is to run the shell script using the command provided below, and ensure that the appropriate routing/proxies have been setup on your web server.
+Once a database connection can be made (locally), all that is left to do is to run the shell script using the command provided below, and ensure that the appropriate routing/proxies have been setup on your web server. 
+
+NOTE: Modifications of used ports may be required.
 
 ```
 ./run.sh
