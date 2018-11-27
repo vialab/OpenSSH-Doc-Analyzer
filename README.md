@@ -52,6 +52,7 @@ pip install flask numpy scikit-learn scipy pypdf2 pdfminer wand matplotlib \
 opencv-python pandas textstat mysqlclient lxml simplejson nltk lz4 \
 treetaggerwrapper unicodecsv pathlib2
 ```
+Note: `pip install -r requirments.txt` might work as well (not tested)
 
 ### Running Flask
 
