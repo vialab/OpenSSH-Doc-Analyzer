@@ -166,9 +166,16 @@ $(document).ready(function() {
         recoverSearch(search_id);
         return;
     }
+    toggleScrollArrow();
     updateJournalCount();
 });
 
+// hack to capture scroll event without jquery delegation
+document.addEventListener("scroll",function(event) {
+    if(event.target.id === "search-term-box") {
+        toggleScrollArrow();
+    }    
+}, true);
 
 function getOhtDirectory(heading_id=181456) {
     $.ajax({

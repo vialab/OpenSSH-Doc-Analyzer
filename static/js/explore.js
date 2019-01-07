@@ -771,12 +771,44 @@ function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
      class='custom-keyword-weight' value='1'/><div class='custom-keyword-heading' heading-id='" 
      + id + "'>" + keyword + "</div><span onclick='toggleStar(this);' class='star'>&#9698;</span></div>");
     $("#add-term").before($box);
+    toggleScrollArrow();
     resortable();
     // we want the journal counts to show potential changes
     // whenever the search query changes
     if(draw_count) {
         updateJournalCount(true);
     }
+}
+
+// toggle our scroll indicator arrows when needed
+function toggleScrollArrow() {
+    let add_left = $("#add-term").offset().left;
+    let search_left = $("#search-btn").offset().left;
+    if(add_left > search_left-100) {
+        $("#overflow-arrow-right").css("opacity",1);
+    } else {
+        $("#overflow-arrow-right").css("opacity",0);
+    }
+    if($("#search-term-box").scrollLeft() > 0) {
+        $("#overflow-arrow-left").css("opacity",1);        
+    } else {
+        $("#overflow-arrow-left").css("opacity",0);
+    }
+}
+
+// scroll the search term box right
+function scrollSTBox(dir) {
+    let box_width = $("#search-term-box").width();
+    let scroll_left = $("#search-term-box").scrollLeft();
+    let page = Math.round(scroll_left / box_width);
+    if(dir==1) {
+        page++;
+    } else if(dir==0 && page > 0) {
+        page--;
+    }
+    $("#search-term-box").animate({
+        scrollLeft: page*box_width
+    });
 }
 
 // sets an html element to toggle a force inclusion for the search query 
@@ -793,14 +825,15 @@ function toggleStar(elem, cancel_bubble=true, draw_count=true) {
     if(cancel_bubble) window.event.cancelBubble = true;
 }
 
+// re-instantiate sortable (drag and drop) dom elements
 function resortable() {
-    // re-instantiate sortable (drag and drop) dom elements
     $("#search-term-box").sortable("destroy");
     $("#search-term-box").sortable({
         items: ".term-container"
     });
 }
 
+// select the color of a vis item based on their category
 function getColor(d) {
     let category = 0;
     if(typeof(d.data.cat) != "undefined") {

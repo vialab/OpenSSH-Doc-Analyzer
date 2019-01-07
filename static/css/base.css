@@ -17,7 +17,7 @@ img.loading {
 , #search-box table, #search-dialog, #search-dialog-title
 , #search-dialog svg, #search-dialog .slider, .term-container
 , #search-keyword-dialog, .recent-search, .recent-doc, #search-keyword
-, .doc, #journal-count { 
+, .doc, #journal-count, #overflow-arrow-right, #overflow-arrow-left { 
     -webkit-transition: all 0.2s ease;
     transition: all 0.2s ease;
 }
@@ -390,14 +390,54 @@ a.search-term:hover {
     position: absolute;
     top: 0;
     right: 0;
-    min-width: 100px;
-    width: 10%;
+    width: 100px;
     height: 100%;
     text-transform: uppercase;
     color: white;
     background-color: rgb(0, 100, 150);
     border: none;
     border-radius: 0;
+}
+
+#overflow-arrow-left, #overflow-arrow-right {
+    position: absolute;
+    top: 0;
+    width: 85px;
+    height: 100%;
+    border: none;
+    pointer-events: none;
+    opacity: 0;
+}
+
+#overflow-arrow-left {
+    padding-left: 5px;
+    padding-right: 55px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,1+58 */
+    background: -moz-linear-gradient(right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 58%, rgba(255,255,255,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(right, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 58%,rgba(255,255,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to left, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 58%,rgba(255,255,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 ); /* IE6-9 */
+}
+
+#overflow-arrow-right {
+    right: 100px;
+    padding-left: 60px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,1+58 */
+    background: -moz-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 58%, rgba(255,255,255,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 58%,rgba(255,255,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 58%,rgba(255,255,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 ); /* IE6-9 */
+}
+
+.overflow-arrow {
+    display: block;
+    height: 100%;
+    overflow-wrap: break-word;
+    line-height: 136px;
+    font-size: 20px;
+    color: slategray;
+    pointer-events: all;
+    cursor: pointer;
 }
 
 .slategray {

@@ -8,6 +8,7 @@ from lz4.frame import compress, decompress
 db = db.Database()
 
 def matchKeyword(keyword_list, n=100, must_include=[]):
+    """ Given a list of keywords, match results """
     if len(keyword_list) == 0:
         return []
     # put them for regex search
@@ -25,6 +26,7 @@ def matchKeyword(keyword_list, n=100, must_include=[]):
         limit 100
         """, (keywords,))
     if len(must_include) > 0:
+        # filter out results without our necessary keywords
         return forceInclusion(results, must_include)
     return results
 
@@ -52,6 +54,7 @@ def getJournalCount(keyword_list, must_include):
 
 
 def forceInclusion(results, must_include):
+    """ Filter matchKeyword results based on required keywords"""
     new_results = []
     for result in results:
         doc_tfidf = db.execQuery("""select word 

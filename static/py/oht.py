@@ -487,14 +487,6 @@ class Wrapper(object):
                 , (heading_id,))
             set_size = result[0][1]
             child_size = result[0][0]
-            # headings = self.getHeadingChildrenCSVList(heading_id=heading_id, output_csv=False)
-            # _set_size = 0
-            # _child_size = 0
-            # for h in headings:
-            #     _set_size+=int(h[6])
-            #     _child_size+=int(h[7])
-            # set_size = str(_set_size)
-            # child_size = str(_child_size)
 
         new_line = "\"" + str(heading_id) \
             + "\",\"" + name \
@@ -523,7 +515,6 @@ class Wrapper(object):
         for i, t in enumerate(tier):
             if i > 0:
                 query_tier += "."
-
             if found_na and count < 1:
                 # redundant, but here to be able to wild card more tiers
                 query_tier += "NA"
