@@ -114,7 +114,9 @@
 </div>
 {% endblock page_content %}
 {% block add_js %}
-<script src="{{ url_for('static', filename='js/explore.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vis.js') }}"></script>
+<script src="{{ url_for('static', filename='js/query.js') }}"></script>
+<script src="{{ url_for('static', filename='js/widget.js') }}"></script>
 <script>
     {% if tier_index %}
         var parent_tier = "{{tier_index['parent']}}";
@@ -134,4 +136,6 @@
     {% endif %}
 </script>
 <script src="{{ url_for('static', filename='js/analyzer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/events.js') }}"></script>
+<script src="{{ url_for('static', filename='js/hooks.js') }}"></script>
 {% endblock add_js %}

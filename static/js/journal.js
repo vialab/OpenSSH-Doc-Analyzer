@@ -1,3 +1,9 @@
+/******************************************************************************
+ * journal.js
+ * Miscellaneous functions for the /journal page
+ * * Last updated: 07/01/2018
+ *****************************************************************************/
+
 $(document).ready(function() {
     $("#search-keyword-container").hide();
     $("#search-keyword-home").on("input click", function() {
