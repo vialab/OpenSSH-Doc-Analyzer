@@ -1019,7 +1019,7 @@ def getMap():
                             search += t + " "
                             x += 1
                 search = search.strip()
-                url = "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyCqdIacUciZPQcOmfNAuaqsH17wDLj8wD8&address=" + \
+                url = "https://maps.googleapis.com/maps/api/geocode/json?key=&address=" + \
                     urllib.quote(search)
                 geo = json.loads(urllib.urlopen(url).read())
                 if geo["status"] == "ZERO_RESULTS":
