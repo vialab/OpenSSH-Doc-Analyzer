@@ -9,3 +9,5 @@ sproc
 *.csv
 *.txt
 run.sh
+tm.pkl
+*.zip

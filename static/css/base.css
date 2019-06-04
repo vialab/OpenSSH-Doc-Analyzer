@@ -761,6 +761,11 @@ fill: brown;
     stroke-width: 2px;
 }
 
+foreignObject {
+    width: 300px;
+    height: 20px;
+}
+
 .node foreignObject body {
     font-size: 1em;
     background-color: rgba(255,255,255,0);

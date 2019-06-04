@@ -145,7 +145,8 @@ function showSearchResults( data ) {
             + topic.name+ "\",\""+ topic.heading_id + "\", true, \"" 
             + topic.id + "\");' data-keyword='" 
             + topic.name + "' class='search-term";
-            if(topic.is_keyword || $.inArray(topic.name,search_terms) != -1) {
+            let topic_name = topic.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            if(topic.is_keyword || $.inArray(topic_name,search_terms) != -1) {
                 topic.is_keyword = 1;
                 html += " existent";
             }
@@ -160,12 +161,13 @@ function showSearchResults( data ) {
         let list_id = "#doc-topic";
         let top_keywords = [];
         $.each($("#doc-topic a", $container), function() {
-            top_keywords.push($(this).data("keyword"));
+            top_keywords.push($(this).data("keyword").normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase());
         })
         for(y in doc.keywordlist) {
             let topic = doc.keywordlist[y];
+            let topic_name = topic.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
             let html = "<li><a id='" + topic.id + "' class='search-term ";
-            if($.inArray(topic.name, top_keywords) != -1) continue;
+            if($.inArray(topic_name, top_keywords) != -1) continue;
             if(topic.rank) {
                 if(!has_keywords) {
                     has_keywords = true;

@@ -1,6 +1,9 @@
 import dbconfig as cfg
 import MySQLdb as sql
 import common as cm
+import os
+from urlparse import urlparse
+
 
 class Database(object):
     """ Basic MySQL database helper functions """
@@ -11,7 +14,15 @@ class Database(object):
         self._connect()
 
     def _connect(self):
-        self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], charset='utf8mb4')
+        env = os.environ.get("DEPLOY_ENV")
+        if env is not None and env == "PROD":
+            connstr = os.environ.get("DATABASE_URL")
+            if connstr is None:
+                raise Exception("DATABASE_URL was not provided")
+            url =  urlparse(connstr)
+            self.conn = sql.connect(host=url.host, user=url.username, passwd=url.password, db="sshcyber", charset='utf8mb4')
+        else:
+            self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], charset='utf8mb4')
 
     def _execute(self, sqlStmt, args=None, cursor=None, is_update=True):
         try:

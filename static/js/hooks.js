@@ -33,14 +33,16 @@ function getJournalCount( data, merge_chart=true ) {
 function getSearchTerms(only_words=false) {
     let keyword_list = [];
     $("#search-term-box .term-container").each(function(i) {
+        let k = $(".custom-keyword-heading", $(this)).html().toLowerCase();
+            k = k.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
         if(only_words) {
-            keyword_list.push($(".custom-keyword-heading", $(this)).html());
+            keyword_list.push(k);
             return;
         }
         if($(this).hasClass("custom-keyword")) {
             keyword_list.push( {
                 "heading_id": $(".custom-keyword-heading", $(this)).attr("heading-id"),
-                "keyword": $(".custom-keyword-heading", $(this)).html(),
+                "keyword": k,
                 "term_id": $(this).data("termid"),
                 "weight": $(".custom-keyword-weight", $(this)).val()-1,
                 "order": i+1,

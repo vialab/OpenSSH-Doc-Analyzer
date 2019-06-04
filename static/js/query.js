@@ -62,8 +62,9 @@ function showKeywordResults(data, cb_keyword) {
 // force the inclusion of a term (i.e. toggle its star ON)
 function forceIncludeTerm(keyword, heading_id, id) {
     let already_used = false;
+    keyword = keyword.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
     $("#search-term-box .term-container").each(function(i) {
-        let used_keyword = $(".custom-keyword-heading", $(this)).html()
+        let used_keyword = $(".custom-keyword-heading", $(this)).html().normalize('NFD').replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
         if(keyword == used_keyword) {
             already_used = true;
             $.each($(".star", $(this)), function() {

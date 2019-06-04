@@ -318,6 +318,12 @@ function update(svg, pack, path, id, cb_keyword) {
         }
 
         selected_heading = id;
+
+        $("foreignObject", function() {
+            console.log($(".hl-label", this).width());
+            $(this).width($(".hl-label", this).width());
+            $(this).height($(".hl-label", this).height());
+        });
         processNextUpdateRequest();
     });
 }
