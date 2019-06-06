@@ -17,7 +17,8 @@ $(document).ready(function() {
     let quick_search = getParameterByName("quicksearch");
     let heading_id = getParameterByName("headingid");
     let tier_index = getParameterByName("tierindex");
-    if(quick_search) { 
+    // let dochash_id = getParameterByName("dochashid");
+    if(quick_search) {
         if(heading_id) {
             openExploreVis(heading_id);
         } else {
@@ -26,6 +27,8 @@ $(document).ready(function() {
     } else if(search_id) {
         recoverSearch(search_id);
         return;
+    } else {
+      search();
     }
     if($(".overflow-arrow").length > 0) toggleScrollArrow();
     updateJournalCount();
@@ -40,12 +43,12 @@ $(document).on("click", ".term-vis svg", function() {
     $parent.addClass("selected");
     // insert heading title
     $("#search-dialog-title").html($(".term-heading", $parent).html());
-    
+
     // toggle search dialog
     if(!searching) {
         toggleSearchDialog();
     }
-    
+
     target = $(this).attr("id");
     target_parent = $(this).parent().attr("id");
     target_index = $(this).attr("tier-index");
@@ -68,7 +71,7 @@ $("#search-result-container").on("click", function() {
     if(peeking) {
         toggleSearchDialog();
     } else {
-        togglePeek();    
+        togglePeek();
     }
 });
 // peek at the current search results
@@ -100,7 +103,7 @@ $(window).on("resize", function() {
 
 $("#search-keyword, #search-keyword-home").on("input click", function() {
     let keyword = $(this).val();
-    $(".no-keyword").hide();    
+    $(".no-keyword").hide();
     if(!keyword_searching) {
         if(keyword != "") {
             toggleKeywordDialog();
@@ -113,7 +116,7 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
             return;
         }
     }
-    setKeyword(keyword);    
+    setKeyword(keyword);
     // wait one second until after the person is done typing
     // before running the request
     $(".load-keyword").show();
@@ -126,10 +129,10 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
         let heading_id = $(this).attr("heading-id");
         openExploreVis(heading_id);
     };
-    
+
     if($(this).attr("id") == "search-keyword-home") {
         cb_keyword = function() {
-            window.location.href = "/analyzer?quicksearch=" 
+            window.location.href = "/analyzer?quicksearch="
                 + $(".keyword-heading", this).html() + "&headingid="
                 + $(this).attr("heading-id") + "&tierindex="
                 + $(this).attr("tier-index");
@@ -143,7 +146,7 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
 
 $(document).keyup(function(e) {
     // doesn't matter if search dialog closed
-    if(!searching && !keyword_searching && journal_count_minimized) {        
+    if(!searching && !keyword_searching && journal_count_minimized) {
         return;
     }
     if (e.keyCode === 27) { // ESC key
@@ -164,5 +167,5 @@ $(document).keyup(function(e) {
 document.addEventListener("scroll",function(event) {
     if(event.target.id === "search-term-box") {
         toggleScrollArrow();
-    }    
+    }
 }, true);

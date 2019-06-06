@@ -8,9 +8,16 @@ import imp
 import constants as CONST
 import hashlib
 import codecs
+import gzip
+import cPickle as pickle
 from lxml import etree, objectify
 
 ## Common helper functions used across the web app
+def load_zipped_pickle(filename):
+    with gzip.open(filename, 'rb') as f:
+        loaded_object = pickle.load(f)
+        return loaded_object
+
 
 def getSHA256(strText):
     """ Create a checksum for a file """
@@ -49,12 +56,12 @@ def removeNamespace(xmlData, namespace):
                 elem.tag = elem.tag[nsl:]
 
 def getXPathElement(xmlDoc, strXPath, aNamespaces=None):
-    """ Get an element in the erudit namespace """    
+    """ Get an element in the erudit namespace """
     if aNamespaces is None:
         ndData = xmlDoc.xpath(strXPath)
-    else:    
+    else:
         ndData = xmlDoc.xpath(strXPath, namespaces=aNamespaces)
-    
+
     if(len(ndData) > 0):
         xmlData = getElementTree(ndData[0])
     else:
@@ -73,7 +80,7 @@ def getFullText(xmlData):
     return strData
 
 def getElementTree(xmlData):
-    """ Convert an XML Element to an Element Tree """    
+    """ Convert an XML Element to an Element Tree """
     return etree.ElementTree(xmlData)
 
 def parseXML(strPath=None, strText=None):

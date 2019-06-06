@@ -1,4 +1,4 @@
-import dbconfig as cfg
+# import dbconfig as cfg
 import MySQLdb as sql
 import common as cm
 import os
@@ -15,12 +15,12 @@ class Database(object):
 
     def _connect(self):
         env = os.environ.get("DEPLOY_ENV")
-        if env is not None and env == "PROD":
-            connstr = os.environ.get("DATABASE_URL")
+        connstr = os.environ.get("DATABASE_URL")
+        if env is None or env == "PROD":
             if connstr is None:
                 raise Exception("DATABASE_URL was not provided")
             url =  urlparse(connstr)
-            self.conn = sql.connect(host=url.host, user=url.username, passwd=url.password, db="sshcyber", charset='utf8mb4')
+            self.conn = sql.connect(host=url.hostname, user=url.username, passwd=url.password, db=url.path[1:], charset='utf8mb4')
         else:
             self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], charset='utf8mb4')
 

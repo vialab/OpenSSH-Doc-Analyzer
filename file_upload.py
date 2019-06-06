@@ -19,6 +19,7 @@ import time
 import urllib
 import matplotlib.pyplot as plt
 import pandas as pd
+# import gzip
 from nltk import word_tokenize
 from lxml import etree, html
 from flask import *
@@ -42,11 +43,16 @@ for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
 tm = tm.TopicModel(stop_words=aStopWord)
-tm.loadModel()
-tm.tfidf_vect.fit(tm.tf)
-# with open("./model/pkl/tm.pkl", "w+") as f:
+# tm.loadModel()
+# tm.tfidf_vect.fit(tm.tf)
+# print("gzipping")
+# with gzip.open("./model/tm.gzip", 'wb') as f:
+#     pickle.dump(tm, f, -1)
+# print("done")
+# with open("./model/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
-# tm = None
+# print("loading again")
+# tm = cm.load_zipped_pickle("./model/tm.gzip")
 # with open("./model/pkl/tm.pkl", "r") as f:
 #     tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
@@ -292,7 +298,7 @@ def analyzer():
         recoverDocumentTfidf(dochash_id)
 
     # nothing to load - return to home page
-    if ("dochashid" not in session and quick_search is None
+    if (dochash_id is None and quick_search is None
             and search_id is None):
         return redirect(url_for("index"))
 
@@ -303,10 +309,15 @@ def analyzer():
     tier_index = None
     if quick_search is None and search_id is None:
         # if we are searching using a document - get results
-        search = getSearchResults(session["tfidf"])
         search_term = session["searchterm"]
         key_term = session["keyterm"]
         tier_index = session["tierindex"]
+        clean_list = []
+        # if len(search_term) > 0:
+        #     # get all keywords
+        #     for k in search_term:
+        #         clean_list.append(k["name"])
+        # search = getSearchResults(session["tfidf"], clean_list)
     # otherwise, our search will be done dynamically through client
     total_end = time.time()
     print("Total Time: %s seconds" % (total_end - total_start))
@@ -504,14 +515,14 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
         return tfidf
 
 
-def getSearchResults(tfidf):
+def getSearchResults(tfidf, clean_list):
     """ Get a list of documents and return it's meta-info  """
     start = time.time()
     rank_list = match(tfidf, 100)
     end = time.time()
     print("Found 10 results in %s seconds" % (end - start))
     # return meta info
-    return getSearchMetaInfo(rank_list)
+    return getSearchMetaInfo(rank_list, clean_list)
 
 
 def match(tfidf, n=100):
