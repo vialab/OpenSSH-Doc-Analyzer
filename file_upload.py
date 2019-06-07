@@ -42,7 +42,7 @@ results = db.execQuery(
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
-tm = tm.TopicModel(stop_words=aStopWord)
+# tm = tm.TopicModel(stop_words=aStopWord)
 # tm.loadModel()
 # tm.tfidf_vect.fit(tm.tf)
 # print("gzipping")
@@ -52,7 +52,7 @@ tm = tm.TopicModel(stop_words=aStopWord)
 # with open("./model/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
 # print("loading again")
-# tm = cm.load_zipped_pickle("./model/tm.gzip")
+tm = cm.load_zipped_pickle("./model/tm.gzip")
 # with open("./model/pkl/tm.pkl", "r") as f:
 #     tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"

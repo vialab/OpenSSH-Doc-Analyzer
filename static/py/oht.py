@@ -9,7 +9,7 @@ from cStringIO import StringIO
 class Word(object):
     """ Word object that holds word and heading information """
     db = db.Database()
-    
+
     def __init__(self, strID):
        """ Return a word object that initializes for a given word in the dictionary """
        word = self.db.execQuery(""" select w.id
@@ -39,9 +39,9 @@ class Word(object):
 class Heading(object):
     """ Heading object that allows traversal between headings"""
     db = db.Database()
-    
+
     def __init__(self, strID):
-        """ Return a heading object that initializes for a 
+        """ Return a heading object that initializes for a
             given word in the dictionary"""
         heading = self.db.execQuery(""" select h.id
         , h.thematicheadingid
@@ -81,7 +81,7 @@ class Heading(object):
         for result in results:
             pos_list.append(Heading(result[0]))
         return pos_list
-            
+
 
     def Synset(self):
         """ Returns list of words categorized within current heading """
@@ -107,7 +107,7 @@ class Heading(object):
 
 
     def Hypernym(self):
-        """ Returns a list of heading objects that are parent 
+        """ Returns a list of heading objects that are parent
             to current heading """
         nLen = len(self.atierindex)-1
         strIndex = ""
@@ -121,7 +121,7 @@ class Heading(object):
 
         results = self.db.execQuery("""
             select id
-            from heading 
+            from heading
             where tierindex=%s and tiering not like 'sub%%'
             and id in (select distinct headingid from tfidf_cache)
             """, (strIndex,))
@@ -133,11 +133,11 @@ class Heading(object):
 
 
     def Hyponym(self):
-        """ Returns a list of heading objects that are sub 
+        """ Returns a list of heading objects that are sub
             categories within the parent tier """
         results = self.db.execQuery("""
-            select id 
-            from heading 
+            select id
+            from heading
             where tierindex=%s and tiering not like 'sub%%'
             and id in (select distinct headingid from tfidf_cache)
             """,(self.tierindex,))
@@ -211,7 +211,7 @@ class Wrapper(object):
             #     heading_count = synsets[_heading_id][0]
             # if _heading_id in pos:
             #     heading_count += pos[_heading_id][0]
-                
+
             # self.synset_count[_heading_id] = { "heading": heading_count, "children":0 }
             # # check if we have children to count
             # if count[1] == 0:
@@ -230,7 +230,7 @@ class Wrapper(object):
         # # cached this because it made startup take ~5 mins
         # with open("./model/pkl/synset.pkl", "w+") as f:
         #     pickle.dump(self.synset_count, f)
-        with open("./model/pkl/synset.pkl", "r") as f:
+        with open("./model/synset.pkl", "r") as f:
             self.synset_count = pickle.load(f)
 
 
@@ -258,27 +258,27 @@ class Wrapper(object):
         """ Returns a list of word objects that matches """
         if lang not in self.ALLOWED_LANG:
             raise Exception(lang + " is not a supported language")
-        
+
         if lang=="en":
             if pos is None:
                 results = self.db.execQuery("""
-                    select id from word 
+                    select id from word
                     where word=%s""", (strWord,))
             else:
                 results = self.db.execQuery("""
-                    select id from word 
+                    select id from word
                     where word=%s and pos=%s""", (strWord,pos))
-        
+
         if lang=="fr":
             if pos is None:
                 results = self.db.execQuery("""
-                    select id from word 
+                    select id from word
                     where fr_translation=%s""", (strWord,))
             else:
                 results = self.db.execQuery("""
-                    select id from word 
+                    select id from word
                     where fr_translation=%s and pos=%s""", (strWord,pos))
-        
+
         words = []
         for result in results:
             word = Word(result[0])
@@ -287,7 +287,7 @@ class Wrapper(object):
         return words
 
 
-    
+
     def getTopicHeadingRankList(self, strID):
         """ Get all headings with a rank for a single topic """
         aHeading = {}
@@ -297,7 +297,7 @@ class Wrapper(object):
             , (tt.dist/x.total) normdist
             , w.freq
             from topicterm tt
-            left join (select topicid, sum(dist) total 
+            left join (select topicid, sum(dist) total
                 from topicterm group by topicid) x on x.topicid=tt.topicid
             left join term w on w.id=tt.termid
             where tt.topicid=%s
@@ -310,7 +310,7 @@ class Wrapper(object):
             strPOS = result[1]
             self.db.execUpdate("""
                 insert into headingterm
-                (word, pos, topicid, dist, normdist, freq) 
+                (word, pos, topicid, dist, normdist, freq)
                 values(%s, %s, %s, %s, %s, %s)"""
                 , (strWord, strPOS, strID, result[2], result[3], result[4]))
 
@@ -331,8 +331,8 @@ class Wrapper(object):
                 if len(aWord) == 0:
                     # still nothing? skip it then
                     continue
-            # since word collision can occur, save confidence level for each 
-            # heading score also normalize based on topic weight and whether 
+            # since word collision can occur, save confidence level for each
+            # heading score also normalize based on topic weight and whether
             # we had to split ngram or not
             fConf = ((1.0 / len(aWord)) * float(result[3])) / ngram_weight
 
@@ -378,7 +378,7 @@ class Wrapper(object):
                 if first_idx is not None:
                     # we were referenced
                     if parent_idx > first_idx:
-                    # parent node appears after first reference                        
+                    # parent node appears after first reference
                         has_error = True
                         can_decrement = False # repeat process on current index
                         parent = new_list[parent_idx]
@@ -391,12 +391,12 @@ class Wrapper(object):
                     parent_idx -= 1
 
         return "".join(new_list)
-            
+
 
     def getTierIndexChildren(self, heading_id):
         """ Get all immediate sub categories and tier below without subs """
         csv = self.getCSVLine("heading_id","name","parent","size","keyword", "tier", "cat", "length", "set_size", "child_size")
-        parent_list = {}        
+        parent_list = {}
         line_list = []
         # get our tier index
         root = self.getTierIndex(heading_id)
@@ -436,7 +436,7 @@ class Wrapper(object):
             new_line = self.getCSVLine(heading_id, root_heading.fr, parent_id, cat=root_cat)
             line_list.append(new_line)
             parent_list[heading_id] = True
-    
+
         csv += self.sortHierarchy(line_list) # sort references in our csv
         if root != "root":
             csv += self.getHeadingChildrenCSVList(root, heading_id, parent_list) # now append all children
@@ -481,7 +481,7 @@ class Wrapper(object):
                 length = self.child_count[heading_id]
             else:
                 length = "0"
-        
+
         if (set_size == "" or child_size == "") and heading_id!="root":
             result = self.db.execQuery("select size, pos_size from wordsize where headingid=%s"
                 , (heading_id,))
@@ -527,7 +527,7 @@ class Wrapper(object):
                 query_tier += t
 
         headings = self.db.execQuery("""
-            select h.id 
+            select h.id
             , h.fr_heading
             , h.t1
             , h.tierindex
@@ -546,10 +546,10 @@ class Wrapper(object):
             where h.tierindex like %s and h.pos='n' and h.subcat=''
             and h.parentid is not null
             and t""" + str(last_index) + "!= 'NA'", (query_tier,))
-        
+
         if not output_csv:
             return headings
-        
+
         for h in headings:
             h_id = str(h[0])
             if h_id in parent_list:
@@ -559,7 +559,7 @@ class Wrapper(object):
             parent_list[h_id] = True
             p_id = str(h[5])
             while p_id not in parent_list:
-                p = self.db.execQuery("""select h.id 
+                p = self.db.execQuery("""select h.id
                         , h.heading
                         , h.t1
                         , h.tierindex
@@ -625,7 +625,7 @@ class Wrapper(object):
                 except:
                     tier = 0
                 h = self.db.execQuery("""
-                select h.id 
+                select h.id
                 from heading h
                 where h.tierindex=%s and h.pos='n' and h.subcat=''
                 and h.id in (select distinct headingid from tfidf_cache)
@@ -633,7 +633,7 @@ class Wrapper(object):
                 """, (tier_index,))
                 csv += self.getCSVLine(str(result[0]), result[1], str(h[0][0]), "10", "1", str(tier), result[6])
         return csv
-    
+
 
     def getParentTier(self, root):
         """ Get parent tier of tier index """
@@ -645,7 +645,7 @@ class Wrapper(object):
             sub_tier = root_tier[8]
         else: # not sub cat - move tiers
             tier = ""
-            sub_tier = ""            
+            sub_tier = ""
             start_na = False
             last_idx = 6
             # generate new tier index
@@ -659,7 +659,7 @@ class Wrapper(object):
                             return "", "", "root"
                         start_na = True
                         last_idx = idx
-                    
+
                 # fill rest of tier index with NA if needed
                 if start_na or idx+1 == len(root_tier)-1:
                     tier += "NA"
@@ -669,7 +669,7 @@ class Wrapper(object):
         # recurse until we find closest tier we actually use
         results = self.db.execQuery("""
         select id from heading
-        where tierindex=%s 
+        where tierindex=%s
         and pos='n' and subcat=''
         """, (tier,))
         if len(results) == 0:
@@ -719,7 +719,7 @@ class Wrapper(object):
         if root_tier[-1] != "NA":
             # we are already at the deepest level
             return ".".join(root_tier)
-        elif root == "root": 
+        elif root == "root":
             return "1.NA.NA.NA.NA.NA.NA"
         else:
             # we need to build a tier for search query
@@ -760,10 +760,10 @@ class Wrapper(object):
             , t.word
             , h.fr_heading
             , th.fr_thematicheading
-            , concat(h.tierindex, case when h.tiering is not null 
+            , concat(h.tierindex, case when h.tiering is not null
                 then concat('.', h.tiering) else '' end)
             , t.headingid
-            from tfidf t 
+            from tfidf t
             left join heading h on h.id=t.headingid
             left join thematicheading th on th.id=h.thematicheadingid
             where t.termid=%s""", (term,))
@@ -792,7 +792,7 @@ class Wrapper(object):
                 aHeading[key] += 1
             else:
                 aHeading[key] = 1
-            
+
             if aHeading[key] > top_freq:
                 top_freq = aHeading[key]
                 top_heading = key
@@ -802,7 +802,7 @@ class Wrapper(object):
                     top_index = term["tier_index"]
         return self.getTierIndexTrio(top_index)
 
-    
+
     def getTierIndexTrio(self, root_tier):
         """ Given a tier index, also get its parent and immediate child """
         tier_index = {}
@@ -811,7 +811,7 @@ class Wrapper(object):
         tier_index["child"] = self.getHeadingId(self.getFirstChildTier(root_tier))
         return tier_index
 
-    
+
     def getClosestHeading(self, root_tier, heading_list):
         """ Given a list of headings, return the heading closest to given tier"""
         root = root_tier.split(".")[:7]
@@ -831,7 +831,7 @@ class Wrapper(object):
                     # penalize for being broader/narrower (top-bottom = -1)
                     heading_score -= 0.2
                     continue
-                
+
                 if x != y:
                     # give partial marks proportional to difference
                     ix = float(x)
@@ -847,9 +847,9 @@ class Wrapper(object):
 
 
     def aggregateByRelevance(self, results):
-        """ Based off a list of indistinct search terms, 
+        """ Based off a list of indistinct search terms,
             return most tightly related distinct set """
-        term_list = {}    
+        term_list = {}
         if len(results) > 0:
             for term in results:
                 t = {}
@@ -878,7 +878,7 @@ class Wrapper(object):
         search_list = []
         base_word = next(iter(term_list))
         best_score = -1 # first one always wins incase of tie
-        # correlation will be based off the first keyword    
+        # correlation will be based off the first keyword
         for term in term_list[base_word]:
             if term["heading_id"] is None:
                 continue
@@ -889,7 +889,7 @@ class Wrapper(object):
                 if term_list[key][0]["heading_id"] is None:
                     temp.append(term_list[key][0])
                     continue
-                if key == base_word:                
+                if key == base_word:
                     continue
                 heading, score = self.getClosestHeading(term["tier_index"], term_list[key])
                 temp.append(heading)
@@ -903,7 +903,7 @@ class Wrapper(object):
             "content": search_list,
             "tier_index": self.getTierIndexIntersection(search_list)
         }
-                
+
 
     def getTierIndex(self, heading_id):
         results = self.db.execQuery("""
@@ -917,7 +917,7 @@ class Wrapper(object):
     def getHeadingId(self, tier_index):
         results = self.db.execQuery("""
         select id from heading
-        where tierindex=%s 
+        where tierindex=%s
         and pos='n' and subcat=''
         """, (tier_index,))
         if len(results) > 0:
