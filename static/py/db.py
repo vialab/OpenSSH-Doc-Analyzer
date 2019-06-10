@@ -1,4 +1,4 @@
-import dbconfig as cfg
+# import dbconfig as cfg
 import MySQLdb as sql
 import common as cm
 import os
