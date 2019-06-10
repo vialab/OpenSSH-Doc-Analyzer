@@ -1,3 +1,4 @@
+#!/usr/src/app/venv/bin python
 # -*- coding: utf-8 -*-
 import db
 import constants as CONST
@@ -41,7 +42,7 @@ class TopicModel(object):
     is_loaded = False
     tfidf = None
     tf = None
-    
+
     def __init__(self, stop_words=None):
         for word in stop_words:
             self.aStopWord.append(word.strip())
@@ -73,13 +74,13 @@ class TopicModel(object):
                 continue
             # lemmatized word can have multiple versions
             aLemma = word[2].lower().replace(u"'", "").split(u"|")
-            
+
             for lemma in aLemma:
                 # make sure individual lemma is not a stop word
                 if lemma not in self.aStopWord and lemma[0] != u"_" and len(lemma) > 1:
                     aCleanWordList.append([lemma, strPOS])
         if quote:
-            return " ".join("\""+word[0]+"_"+word[1]+"\"" for word in aCleanWordList)            
+            return " ".join("\""+word[0]+"_"+word[1]+"\"" for word in aCleanWordList)
         else:
             return " ".join(word[0]+"_"+word[1] for word in aCleanWordList)
 
@@ -109,7 +110,7 @@ class TopicModel(object):
                     tfidf = doc_tfidf.data[key]
 
             aDescriptor[word] = { "freq":freq, "score":tfidf }
-        
+
         aDescriptor = self.getSignificantDescriptors(aDescriptor)
         aDescriptor = self.formNGrams(strText, aDescriptor)
         aDescriptor = self.boostNounDescriptors(aDescriptor)
@@ -142,7 +143,7 @@ class TopicModel(object):
                 # only care about ngrams with descriptors
                 continue
             if aDescriptor[aWord[idx]]["freq"] <= CONST.TT_MINFREQ:
-                # can not justify descriptor exists in ngram due to min frequency                
+                # can not justify descriptor exists in ngram due to min frequency
                 continue
             # get possible bi-grams
             if len(aWord) > idx+1:
@@ -176,15 +177,15 @@ class TopicModel(object):
                     aTriGram[strTriGram]["freq"] += 1
                 else:
                     aTriGram[strTriGram] = { "freq":1, "score":0.0 }
-        
+
         # combine tri-grams with bi-grams
-        aSigNGram = self.replaceNGramDescriptor(aTriGram, aBiGram) 
+        aSigNGram = self.replaceNGramDescriptor(aTriGram, aBiGram)
         # combine descriptors with the n-grams
         aSigNGram = self.replaceNGramDescriptor(aSigNGram, aDescriptor)
         return aSigNGram
 
     def replaceNGramDescriptor(self, aNGram, aDescriptor):
-        """ Return ngrams that have atleast TT_NGRAMSIG percent freq in relation 
+        """ Return ngrams that have atleast TT_NGRAMSIG percent freq in relation
         to average freq of descriptors within the ngram """
         aSigNGram = dict(aDescriptor)
         for ngram in aNGram:
@@ -201,11 +202,11 @@ class TopicModel(object):
                     fDesc += 1.0
                     tfidf += aDescriptor[descriptor]["score"]
                     aSigDesc[descriptor] = aDescriptor[descriptor]
-            
+
             # prefer bi-grams over tri-grams with 1 frequency
             if fDesc < 1:
                 continue
-            
+
             fRelFreq = nTF/(nDF/fDesc)
             if fRelFreq > CONST.TT_NGRAMSIG:
                 # average the tfidf score of descriptors involved
@@ -219,7 +220,7 @@ class TopicModel(object):
         return aSigNGram
 
     def boostNounDescriptors(self, aDescriptor):
-        """ Boost noun frequency by a factor of CONST.NOUN_BOOST 
+        """ Boost noun frequency by a factor of CONST.NOUN_BOOST
         and then smooth by fitting on logarithmic scale """
         aBoosted = {}
         for descriptor in aDescriptor:
@@ -235,7 +236,7 @@ class TopicModel(object):
         # i = self.interpolateIntoLog(x_axis, y_axis)
         # aLabel = list([word[0] for word in aSorted])
         # aLog = [int(round(i(x))) for x in x_axis]
-        
+
         # aBoosted = {}
         # for descriptor, y in zip(aLabel, aLog):
         #     aBoosted[descriptor] = { "freq":y }
@@ -333,7 +334,7 @@ class TopicModel(object):
         """ Write all topics, features, and distributions to database """
         aFeatureNames = self.count_vect.get_feature_names()
         tf_sum = self.tf.sum(axis=0).A1 # sum term frequencies for each doc
-        
+
         # # save terms with tf and idf
         for term in self.count_vect.vocabulary_:
             aTerm = filter(bool, term.split(" "))
@@ -366,9 +367,9 @@ class TopicModel(object):
         # save topics and their term distributions
         for topic_idx, topic in enumerate(self.lda.components_):
             self.db.execUpdate("insert into topic(topicname) values(%s)", (topic_idx,))
-            for key, value in self.count_vect.vocabulary_.iteritems(): 
-                self.db.execUpdate("""insert into topicterm(topicid, termid, dist) 
-                select topic.id, term.id, %s from topic 
+            for key, value in self.count_vect.vocabulary_.iteritems():
+                self.db.execUpdate("""insert into topicterm(topicid, termid, dist)
+                select topic.id, term.id, %s from topic
                 left join term on term.wordpos=%s collate utf8mb4_bin
                 where topic.topicname=%s
                 """, (topic[value], key.encode("utf-8"), topic_idx))
