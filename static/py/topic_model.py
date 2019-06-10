@@ -1,4 +1,4 @@
-#!/usr/src/app/venv/bin python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import db
 import constants as CONST

@@ -21,6 +21,8 @@ WORKDIR /usr/src/app
 
 COPY . /usr/src/app
 
+RUN chmod +x ./static/py/topic_model.py
+
 EXPOSE 5000
 
 CMD ["flask", "run", "--host=0.0.0.0"]
