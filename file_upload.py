@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append("./static/py")

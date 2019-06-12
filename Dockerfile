@@ -21,7 +21,7 @@ WORKDIR /usr/src/app
 
 COPY . /usr/src/app
 
-RUN chmod +x ./static/py/topic_model.py
+RUN ["chmod", "644", "file_upload.py"]
 
 EXPOSE 5000
 
