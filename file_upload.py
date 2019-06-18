@@ -43,8 +43,7 @@ results = db.execQuery(
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
-# tm = tm.TopicModel(stop_words=aStopWord)
-# tm.loadModel()
+tm = tm.TopicModel(stop_words=aStopWord)
 # tm.tfidf_vect.fit(tm.tf)
 # print("gzipping")
 # with gzip.open("./model/tm.gzip", 'wb') as f:
@@ -54,6 +53,7 @@ aStopWord = set(aStopWord)
 #     pickle.dump(tm, f)
 # print("loading again")
 tm = cm.load_zipped_pickle("./model/tm.gzip")
+tm.loadModel()
 # with open("./model/pkl/tm.pkl", "r") as f:
 #     tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
@@ -566,43 +566,44 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
     start = time.time()
     # first get document info - author, title, etc.
     for aDoc in rank_list:
-        result = corpus.getDocumentInfo(aDoc[0])
-        # resultlist = list(result[0])
+        r = corpus.getDocumentInfo(aDoc[0])
+        resultlist = list(r[0])
         # if strDocHashID is None:
-        # resultlist.append(aDoc[1])
-        results.append(result)
+        resultlist.append(aDoc[1])
+        results.append(resultlist)
     end = time.time()
     print("Retrieved meta info in %s seconds" % (end - start))
-
     # create the markup to return and also pull topic distribution for doc
     search = []
     start = time.time()
     for result in results:
+        if len(result) < 13:
+            continue
         doc = {}
         doc["id"] = result[0]
         doc["title"] = result[1]
         doc["author"] = result[2]
         cit_arr = []
-        cit_arr.append(str(result[3]))
+        cit_arr.append(result[3])
         cit_arr.append(", Vol. ")
-        cit_arr.append(str(result[4]))
+        cit_arr.append(result[4])
         if result[5]:
             cit_arr.append(", No. ")
-            cit_arr.append(str(result[5]))
+            cit_arr.append(result[5])
         if result[6]:
             cit_arr.append(".")
-            cit_arr.append(str(result[6]))
+            cit_arr.append(result[6])
         cit_arr.append(", ")
-        cit_arr.append(str(result[1]))
+        cit_arr.append(result[1])
         cit_arr.append(" (")
-        cit_arr.append(str(result[9]))
+        cit_arr.append(result[9])
         cit_arr.append(" ")
-        cit_arr.append(str(result[8]))
+        cit_arr.append(result[8])
         cit_arr.append("), pp. ")
-        cit_arr.append(str(result[10]))
+        cit_arr.append(result[10])
         if result[11]:
             cit_arr.append("-")
-            cit_arr.append(str(result[11]))
+            cit_arr.append(result[11])
         doc["citation"] = "".join(cit_arr)
         doc["topiclist"] = []
         doc["keywordlist"] = []

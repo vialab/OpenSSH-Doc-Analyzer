@@ -320,14 +320,18 @@ class TopicModel(object):
         if not self.is_loaded:
             gc.disable()
             self.is_loaded = True
-            self.count_vect = joblib.load("./model/pkl/vectorizer.pkl")
-            self.tfidf = joblib.load("./model/pkl/tfidf.pkl")
-            self.tfidf_vect = joblib.load("./model/pkl/tfidf_vect.pkl")
-            self.tf = joblib.load("./model/pkl/tf.pkl")
-            self.lda = joblib.load("./model/pkl/lda.pkl")
-            self.aStopWord = joblib.load("./model/pkl/stopword.pkl")
-            aConfig = joblib.load("./model/pkl/config.pkl")
-            self.aDocList = self.aDocList
+            # self.count_vect = joblib.load("./model/pkl/vectorizer.pkl")
+            # self.tfidf = joblib.load("./model/pkl/tfidf.pkl")
+            self.count_vect = cm.load_zipped_pickle("./model/vectorizer")
+            self.tfidf = cm.load_zipped_pickle("./model/tfidf")
+            # self.tfidf_vect = joblib.load("./model/pkl/tfidf_vect.pkl")
+            # self.tf = joblib.load("./model/pkl/tf.pkl")
+            # self.lda = joblib.load("./model/pkl/lda.pkl")
+            # self.aStopWord = joblib.load("./model/pkl/stopword.pkl")
+            # aConfig = joblib.load("./model/pkl/config.pkl")
+            # self.aDocList = self.aDocList
+            tm = cm.load_zipped_pickle("./model/tm.gzip")
+
             gc.enable()
 
     def writeModelToDB(self, aDocument=None):
