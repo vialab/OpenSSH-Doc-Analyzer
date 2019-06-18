@@ -567,10 +567,10 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
     # first get document info - author, title, etc.
     for aDoc in rank_list:
         result = corpus.getDocumentInfo(aDoc[0])
-        resultlist = list(result[0])
+        # resultlist = list(result[0])
         # if strDocHashID is None:
-        resultlist.append(aDoc[1])
-        results.append(tuple(resultlist))
+        # resultlist.append(aDoc[1])
+        results.append(result)
     end = time.time()
     print("Retrieved meta info in %s seconds" % (end - start))
 
