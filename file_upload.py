@@ -582,16 +582,28 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
         doc["id"] = result[0]
         doc["title"] = result[1]
         doc["author"] = result[2]
-        doc["citation"] = result[3] + ", Vol. " + result[4]
+        cit_arr = []
+        cit_arr.append(str(result[3]))
+        cit_arr.append(", Vol. ")
+        cit_arr.append(str(result[4]))
         if result[5]:
-            doc["citation"] += ", No. " + result[5]
+            cit_arr.append(", No. ")
+            cit_arr.append(str(result[5]))
         if result[6]:
-            doc["citation"] += "." + result[6]
-        doc["citation"] += ", " + result[1] + \
-            " (" + result[9] + " " + result[8] + ")"
-        doc["citation"] += ", pp. " + result[10]
+            cit_arr.append(".")
+            cit_arr.append(str(result[6]))
+        cit_arr.append(", ")
+        cit_arr.append(str(result[1]))
+        cit_arr.append(" (")
+        cit_arr.append(str(result[9]))
+        cit_arr.append(" ")
+        cit_arr.append(str(result[8]))
+        cit_arr.append("), pp. ")
+        cit_arr.append(str(result[10]))
         if result[11]:
-            doc["citation"] += "-" + result[11]
+            cit_arr.append("-")
+            cit_arr.append(str(result[11]))
+        doc["citation"] = "".join(cit_arr)
         doc["topiclist"] = []
         doc["keywordlist"] = []
         doc["cossim"] = result[12]
