@@ -11,3 +11,4 @@ sproc
 run.sh
 tm.pkl
 *.zip
+tm.gzip

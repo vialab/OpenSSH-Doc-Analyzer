@@ -16,10 +16,16 @@ RUN pip install Werkzeug==0.14.1 flask numpy scikit-learn==0.20 scipy==1.2.0 pyp
 opencv-python pandas textstat mysqlclient lxml simplejson nltk lz4 treetaggerwrapper unicodecsv pathlib2
 
 ENV FLASK_APP file_upload.py
+ENV DEPLOY_ENV PROD
 
 WORKDIR /usr/src/app
 
 COPY . /usr/src/app
+
+WORKDIR /usr/src/app/treetagger
+RUN chmod +x install-tagger.sh
+RUN ./install-tagger.sh
+WORKDIR /usr/src/app
 
 EXPOSE 5000
 
