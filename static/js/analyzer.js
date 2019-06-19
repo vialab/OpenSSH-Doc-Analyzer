@@ -1,6 +1,6 @@
 /******************************************************************************
  * analyzer.js
- * Miscellaneous functions for the analyzer page that mostly have to do with 
+ * Miscellaneous functions for the analyzer page that mostly have to do with
  * display or positioning for in-page interactions
  * Last updated: 07/01/2018
  *****************************************************************************/
@@ -110,11 +110,11 @@ function togglePeek() {
 
 // format and display search results
 function showSearchResults( data ) {
-    $("#search-result-container .doc").remove();    
+    $("#search-result-container .doc").remove();
     if(data.length == 0) {
         let $format = $("<div class='doc'>Sorry, no search results found.</div>");
         $("#search-result-container").append($format);
-        return;        
+        return;
     }
     search_terms = getSearchTerms(true);
     for(i in data) {
@@ -141,16 +141,16 @@ function showSearchResults( data ) {
             let topic = doc.topiclist[y];
             if(topic.dist < 0.1) continue;
             let dist = topic.dist * 100;
-            let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\"" 
-            + topic.name+ "\",\""+ topic.heading_id + "\", true, \"" 
-            + topic.id + "\");' data-keyword='" 
+            let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\""
+            + topic.name+ "\",\""+ topic.heading_id + "\", true, \""
+            + topic.id + "\");' data-keyword='"
             + topic.name + "' class='search-term";
             let topic_name = topic.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
             if(topic.is_keyword || $.inArray(topic_name,search_terms) != -1) {
                 topic.is_keyword = 1;
                 html += " existent";
             }
-            html += "'>" + (++n) + ". "+ topic.name 
+            html += "'>" + (++n) + ". "+ topic.name
             + "</a></li>";
             let $docterm = $(html);
             $("#doc-topic", $container).append($docterm);
@@ -175,7 +175,7 @@ function showSearchResults( data ) {
                 html = "<li>";
                 if((topic.rank - last_rank) > 1) html += "<span>...</span>";
                 html += "<a id='" + topic.id + "' class='search-term ";
-                html += "existent' onclick='forceIncludeTerm(\"" + topic.name + "\", \"" 
+                html += "existent' onclick='forceIncludeTerm(\"" + topic.name + "\", \""
                 + topic.heading_id + "\", \"" + topic.id + "\");'>" + (topic.rank) + ". ";
                 last_rank = topic.rank;
             } else {
@@ -187,7 +187,7 @@ function showSearchResults( data ) {
                     $container.append($("<h3>TERMES MANQUANTS</h3><ul class='doc-term' id='doc-missing-term'></ul>"));
                     list_id = "#doc-missing-term";
                 }
-                html += "non-existent' onclick='forceIncludeTerm(\"" + topic.name + "\", \"" 
+                html += "non-existent' onclick='forceIncludeTerm(\"" + topic.name + "\", \""
                 + topic.heading_id + "\", \"" + topic.id + "\");'>"
             }
             html += topic.name + "</a></li>";
@@ -201,7 +201,7 @@ function animate(animation, $target) {
     switch(animation) {
         case "select":
             // highlight this box for visual feed back of changes
-            $target.removeClass("selected");        
+            $target.removeClass("selected");
             $target.addClass("changed");
             setTimeout(function() {
                 $target.removeClass("changed");
@@ -218,7 +218,7 @@ function openExploreVis(heading_id) {
     if(heading_id != selected_heading) {
         last_heading = selected_heading;
         selected_heading = heading_id;
-    } 
+    }
     headingClicked({"data":{"heading_id":heading_id}});
 }
 

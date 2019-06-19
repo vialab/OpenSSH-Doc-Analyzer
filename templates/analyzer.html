@@ -22,8 +22,8 @@
                 <div class="search-side word-box">
                     <h4></h4>
                     <div id="heading-words">
-                    </div>                    
-                </div>            
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -67,10 +67,11 @@
     <button id="search-btn" onclick="search();">Chercher</button>
 </div>
 <div id="search-result-container">
+  <div id="loading" style="display: none;"><img class="loading" src="{{ url_for('static', filename='css/loading.gif') }}" /></div>
     {% if search_result %}
         {% for result in search_result %}
         <div class="doc" id="doc-{{result['id']}}">
-            <h3>ARTICLE</h3>                
+            <h3>ARTICLE</h3>
             <div class="doc-title">{{ result["title"]|safe }}</div>
             <div class="doc-author">{{ result["author"]|safe }}</div>
             <div class="doc-cite">{{ result["citation"]|safe }}</div>
@@ -87,12 +88,12 @@
             <h3>TERMES DE CHERCHE</h3>
             <ul class="doc-term" id="doc-people">
             {% for entity in result["entitylist"] %}
-            {% if entity["type"] == "nompers" %}                
+            {% if entity["type"] == "nompers" %}
             <li>
                 <a class="search-term">{{ entity["name"]|safe }}</a>
             </li>
             {% endif %}
-            {% endfor %}              
+            {% endfor %}
             </ul>
         </div>
         {% endfor %}

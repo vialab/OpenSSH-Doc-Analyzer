@@ -230,10 +230,33 @@ class Wrapper(object):
         # # cached this because it made startup take ~5 mins
         # with open("./model/pkl/synset.pkl", "w+") as f:
         #     pickle.dump(self.synset_count, f)
+        self.heading = self.buildHeadingList()
         with open("./model/synset.pkl", "r") as f:
             self.synset_count = pickle.load(f)
 
-
+    def buildHeadingList(self):
+        headings = self.db.execQuery("""
+            select h.id
+            , h.fr_heading
+            , th.fr_thematicheading
+            , concat(h.tierindex, case when h.tiering is not null
+                then concat('.', h.tiering) else '' end)
+            , ifnull(p.pos, 'n')
+            , ifnull(p.posdesc, 'noun')
+            from heading h
+            left join thematicheading th on th.id=h.thematicheadingid
+            left join pos p on p.oht=h.pos
+            """)
+        heading = {}
+        for h in headings:
+            heading[h[0]] = {
+                "heading": h[1]
+                , "thematicheading": h[2]
+                , "tier": h[3]
+                , "pos": h[4]
+                , "posdesc": h[5]
+            }
+        return heading
 
     def getKeywords(self, keyword, n=10):
         """ Returns a list of headings that have a matching keyword """

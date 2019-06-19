@@ -74,7 +74,7 @@ function drawJournalCount(data, merge, minimize=true, use_old=false) {
         }
     }
 
-    if(has_new) { 
+    if(has_new) {
         new_chart_data.push(new_query);
     }
 
@@ -85,7 +85,7 @@ function drawJournalCount(data, merge, minimize=true, use_old=false) {
     }
 
     let flat_data = flattenQueryData(new_chart_data);
-    
+
     // start-up vis letiables
     var barHeight        = 20,
         groupHeight      = barHeight * new_chart_data.length,
@@ -140,7 +140,7 @@ function drawJournalCount(data, merge, minimize=true, use_old=false) {
         .tickFormat('')
         .tickSize(0);
 
-    svg.selectAll("g").remove();    
+    svg.selectAll("g").remove();
 
     // Create bars
     var bar = svg.selectAll("g")
@@ -185,7 +185,7 @@ function drawJournalCount(data, merge, minimize=true, use_old=false) {
         .call(yAxis);
 
     $("#journal-count").show();
-    
+
     if(minimize) return;
 
     // Draw legend
@@ -227,12 +227,12 @@ function updateJournalCount(merge=false) {
 
 
 function journalToolTip(div, d) {
-    div.transition()		
-        .duration(200)		
+    div.transition()
+        .duration(200)
         .style("opacity", 0.9);
-    div.html(d.name + "<br/>"  + d.y)	
-        .style("left", (d3.event.pageX) + "px")		
-        .style("top", (d3.event.pageY - 28) + "px");	
+    div.html(d.name + "<br/>"  + d.y)
+        .style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY - 28) + "px");
 }
 
 // unstack the barchart that displays journal counts

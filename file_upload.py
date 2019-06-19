@@ -610,19 +610,12 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
         doc["cossim"] = result[12]
         # get document distributions
         aTopicDist = db.execQuery("""
-        select t.termid, d.word, d.tfidf, h.fr_heading, th.fr_thematicheading
-            , concat(h.tierindex, case when h.tiering is not null
-                then concat('.', h.tiering) else '' end)
-            , t.headingid
-            , ifnull(p.pos, 'n')
-            , ifnull(p.posdesc, 'noun')
+        select t.termid, d.word, d.tfidf, t.headingid
         from doctfidf d
         left join tfidf t on t.termid=d.termid
-        left join heading h on h.id=t.headingid
-        left join thematicheading th on th.id=h.thematicheadingid
-        left join pos p on p.pos=t.pos
-        where d.documentid=%s
-        order by d.tfidf desc""", (doc["id"],))
+        where d.documentid=%s""", (doc["id"],))
+        aTopicDist = list(aTopicDist)
+        aTopicDist.sort(key=lambda tup: tup[2]) # sort in place by tfidf score
         unused_terms = keyword_list[:]
         used_terms = []
         i = 0
@@ -636,12 +629,23 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
             temp["id"] = topic[0]
             temp["name"] = topic[1]
             temp["dist"] = topic[2]
-            temp["heading"] = topic[3]
-            temp["thematicheading"] = topic[4]
-            temp["tier_index"] = topic[5]
-            temp["heading_id"] = topic[6]
-            temp["pos"] = topic[7]
-            temp["posdesc"] = topic[8]
+
+            hid = topic[3]
+            if hid in oht_wrapper.heading:
+                temp["heading"] = oht_wrapper.heading[hid]["heading"]
+                temp["thematicheading"] = oht_wrapper.heading[hid]["thematicheading"]
+                temp["tier_index"] = oht_wrapper.heading[hid]["tier"]
+                temp["heading_id"] = hid
+                temp["pos"] = oht_wrapper.heading[hid]["pos"]
+                temp["posdesc"] = oht_wrapper.heading[hid]["posdesc"]
+            else:
+                temp["heading"] = None
+                temp["thematicheading"] = None
+                temp["tier_index"] = None
+                temp["heading_id"] = None
+                temp["pos"] = None
+                temp["posdesc"] = None
+
             temp["is_keyword"] = None
             added = True
             if topic[1] in keyword_list:

@@ -18,7 +18,7 @@ function deleteTerm(e) {
 function search(search_id) {
     let keyword_list = getSearchTerms();
     if(keyword_list.length == 0) return;
-    
+
     let data = { "keyword_list":keyword_list };
     if(search_id) data["search_id"] = search_id;
 
@@ -30,15 +30,15 @@ function search(search_id) {
 function showKeywordResults(data, cb_keyword) {
     $(".load-keyword").hide();
     if(data.length == 0) {
-        $(".no-keyword").show();    
+        $(".no-keyword").show();
     }
     for(i in data) {
         let clean_tier_index = data[i][4].replace(/\./g, "-");
         let svg_path = "keyword-vis-" + clean_tier_index;
         svg_path += "-" + $("[id^=" + svg_path + "]").length.toString();
         // create the container and add to dom
-        let $box = $("<div class='keyword-container' id='keyword-" 
-                + clean_tier_index + "' tier-index='" + data[i][4] 
+        let $box = $("<div class='keyword-container' id='keyword-"
+                + clean_tier_index + "' tier-index='" + data[i][4]
                 +"' heading-id='" + data[i][0] + "'>\
             <div class='keyword-heading'>" + data[i][2] + "</div>\
             <div class='keyword-vis' id='" + svg_path + "'></div>\
@@ -50,7 +50,7 @@ function showKeywordResults(data, cb_keyword) {
         drawKeyword($(".keyword-heading").html(),"",true);
         toggleKeywordDialog();
     });
-    
+
     $(".custom-keyword-container.homepage").on("click", function() {
         $(this).off("click");
         window.location.href = "/analyzer?quicksearch=" + $(".keyword-heading", this).html();
@@ -97,10 +97,10 @@ function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
         id = "";
     }
     let $box = $("<div class='term-container text-center custom-keyword new-search-term' id='keyword-"
-    + (new Date()).getTime() + "' data-termid='" + term_id + "' onclick='openExploreVis(\"" 
+    + (new Date()).getTime() + "' data-termid='" + term_id + "' onclick='openExploreVis(\""
     + id + "\")'><button class='close' style='z-index:999;'\
      onclick='deleteTerm(this);'><span>&times;</span></button><input type='hidden' \
-     class='custom-keyword-weight' value='1'/><div class='custom-keyword-heading' heading-id='" 
+     class='custom-keyword-weight' value='1'/><div class='custom-keyword-heading' heading-id='"
      + id + "'>" + keyword + "</div><span onclick='toggleStar(this);' class='star'>&#9698;</span></div>");
     $("#add-term").before($box);
     if($(".overflow-arrow").length > 0) toggleScrollArrow();
@@ -122,7 +122,7 @@ function toggleScrollArrow() {
         $("#overflow-arrow-right").css("opacity",0);
     }
     if($("#search-term-box").scrollLeft() > 0) {
-        $("#overflow-arrow-left").css("opacity",1);        
+        $("#overflow-arrow-left").css("opacity",1);
     } else {
         $("#overflow-arrow-left").css("opacity",0);
     }
@@ -143,7 +143,7 @@ function scrollSTBox(dir) {
     });
 }
 
-// sets an html element to toggle a force inclusion for the search query 
+// sets an html element to toggle a force inclusion for the search query
 function toggleStar(elem, cancel_bubble=true, draw_count=true) {
     if($(elem).hasClass("active")) {
         $(elem).removeClass("active");

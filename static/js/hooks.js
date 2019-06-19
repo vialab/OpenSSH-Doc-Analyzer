@@ -142,6 +142,7 @@ function reorderVis() {
 
 // query and update search results
 function getSearchResults( data ){
+  $("#loading").show();
     $.ajax({
         url: "search"
         , contentType: "application/json"
@@ -149,6 +150,7 @@ function getSearchResults( data ){
         , dataType: "json"
         , type: "POST"
         , success: function(data) {
+          $("#loading").hide();
             showSearchResults(data);
             $(".new-search-term").removeClass("new-search-term");
             $(".star.new").removeClass("new");
@@ -168,9 +170,9 @@ function showDocumentKeywords(doc_id, doc_title) {
             let $list = $("<ul class='doc-term'></ul>");
             for(y in data) {
                 let topic = data[y];
-                let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\"" 
-                + topic.name+ "\",\""+ topic.heading_id + "\", true, \"" 
-                + topic.id + "\");' data-keyword='" 
+                let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\""
+                + topic.name+ "\",\""+ topic.heading_id + "\", true, \""
+                + topic.id + "\");' data-keyword='"
                 + topic.name + "' class='search-term";
                 if($.inArray(topic.name,search_terms) != -1) {
                     html += " existent";
