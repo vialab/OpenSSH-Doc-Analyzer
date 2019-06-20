@@ -52,8 +52,8 @@ tm = tm.TopicModel(stop_words=aStopWord)
 # with open("./model/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
 # print("loading again")
-tm = cm.load_zipped_pickle("./model/tm.gzip")
-tm.loadModel()
+# tm = cm.load_zipped_pickle("./model/tm.gzip")
+# tm.loadModel()
 # with open("./model/pkl/tm.pkl", "r") as f:
 #     tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
@@ -610,12 +610,12 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
         doc["cossim"] = result[12]
         # get document distributions
         aTopicDist = db.execQuery("""
-        select t.termid, d.word, d.tfidf, t.headingid
+        select d.termid, d.word, d.tfidf, t.headingid
         from doctfidf d
         left join tfidf t on t.termid=d.termid
         where d.documentid=%s""", (doc["id"],))
         aTopicDist = list(aTopicDist)
-        aTopicDist.sort(key=lambda tup: tup[2]) # sort in place by tfidf score
+        aTopicDist.sort(key=lambda tup: tup[2], reverse=True)
         unused_terms = keyword_list[:]
         used_terms = []
         i = 0
@@ -639,7 +639,7 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
                 temp["pos"] = oht_wrapper.heading[hid]["pos"]
                 temp["posdesc"] = oht_wrapper.heading[hid]["posdesc"]
             else:
-                temp["heading"] = None
+                temp["heading"] = topic[1]
                 temp["thematicheading"] = None
                 temp["tier_index"] = None
                 temp["heading_id"] = None

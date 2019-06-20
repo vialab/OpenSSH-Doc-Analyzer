@@ -6,7 +6,7 @@
 
 // get journal distribution of erudit
 function getJournalCount( data, merge_chart=true ) {
-    let post_data = JSON.stringify({"keyword_list": []});
+    let post_data = JSON.stringify([{"keyword_list": []}]);
     if(typeof(data) != "undefined" && data != null) {
         post_data = JSON.stringify(data);
     }
@@ -23,7 +23,7 @@ function getJournalCount( data, merge_chart=true ) {
             , dataType: "json"
             , type: "POST"
             , success: function(data) {
-                drawJournalCount(data, merge_chart, journal_count_minimized);
+              drawJournalCount(data, merge_chart, journal_count_minimized);
             }
         });
     }, 500);
@@ -152,6 +152,7 @@ function getSearchResults( data ){
         , success: function(data) {
           $("#loading").hide();
             showSearchResults(data);
+            updateJournalCount();
             $(".new-search-term").removeClass("new-search-term");
             $(".star.new").removeClass("new");
             $(".star.old").removeClass("old");

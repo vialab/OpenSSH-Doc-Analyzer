@@ -23,7 +23,6 @@ function search(search_id) {
     if(search_id) data["search_id"] = search_id;
 
     getSearchResults(data);
-    updateJournalCount();
 }
 
 // display a set of keywords in keyword dialog

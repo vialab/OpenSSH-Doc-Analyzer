@@ -18,8 +18,8 @@ def matchKeyword(keyword_list, n=100, must_include=[]):
         from doctfidf d
         where d.termid in (
             select termid
-            from tfidf 
-            where match(word) against(%s in boolean mode) 
+            from tfidf
+            where match(word) against(%s in boolean mode)
         )
         group by d.documentid
         order by sum(d.tfidf) desc
@@ -27,7 +27,7 @@ def matchKeyword(keyword_list, n=100, must_include=[]):
         """, (keywords,))
     if len(must_include) > 0:
         # filter out results without our necessary keywords
-        return forceInclusion(results, must_include)
+        results = forceInclusion(results, must_include)
     return results
 
 
@@ -41,7 +41,7 @@ def getJournalCount(keyword_list, must_include):
     format_strings = ",".join(["%s"] * len(docs))
     results = db.execQuery("""select m.titrerev, ifnull(x.freq, 0) from meta m
         left join (
-                select titrerev, count(*) freq from meta 
+                select titrerev, count(*) freq from meta
                 where documentid in (%s) group by titrerev
             ) x on x.titrerev=m.titrerev
         group by m.titrerev, x.freq
@@ -57,7 +57,7 @@ def forceInclusion(results, must_include):
     """ Filter matchKeyword results based on required keywords"""
     new_results = []
     for result in results:
-        doc_tfidf = db.execQuery("""select word 
+        doc_tfidf = db.execQuery("""select word
         from doctfidf
         where documentid=%s""", (result[0],))
         unused_terms = must_include[:]
@@ -75,11 +75,11 @@ def getDocumentInfo(document_id):
         select d.id
         , ifnull(t.titre, t.surtitre) titre
         , (select group_concat(concat(prenom
-                ,   CASE  WHEN autreprenom != '' and autreprenom is not null 
-                        THEN concat(' ', autreprenom) ELSE '' 
+                ,   CASE  WHEN autreprenom != '' and autreprenom is not null
+                        THEN concat(' ', autreprenom) ELSE ''
                     END
-                , concat(' ', nomfamille)) separator ', ') 
-            from auteur a where a.documentid=d.id 
+                , concat(' ', nomfamille)) separator ', ')
+            from auteur a where a.documentid=d.id
             order by auteurpos) as auteur
         , m.titrerev
         , m.volume
@@ -98,14 +98,14 @@ def getDocumentInfo(document_id):
 
 def calculateCosSim(dochash_id, document_id):
     """ Calculate cosine similarity between input and compressed corpus doc """
-    user_topic = db.execQuery(""" select dist 
-    from userdoctopic 
-    where dochashid=%s 
+    user_topic = db.execQuery(""" select dist
+    from userdoctopic
+    where dochashid=%s
     order by topicid""", (dochash_id,))
 
     user_topic = [float(topic[0]) for topic in user_topic]
-    comp_topiclz = db.execQuery(""" select topichash 
-    from doctopiclz 
+    comp_topiclz = db.execQuery(""" select topichash
+    from doctopiclz
     where documentid=%s limit 1""", (document_id,))
 
     comp_topic = decompress(comp_topiclz[0][0].decode("utf8").encode("latin1"))
