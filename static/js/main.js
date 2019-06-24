@@ -1,5 +1,105 @@
 var search_terms = {};
 
+function runIntroTour() {
+  let steps = [];
+  // hints for the main page
+  if($("#search-keyword-home").length > 0) {
+      steps.push({
+        intro: "Search for a keyword."
+      , element: "#search-keyword-home"
+    });
+  }
+  if($("#search-suggestion").length > 0) {
+      steps.push({
+        intro: "Keyword search results will show up here."
+      , element: "#search-suggestion"
+    });
+  }
+  if($("#recent-search-history").length > 0) {
+      steps.push({
+        intro: "If you have had any recent searches, they will appear here."
+      , element: "#recent-search-history"
+    });
+  }
+  if($(".recent-search").length > 0) {
+      steps.push({
+        intro: "You can return to recent searches by clicking on them."
+      , element: ".recent-search"
+    });
+  }
+  if($("#analyze-doc-form").length > 0) {
+      steps.push({
+        intro: "Uploading a document here will extract the keywords that have relevant search results."
+      , element: "#analyze-doc-form"
+    });
+  }
+  // hints for the analyzer
+  if($("#search-term-box").length > 0) {
+      steps.push({
+        intro: "Search terms within your query go here."
+      , element: "#search-term-box"
+    });
+  }
+  if($(".term-container").length > 0) {
+      steps.push({
+        intro: "Here is a search term that is part of your query."
+      , element: ".term-container"
+    });
+  }
+  if($("#add-term").length > 0) {
+      steps.push({
+        intro: "Pressing the add term button will open the visualization page to search for more terms."
+      , element: "#add-term"
+    });
+  }
+  if($("#search-btn").length > 0) {
+      steps.push({
+        intro: "Once you're happy with your search terms, press this button to search for results."
+      , element: "#search-btn"
+    });
+  }
+  if($("#search-count").length > 0) {
+      steps.push({
+        intro: "Click this widget to view the distribution of your search results across the various journals in the corpus."
+      , element: "#search-count"
+    });
+  }
+  if($(".doc").length > 0) {
+      steps.push({
+        intro: "This is a relevant document as part of your search results."
+      , element: ".doc"
+    });
+  }
+  if($(".doc-term").length > 0) {
+      steps.push({
+        intro: "Here is a list of the top keywords for this document."
+      , element: ".doc-term"
+    });
+  }
+  if($(".search-term.existent").length > 0) {
+      steps.push({
+        intro: "Highlighted terms are the terms from your search query."
+      , element: ".search-term.existent"
+    });
+  }
+  if($(".see-all-terms").length > 0) {
+      steps.push({
+        intro: "Click here to view all keywords relevant for this document."
+      , element: ".see-all-terms"
+    });
+  }
+  if($("#doc-missing-term").length > 0) {
+      steps.push({
+        intro: "Terms that were part of your search query, but do not exist in this document are listed here. Clicking on them will toggle the force inclusion feature for the next time you run your search."
+      , element: "#doc-missing-term"
+    });
+  }
+  steps.push({
+    intro: "That's it! I hope you're on your way to learn more about the Erudit corpus."
+  });
+  introJs("body").setOptions({steps:steps}).start();
+}
+
 function addToSearch( topic_id, topic_name ) {
     if(topic_id in search_terms || Object.keys(search_terms).length >= 5) {
         return;

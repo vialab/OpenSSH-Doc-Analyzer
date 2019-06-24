@@ -1021,3 +1021,12 @@ foreignObject {
 #dropzone {
   color: #555;
 }
+
+#intro-btn {
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+#intro-btn:hover {
+  opacity: 1;
+}

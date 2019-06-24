@@ -175,7 +175,7 @@ class Wrapper(object):
 
 
     def __init__(self):
-        self.db.execProc("sp_tfidf_cache")
+        # self.db.execProc("sp_tfidf_cache")
         counts = self.db.execQuery("""select h.id, count(h2.id)
             from heading h
             left join heading h2 on h2.parentid=h.id and h2.pos='n' and h2.subcat=''

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/dropzone.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/introjs.css') }}">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <!-- Add the slick-theme.css if you want default styling -->
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.css"/>
@@ -31,6 +32,9 @@
                 <ul class="nav navbar-nav">
                     <li><a href="/">Document Search</a></li>
                     <li><a href="/journal">Journal Search</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right" id="intro-btn">
+                    <li><a onclick="runIntroTour();">need help?</a></li>
                 </ul>
             </div>
         </div>
@@ -64,6 +68,7 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/intro.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="{{ url_for('static', filename='lib/jquery/jquery.sortable.min.js') }}"></script>
