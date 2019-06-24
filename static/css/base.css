@@ -8,6 +8,10 @@ body div.navbar {
   border-radius: 0 !important;
 }
 
+#page-content {
+  margin-top: 25px;
+}
+
 #loading {
   text-align: center;
   height: 100%;
@@ -41,7 +45,8 @@ img.loading {
 .doc,
 #journal-count,
 #overflow-arrow-right,
-#overflow-arrow-left {
+#overflow-arrow-left,
+#search-cover #search-keyword-home {
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
 }
@@ -78,7 +83,7 @@ h3 {
 
 .doc .doc-title {
   font-size: 20px;
-  color: slategrey;
+  color: background-color: rgba(0, 100, 150);;
 }
 
 .doc .doc-author {
@@ -215,7 +220,7 @@ ul.doc-term li a.see-all-terms {
 }
 
 .term-container.custom-keyword .star.active {
-  color: black;
+  color: #555;
 }
 
 #add-term {
@@ -253,7 +258,7 @@ ul.doc-term li a.see-all-terms {
   margin: 15px;
   float: left;
   border: 1px solid lightgray;
-  background-color: rgba(168, 209, 255, 0.5);
+  background-color: rgba(0, 100, 150, 0.5);
   cursor: pointer;
 }
 
@@ -266,7 +271,7 @@ ul.doc-term li a.see-all-terms {
 
 .term-container:hover,
 .term-container.new-search-term {
-  background-color: rgba(168, 209, 255, 0.5);
+  background-color: rgba(0, 100, 150, 0.5);
 }
 
 .custom-keyword-container:hover {
@@ -318,7 +323,15 @@ ul.doc-term li a.see-all-terms {
 }
 
 .custom-keyword-heading {
-  color: black;
+  color: #555;
+}
+
+.term-container:hover .custom-keyword-heading {
+  color: white;
+}
+
+.term-container.new-search-term .custom-keyword-heading {
+  color: white;
 }
 
 .keyword-heading {
@@ -347,18 +360,19 @@ ul.doc-term li a.see-all-terms {
 a.search-term {
   border-radius: 4px;
   padding: 8px;
-  color: slategrey;
+  color: background-color: rgba(0, 100, 150);
   cursor: pointer;
   line-height: 15px;
 }
 
 a.search-term.existent {
-  background: rgba(118, 172, 98, 0.2);
+  background: rgba(0, 100, 150, 0.5);
+  color: white;
 }
 
 a.search-term.non-existent {
   text-decoration: line-through;
-  color: rgb(182, 154, 154);
+  color: rgb(0, 100, 150);
 }
 
 a.search-term.active {
@@ -409,7 +423,7 @@ a.search-term:hover {
 #search-box table tbody tr td:last-child {
   text-align: right;
   cursor: pointer;
-  color: black;
+  color: #555;
 }
 
 #search-box:hover > table {
@@ -424,7 +438,7 @@ a.search-term:hover {
   height: 100%;
   text-transform: uppercase;
   color: white;
-  background-color: rgb(0, 100, 150);
+  background-color: #0a2363;
   border: none;
   border-radius: 0;
 }
@@ -531,6 +545,10 @@ text {
   background-color: white;
   z-index: 1;
   border-right: 1px solid lightgray;
+}
+
+#search-keyword-container {
+  padding-bottom: 5px;
 }
 
 #search-keyword-container h1 {
@@ -641,26 +659,6 @@ text {
   transform: translate(-50%, 0);
 }
 
-#search-keyword-home {
-  width: 100%;
-  height: 50px;
-  text-align: center;
-  margin-bottom: 30px;
-  box-shadow: 0px 2px 1px #eee;
-  background-color: white;
-  border: 1px solid #ddd;
-}
-
-#search-keyword-home::placeholder {
-  color: #eee;
-}
-
-#search-keyword-home:focus,
-#search-keyword-home:hover {
-  box-shadow: 0px 2px 2px #ddd;
-  outline: none;
-}
-
 #home-container h2 {
   font-size: 25px;
   text-transform: uppercase;
@@ -689,12 +687,12 @@ text {
 
 .recent-term {
   padding: 0;
-  background-color: rgba(168, 209, 255, 0.5);
+  background-color: rgba(0, 100, 150, 0.5);
 }
 
 .recent-doc .term-heading,
 .recent-term .term-heading {
-  color: black;
+  color: #555;
 }
 
 .recent-search {
@@ -814,7 +812,15 @@ text {
 }
 
 .node text {
+  pointer-events: none;
   font: 12px sans-serif;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                        supported by Chrome and Opera */
 }
 
 .link {
@@ -825,7 +831,7 @@ text {
 
 .select-path {
   fill: none;
-  stroke: rgb(255, 165, 0);
+  stroke: rgba(255,66,66,0.5);
   stroke-width: 2px;
 }
 
@@ -840,16 +846,16 @@ foreignObject {
   /* white-space: nowrap; */
   overflow: visible;
   padding-left: 5px;
-  color: black;
+  color: #555;
 }
 
 .node foreignObject body.hl-label {
-  background-color: rgba(255, 165, 0, 0.5);
+  background-color: rgba(255,66,66, 0.5);
   /* color: white; */
 }
 
 .node circle.selected {
-  stroke: rgba(255, 165, 0);
+  stroke: #ff4242;
 }
 
 .node foreignObject body div {
@@ -878,7 +884,7 @@ foreignObject {
   fill: rgba(70, 130, 180, 0.5);
 }
 .area.new {
-  fill: rgba(255, 165, 0, 0.5);
+  fill: rgba(255,66,66, 0.5);
 }
 .line {
   fill: none;
@@ -911,7 +917,7 @@ foreignObject {
   pointer-events: none;
   padding: 2px;
   font: 12px sans-serif;
-  background: black;
+  background: #555;
   border: 0px;
   border-radius: 8px;
   text-align: center;
@@ -919,7 +925,7 @@ foreignObject {
 }
 
 .chart .legend {
-  fill: black;
+  fill: #555;
   text-anchor: start;
   font-size: 12px;
 }
@@ -930,12 +936,12 @@ foreignObject {
 }
 
 .chart .label {
-  fill: black;
+  fill: #555;
   text-anchor: end;
 }
 
 .bar:hover {
-  fill: orange;
+  fill: rgb(255,66,66);
 }
 
 .axis path,
@@ -943,4 +949,75 @@ foreignObject {
   fill: none;
   stroke: #000;
   shape-rendering: crispEdges;
+}
+
+.navbar {
+  margin-bottom: 0;
+  background-color: #0a2363;
+  border-color: #0a2363;
+}
+
+.navbar-inverse .navbar-brand,
+.navbar-inverse .navbar-nav > li > a {
+  color: white;
+}
+
+.navbar-inverse .navbar-brand:hover,
+.navbar-inverse .navbar-nav > li > a:hover {
+  color: #ff4242 !important;
+}
+
+#page-cover {
+  display: grid;
+  background-color: #0a2363;
+  color: white;
+  width: 100%;
+  min-width: 50%;
+}
+
+#search-cover {
+  display: grid;
+  place-items: center;
+  padding: 5%;
+  width: 100%;
+  margin: 50px auto;
+  grid-pad: 25px;
+  min-height: 300px;
+}
+
+#search-cover h2 {
+  margin: 0;
+}
+
+#search-cover #search-keyword-home {
+  margin: 0 auto;
+  height: 50px;
+  min-width: 200px;
+  width: 80%;
+  padding: 0 15px;
+  border-radius: 50px;
+  border: 2px solid lightgray;
+  opacity: 0.5;
+  text-align: center;
+  outline: none;
+  color: #ff4242;
+}
+
+#search-cover #search-keyword-home:hover,
+#search-cover #search-keyword-home:focus {
+  opacity: 1;
+  width: 100%;
+}
+
+.font-accent {
+  color: #ff4242 !important;
+}
+
+#search-suggestion {
+  background-color: rgba(0, 100, 150, 0.5);
+  padding: 10px;
+}
+
+#dropzone {
+  color: #555;
 }

@@ -5,8 +5,8 @@ function addToSearch( topic_id, topic_name ) {
         return;
     } else {
         search_terms[topic_id] = topic_name;
-        $("#search-box table tbody").append("<tr><td>" + topic_name 
-            + "</td><td onclick='removeFromSearch(this, \"" 
+        $("#search-box table tbody").append("<tr><td>" + topic_name
+            + "</td><td onclick='removeFromSearch(this, \""
             + topic_id+"\")'>x</td></tr>");
         $("#search-box").addClass("slategray");
     }
@@ -23,21 +23,6 @@ function removeFromSearch(elem, topic_id ) {
         $("#search-box").removeClass("slategray");
     }
 }
-
-// function search() {
-//     var topics = Object.keys(search_terms);
-//     var url = "/explore"
-//     for(var i = 0; i < topics.length; i++) {
-//         if(i > 0) {
-//             url += "+";
-//         } else {
-//             url += "/";
-//         }
-//         url += topics[i];
-//     }
-//     window.location.href = url;
-// }
-
 
 // get a query string parameter value by it's name
 function getParameterByName(name, url) {

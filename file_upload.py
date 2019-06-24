@@ -46,13 +46,13 @@ aStopWord = set(aStopWord)
 tm = tm.TopicModel(stop_words=aStopWord)
 # tm.tfidf_vect.fit(tm.tf)
 # print("gzipping")
-# with gzip.open("./model/tm.gzip", 'wb') as f:
-#     pickle.dump(tm, f, -1)
+with gzip.open("./model/tm.gzip", 'wb') as f:
+    pickle.dump(tm, f, -1)
 # print("done")
 # with open("./model/tm.pkl", "w+") as f:
 #     pickle.dump(tm, f)
 # print("loading again")
-# tm = cm.load_zipped_pickle("./model/tm.gzip")
+tm = cm.load_zipped_pickle("./model/tm.gzip")
 # tm.loadModel()
 # with open("./model/pkl/tm.pkl", "r") as f:
 #     tm = pickle.load(f)
