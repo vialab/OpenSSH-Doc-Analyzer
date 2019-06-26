@@ -140,7 +140,7 @@ def journal_view():
     results = db.execQuery("""
         select documentid, 0
         from meta where journalid=%s""", (journal_id,))
-    documents = getSearchMetaInfo(results)
+    documents = getSearchMetaInfo(results, [])
     return render_template("journal_view.html", doc_list=documents)
 
 

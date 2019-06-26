@@ -2,6 +2,9 @@ var search_terms = {};
 
 function runIntroTour() {
   let steps = [];
+  if(searching) {
+    toggleSearchDialog();
+  }
   // hints for the main page
   if($("#search-keyword-home").length > 0) {
       steps.push({
