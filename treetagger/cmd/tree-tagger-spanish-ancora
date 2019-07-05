@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Set these paths appropriately
+
+BIN=/Users/jayrsawal/GitHub/OpenSSH-Doc-Analyzer/treetagger/bin
+CMD=/Users/jayrsawal/GitHub/OpenSSH-Doc-Analyzer/treetagger/cmd
+LIB=/Users/jayrsawal/GitHub/OpenSSH-Doc-Analyzer/treetagger/lib
+
+OPTIONS="-token -lemma -sgml"
+
+TOKENIZER=${CMD}/utf8-tokenize.perl
+TAGGER=${BIN}/tree-tagger
+ABBR_LIST=${LIB}/spanish-abbreviations
+PARFILE=${LIB}/spanish-ancora-utf8.par
+
+$TOKENIZER -a $ABBR_LIST $* |
+$TAGGER $OPTIONS $PARFILE

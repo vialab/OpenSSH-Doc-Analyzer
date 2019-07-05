@@ -1,79 +1,83 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>{% block title %}Synonymic Search | Home{% endblock title %}</title>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/dropzone.css">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/introjs.css') }}">
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <!-- Add the slick-theme.css if you want default styling -->
-<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.css"/>
-<!-- Add the slick-theme.css if you want default styling -->
-<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick-theme.css"/>
-    {% block add_style %}{% endblock add_style %}
-</head>
-<body>
-    <div class="navbar navbar-inverse" role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="/">Synonymic</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a href="/">Document Search</a></li>
-                    <li><a href="/journal">Journal Search</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right" id="intro-btn">
-                    <li><a onclick="runIntroTour();">need help?</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="modal-synset" tabindex="-1" role="dialog" aria-labelledby="modal-title-synset" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <input type="hidden" id="modal-tier-index"/>
-            <input type="hidden" id="modal-heading-id"/>
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title-synset">Heading Synset</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            <div class="modal-body" id="modal-body-synset">
 
-            </div>
-            <div class="modal-footer">
-                <button id="modal-btn-reorder" onclick="reorderVis();" type="button" class="btn btn-secondary" data-dismiss="modal">Select as Main Node</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-            </div>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>{% block title %}Synonymic Search | Home{% endblock title %}</title>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/dropzone.css">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/introjs.css') }}">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <!-- Add the slick-theme.css if you want default styling -->
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.css" />
+  <!-- Add the slick-theme.css if you want default styling -->
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick-theme.css" />
+  {% block add_style %}{% endblock add_style %}
+</head>
+
+<body>
+  <div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">Synonymic</a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">Document Search</a></li>
+          <li><a href="/journal">Journal Search</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right" id="intro-btn">
+          <li><a onclick="runIntroTour();">need help?</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-synset" tabindex="-1" role="dialog" aria-labelledby="modal-title-synset" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <input type="hidden" id="modal-tier-index" />
+      <input type="hidden" id="modal-heading-id" />
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal-title-synset">Heading Synset</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        <div class="modal-body" id="modal-body-synset">
+
+        </div>
+        <div class="modal-footer">
+          <button id="modal-btn-reorder" onclick="reorderVis();" type="button" class="btn btn-secondary" data-dismiss="modal">Select as Main Node</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
     </div>
-    <div id="page-cover">
+  </div>
+  <div id="page-cover">
     {% block page_cover %}{% endblock page_cover %}
-    </div>
-    <div class="container" id="page-content">
+  </div>
+  <div class="container" id="page-content">
     {% block page_content %}{% endblock page_content %}
-    </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='js/intro.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="{{ url_for('static', filename='lib/jquery/jquery.sortable.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='lib/jquery/bootstrap-slider.min.js') }}"></script>
-    <script type="text/javascript" src="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.min.js"></script>
-    {% block add_js %}{% endblock add_js %}
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='js/intro.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="{{ url_for('static', filename='lib/jquery/jquery.sortable.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='lib/jquery/bootstrap-slider.min.js') }}"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.min.js"></script>
+  {% block add_js %}{% endblock add_js %}
 </body>
+
 </html>

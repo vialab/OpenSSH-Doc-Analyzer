@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Set these paths appropriately
+
+BIN=/mounts/Users/cisintern/schmid/tmp/bin
+CMD=/mounts/Users/cisintern/schmid/tmp/cmd
+LIB=/mounts/Users/cisintern/schmid/tmp/lib
+
+OPTIONS="-token -lemma -sgml"
+
+TAGGER=${BIN}/tree-tagger
+TOKENIZER=${CMD}/tokenize-korean.pl
+PARFILE=${LIB}/korean-utf8.par
+
+$TOKENIZER $* |
+$TAGGER $OPTIONS $PARFILE |
+$CMD/add-korean-sentence-markers.pl |
+$CMD/reformat-korean-tagger-output.pl
