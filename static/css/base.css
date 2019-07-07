@@ -253,8 +253,8 @@ ul.doc-term li a.see-all-terms {
 .recent-doc,
 .recent-term {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   padding: 15px;
   margin: 15px;
   float: left;
@@ -266,15 +266,14 @@ ul.doc-term li a.see-all-terms {
 
 .term-container {
   position: relative;
-  padding: 15px;
   cursor: pointer;
   margin: 10px;
   border-radius: 500px;
 }
 
-.term-container:hover,
+.term-container:hover .ring,
 .term-container.new-search-term {
-  background-color: rgba(0, 100, 150, 0.5);
+  opacity: 1;
 }
 
 .custom-keyword-container:hover {
@@ -333,9 +332,9 @@ ul.doc-term li a.see-all-terms {
   color: white;
 }
 
-.term-container.new-search-term .custom-keyword-heading {
+/* .term-container.new-search-term .custom-keyword-heading {
   color: white;
-}
+} */
 
 .keyword-heading {
   color: slategray;
@@ -690,7 +689,8 @@ text {
 
 .recent-term {
   padding: 0;
-  background-color: rgba(0, 100, 150, 0.5);
+  background: none;
+  border: none;
 }
 
 .recent-doc .term-heading,
@@ -699,11 +699,12 @@ text {
 }
 
 .recent-search {
+  display: flex;
   position: relative;
-  height: 130px;
+  height: 150px;
   cursor: pointer;
   opacity: 0.2;
-  overflow: hidden;
+  overflow: scroll;
   min-width: 130px;
   border-radius: 5px;
 }
@@ -718,7 +719,7 @@ text {
 .recent-search .search-date {
   position: absolute;
   padding: 5px;
-  right: 0;
+  left: 0;
   color: #aaa;
   text-transform: uppercase;
   z-index: 1;
@@ -1065,4 +1066,26 @@ foreignObject {
 
 .dropzone {
   border-radius: 5px;
+}
+
+.ring {
+  display: grid;
+  background-color: rgba(43.9, 50.2, 56.5, 0.1);
+  border: 1px solid gray;
+  margin: 0 auto;
+  border-radius: 100px;
+  place-items: center;
+  opacity: 0.5;
+}
+
+.ring.earth {
+  background-color: rgba(155, 179, 148, 0.1);
+}
+
+.ring.mind {
+  background-color: rgba(148, 158, 179, 0.1);
+}
+
+.ring.society {
+  background-color: rgba(179, 153, 148, 0.1);
 }

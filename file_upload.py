@@ -263,9 +263,11 @@ def search():
             clean_word = k["keyword"]
             clean_list.append(clean_word)
             term_list.append(k["term_id"])
+            if k["heading_id"] == "null":
+                k["heading_id"] = None
             if "search_id" not in content:
-                db.execQuery("""insert into searchterm(searchid, keyword, weight, rank)
-                values(%s, %s, %s, %s); commit;""", (search_id, k["keyword"], k["weight"], k["order"]))
+                db.execQuery("""insert into searchterm(searchid, keyword, weight, rank, headingid)
+                values(%s, %s, %s, %s, %s); commit;""", (search_id, k["keyword"], k["weight"], k["order"], k["heading_id"]))
             if k["must_include"]:
                 must_include.append(clean_word)
     # find matches in the corpus
@@ -413,9 +415,7 @@ def history():
             if term[0] is not None:
                 t["heading_id"] = term[0]
                 t["tier_index"] = term[4]
-                t["heading"] = term[5]
-            else:
-                t["keyword"] = term[1]
+            t["keyword"] = term[1]
             t["weight"] = term[2]
             t["order"] = term[3]
             temp["terms"].append(t)

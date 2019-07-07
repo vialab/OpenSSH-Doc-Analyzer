@@ -65,14 +65,9 @@ function recoverSearch(search_id) {
             parent_tier = tiers.parent;
             child_tier = tiers.child;
             let data = content["content"];
+            console.log(data);
             for(let i = 0; i < data.length; i++) {
-                // let weight = parseInt(data[i].weight);
-                if(data[i].keyword) {
-                    drawKeyword(data[i].keyword, data[i].heading_id, false, data[i].term_id);
-                } else {
-                    drawSearchTerm(data[i].tier_index
-                        , data[i].heading_id, data[i].heading, weight);
-                }
+                drawKeyword(data[i].keyword, data[i].heading_id, data[i].tier_index, false, data[i].term_id);
             }
             search(search_id);
         }
@@ -172,8 +167,8 @@ function showDocumentKeywords(doc_id, doc_title) {
             for(y in data) {
                 let topic = data[y];
                 let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\""
-                + topic.name+ "\",\""+ topic.heading_id + "\", true, \""
-                + topic.id + "\");' data-keyword='"
+                + topic.name+ "\",\""+ topic.heading_id + "\",\"" + topic.tier_index
+                +  "\", true, \"" + topic.id + "\");' data-keyword='"
                 + topic.name + "' class='search-term";
                 if($.inArray(topic.name,search_terms) != -1) {
                     html += " existent";

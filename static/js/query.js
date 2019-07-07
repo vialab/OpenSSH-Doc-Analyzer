@@ -46,7 +46,7 @@ function showKeywordResults(data, cb_keyword) {
     }
     $(".custom-keyword-container").off("click");
     $(".custom-keyword-container").on("click", function() {
-        drawKeyword($(".keyword-heading").html(),"",true);
+        drawKeyword($(".keyword-heading").html(),"", "NA", true);
         toggleKeywordDialog();
     });
 
@@ -72,13 +72,13 @@ function forceIncludeTerm(keyword, heading_id, id) {
         }
     });
     if(!already_used) {
-        drawKeyword(keyword, heading_id, true, id);
+        drawKeyword(keyword, heading_id, "NA", true, id);
     }
     updateJournalCount(true);
 }
 
 // draw the keyword in the search query box
-function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
+function drawKeyword(keyword, heading_id, tier_index, draw_count = false, term_id = "") {
     let already_used = false;
     $("#search-term-box .term-container").each(function(i) {
         let used_keyword = $(".custom-keyword-heading", $(this)).html()
@@ -101,6 +101,7 @@ function drawKeyword(keyword, heading_id, draw_count = false, term_id = "") {
      onclick='deleteTerm(this);'><span>&times;</span></button><input type='hidden' \
      class='custom-keyword-weight' value='1'/><div class='custom-keyword-heading' heading-id='"
      + id + "'>" + keyword + "</div><span onclick='toggleStar(this);' class='star'>&#9698;</span></div>");
+    drawTier($box, tier_index);
     $("#add-term").before($box);
     if($(".overflow-arrow").length > 0) toggleScrollArrow();
     resortable();

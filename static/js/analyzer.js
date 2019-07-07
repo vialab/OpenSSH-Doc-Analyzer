@@ -14,6 +14,8 @@ let vis_width = $("#search-dialog-main").width();
 let last_heading = "";
 let selected_heading = "";
 
+
+
 // open or close keyword search dialog
 function toggleKeywordDialog() {
     if(keyword_searching) {
@@ -142,8 +144,8 @@ function showSearchResults( data ) {
             if(topic.dist < 0.1) continue;
             let dist = topic.dist * 100;
             let html = "<li><a id='" + topic.id + "' onclick='drawKeyword(\""
-            + topic.name+ "\",\""+ topic.heading_id + "\", true, \""
-            + topic.id + "\");' data-keyword='"
+            + topic.name+ "\",\""+ topic.heading_id + "\",\"" + topic.tier_index
+            +  "\", true, \"" + topic.id + "\");' data-keyword='"
             + topic.name + "' class='search-term";
             let topic_name = topic.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
             if(topic.is_keyword || $.inArray(topic_name,search_terms) != -1) {

@@ -91,9 +91,11 @@ class Heading(object):
 				, case when w.en_docs > 0 or w.fr_docs > 0
 					then concat('en',w.en_docs,'fr',w.fr_docs)
                     else null end
+                , h.tierindex
             from word w
+            left join heading h on h.id = w.headingid
             where w.headingid=%s
-            group by w.id, w.fr_translation, w.headingid
+            group by w.id, w.fr_translation, w.headingid, h.tierindex
             order by case when (w.en_docs+w.fr_docs) > 0 then 1 else 0 end desc
             , w.fr_translation;""", (self.id,))
         words = []
@@ -102,6 +104,7 @@ class Heading(object):
             temp["name"] = result[0]
             temp["heading_id"] = result[1]
             temp["enable"] = result[2]
+            temp["tier_index"] = result[3]
             words.append(temp)
         return words
 
@@ -878,8 +881,8 @@ class Wrapper(object):
                 t = {}
                 if term[0] is not None:
                     t["heading_id"] = term[0]
+                    t["keyword"] = term[1]
                     t["tier_index"] = term[4]
-                    t["heading"] = term[5]
                     t["word"] = term[5]
                 else:
                     t["word"] = term[1]

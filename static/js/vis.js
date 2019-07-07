@@ -70,7 +70,7 @@ $.fn.textWidth = function(){
 // path     - base URL for data requet
 // id       - tier-index
 function createNewVis(svg_path, svg_id, path, id, width, height, cb_keyword) {
-    selected_heading = id;    
+    selected_heading = id;
     svg_id = svg_id.replace(/\./g, "-");
     let svg = null;
     if($(svg_path + " #"+svg_id).length > 0) {
@@ -81,7 +81,7 @@ function createNewVis(svg_path, svg_id, path, id, width, height, cb_keyword) {
         svg = d3.select(svg_path).append("svg");
         svg.append("g").attr("transform", "translate(0,0)");
     }
-    
+
     // set svg attributes
     svg.attr("width", width);
     svg.attr("height", height);
@@ -112,8 +112,8 @@ function update(svg, pack, path, id, cb_keyword) {
     // get the new tier nodes from the server
     d3.csv(url_path, function(error, data) {
         if (error) throw error;
-        
-        // convert the flat data into a hierarchy 
+
+        // convert the flat data into a hierarchy
         let root = stratify(data)
             .sum(function(d) { return 10; })
             .sort(function(a, b) { return b.height - a.height});
@@ -142,7 +142,7 @@ function update(svg, pack, path, id, cb_keyword) {
         links = treeData.descendants().slice(1);
 
         // Normalize for fixed-depth.
-        nodes.forEach(function(d){ 
+        nodes.forEach(function(d){
             if(d.parent != null) {
                 d.y = d.depth * 250;
             } else {
@@ -195,8 +195,8 @@ function update(svg, pack, path, id, cb_keyword) {
             .attr("fill", function(d) {
                 return d.data.length > 0 ? "rgb(0,0,0)" : "rgb(255,255,255)";
             })
-            .text(function(d) { 
-                return d.data.set_size; 
+            .text(function(d) {
+                return d.data.set_size;
             });
 
 
@@ -205,7 +205,7 @@ function update(svg, pack, path, id, cb_keyword) {
         // Transition to the proper position for the node
         nodeUpdate.transition()
             .duration(duration)
-            .attr("transform", function(d) { 
+            .attr("transform", function(d) {
                 return "translate(" + d.y + "," + d.x + ")";
             })
             .on("end", function(d) {
@@ -232,10 +232,10 @@ function update(svg, pack, path, id, cb_keyword) {
             })
             .attr("y", -10)
             .append('xhtml:body')
-            .html(function(d) { 
-                return "<div><span class='node-label'>" + d.data.name 
-                    + "</span><span class='super-script'>" + d.data.length 
-                    + "</span>" + "</div>"; 
+            .html(function(d) {
+                return "<div><span class='node-label'>" + d.data.name
+                    + "</span><span class='super-script'>" + d.data.length
+                    + "</span>" + "</div>";
             });
 
         // Remove any exiting nodes
@@ -270,10 +270,10 @@ function update(svg, pack, path, id, cb_keyword) {
             .attr('d', function(d){
                 if(d.parent != null) {
                     let o = {x: d.parent.x, y: d.parent.y}
-                    return diagonal(o, o)    
+                    return diagonal(o, o)
                 } else {
                     let o = {x: root.x0, y: root.y0}
-                    return diagonal(o, o)    
+                    return diagonal(o, o)
                 }
             });
 
@@ -291,7 +291,7 @@ function update(svg, pack, path, id, cb_keyword) {
             .attr('d', function(d) {
                 if(d.parent != null) {
                     let o = {x: d.parent.x0, y: d.parent.y0}
-                    return diagonal(o, o);   
+                    return diagonal(o, o);
                 } else {
                     let o = {x: root.x0, y: root.y0}
                     return diagonal(o, o);
@@ -320,7 +320,6 @@ function update(svg, pack, path, id, cb_keyword) {
         selected_heading = id;
 
         $("foreignObject", function() {
-            console.log($(".hl-label", this).width());
             $(this).width($(".hl-label", this).width());
             $(this).height($(".hl-label", this).height());
         });
@@ -396,10 +395,10 @@ function clicked(cb_keyword) {
                     let o2 = {x:t[1],y:t[0]};
                     return diagonal(o2, o);
                 });
-            
+
             d3.selectAll("foreignObject body")
                 .attr("class", "");
-            
+
             d3.selectAll("circle.node")
                 .attr("class", "node");
 
@@ -418,7 +417,7 @@ function clicked(cb_keyword) {
         } else {
             oneclick = false;
             clearTimeout(click_to);
-            if((d.data.length == "0" && d.data.heading_id != "root") 
+            if((d.data.length == "0" && d.data.heading_id != "root")
                 || d.data.heading_id == selected_heading) {
                 // don't update if there's nothing to load
                 // or if we already have this heading loaded
@@ -481,9 +480,9 @@ function populatePOS(data, selected_pos) {
 }
 
 // populate bag of words for this heading onto vis
-function populateBOW(data, quick_search) {
+function populateBOW(data, quick_search, tier_index) {
     $(".word-box #heading-words").html("");
-    $(".search-side #heading-words").height($(window).height() 
+    $(".search-side #heading-words").height($(window).height()
         - $(".search-side.part-of-speech").height() - 330);
     $(".search-side.part-of-speech #pos-words").css("max-height", $(window).height() * 0.3);
     // add new keywords from synset
@@ -493,7 +492,7 @@ function populateBOW(data, quick_search) {
             if(quick_search) {
                 html += "' onclick='window.location.href=\"/analyzer?quicksearch=" + data[i]["id"] + "\"');'";
             } else {
-                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\", true, \""+data[i]["enable"]+"\");'";
+                html += "' onclick='drawKeyword(\"" + data[i]["name"] + "\", \"" + data[i]["heading_id"] + "\",\"" + data[i]["tier_index"] + "\", true, \""+data[i]["enable"]+"\");'";
             }
         } else {
             html += " no-click'";
@@ -510,7 +509,7 @@ function keywordClicked(d) {
     let $container = $target.parent().parent();
     let weight = ($("#weight-slider").val()-1) * 0.25;
     let vis_size = min_size + (add_size * weight);
-    
+
     // draw the mini-vis to the dom element
     createNewVis("#search-term-box #"+target_parent, target, "/oht/"
         , new_tier_index, vis_size, vis_size);
@@ -553,7 +552,35 @@ function flattenQueryData(data) {
     for(let i in data[0].values) {
         for(let j in data) {
             zip_data.push(data[j].values[i].y);
-        }   
+        }
     }
     return zip_data;
+}
+
+function drawTier($target, tier) {
+  let tiers = tier.split(".");
+  let root = $target;
+  let classes = "ring";
+  switch(tiers[0]) {
+    case "1":
+      classes += " earth";
+      break;
+    case "2":
+      classes += " mind";
+      break;
+    case "3":
+      classes += " society";
+      break;
+  }
+  for(let i=0; i<7; i++) {
+    if((tiers[i] == "NA" && i>0) || tiers[i] === undefined) break;
+    let child = $("<div class='" + classes + "'/>");
+    let dim = 120-(i*15);
+    child.css({
+    	"width": dim+"px",
+      "height": dim+"px"
+    })
+  	root.append(child);
+    root = child;
+  }
 }
