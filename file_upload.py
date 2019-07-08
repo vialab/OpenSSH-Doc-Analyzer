@@ -426,10 +426,9 @@ def history():
     select id, docname
     , DATE_FORMAT(created, '%%m/%%d/%%Y %%H:%%i')
     from dochash d
-    where ipaddr=%s
     order by created desc
     limit 5
-    """, (user_ip,))
+    """)
     doc_list = []
     for result in results:
         temp = {}

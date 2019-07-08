@@ -80,7 +80,7 @@
             {% for topic in result["topiclist"] %}
             {% if topic['dist'] > 0.1 %}
             <li>
-                <a id="{{ topic['id'] }}" onclick="drawKeyword('{{ topic['name']|safe }}');" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{loop.index}}. {{ topic["name"]|safe }}</a>
+                <a id="{{ topic['id'] }}" onclick="drawKeyword('{{ topic['name']|safe }}', '{{topic['heading_id']|safe}}', '{{topic['tier_index']|safe}}');" class="search-term {% if topic['id'] in search_term %}active{% endif %}">{{loop.index}}. {{ topic["name"]|safe }}</a>
             </li>
             {% endif %}
             {% endfor %}
@@ -132,7 +132,7 @@
     {% if search_term %}
         {% for term in search_term %}
             // drawSearchTerm("{{term['tier_index']|safe}}", "{{ term['heading_id'] }}", "{{ term['heading']|safe }}", 0);
-            drawKeyword("{{term['name']|safe}}", "{{term['heading_id']|safe}}");
+            drawKeyword("{{term['name']|safe}}", "{{term['heading_id']|safe}}", "{{term['tier_index']|safe}}");
         {% endfor %}
     {% endif %}
 </script>

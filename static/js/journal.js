@@ -27,7 +27,6 @@ $(document).ready(function() {
 // display search history based off ip address on main page
 // this is done asynchoronously initiated by document.ready function
 function showSearchHistory(data) {
-  console.log(data);
     // first handle historical search queries
     for(var i=0; i < data.searches.length; i++) {
         var search_id = data.searches[i].search_id;
