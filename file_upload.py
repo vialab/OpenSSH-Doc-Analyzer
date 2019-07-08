@@ -606,7 +606,8 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
         doc["citation"] = "".join(cit_arr)
         doc["topiclist"] = []
         doc["keywordlist"] = []
-        doc["cossim"] = result[12]
+        doc["uri"] = result[12]
+        doc["cossim"] = result[13]
         # get document distributions
         aTopicDist = db.execQuery("""
         select d.termid, d.word, d.tfidf, t.headingid

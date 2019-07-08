@@ -87,6 +87,10 @@ h3 {
   color: background-color: rgba(0, 100, 150);;
 }
 
+.doc .doc-title a {
+  cursor: pointer;
+}
+
 .doc .doc-author {
 }
 

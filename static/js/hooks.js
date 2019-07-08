@@ -65,7 +65,6 @@ function recoverSearch(search_id) {
             parent_tier = tiers.parent;
             child_tier = tiers.child;
             let data = content["content"];
-            console.log(data);
             for(let i = 0; i < data.length; i++) {
                 drawKeyword(data[i].keyword, data[i].heading_id, data[i].tier_index, false, data[i].term_id);
             }

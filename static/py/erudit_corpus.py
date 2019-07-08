@@ -90,6 +90,7 @@ def getDocumentInfo(document_id):
         , m.periode
         , m.ppage
         , m.dpage
+        , d.eruditid
         from document d
         left join meta m on m.documentid=d.id
         left join titre t on t.documentid=d.id

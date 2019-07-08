@@ -130,10 +130,16 @@ function showSearchResults( data ) {
         </div>");
 
         let doc = data[i];
+        let doctitle = doc.title;
+        // add a link if we have one
+        if(doc.uri !== undefined) {
+          doctitle = "<a href='https://id.erudit.org/iderudit/" + doc.uri + "'>"
+            + doc.title + " <i class='fa fa-link fa-1'></i></a>";
+        }
         $format.attr("id", doc.id);
         $("#search-result-container").append($format);
         let $container = $(".doc#" + doc.id);
-        $(".doc-title", $container).html( doc.title );
+        $(".doc-title", $container).html( doctitle );
         $(".doc-author", $container).html( doc.author );
         $(".doc-cite", $container).html( doc.citation );
 
