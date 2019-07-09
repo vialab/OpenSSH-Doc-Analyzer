@@ -91,11 +91,9 @@ class Heading(object):
 				, case when w.en_docs > 0 or w.fr_docs > 0
 					then concat('en',w.en_docs,'fr',w.fr_docs)
                     else null end
-                , h.tierindex
             from word w
-            left join heading h on h.id = w.headingid
             where w.headingid=%s
-            group by w.id, w.fr_translation, w.headingid, h.tierindex
+            group by w.id, w.fr_translation, w.headingid
             order by case when (w.en_docs+w.fr_docs) > 0 then 1 else 0 end desc
             , w.fr_translation;""", (self.id,))
         words = []
@@ -104,7 +102,6 @@ class Heading(object):
             temp["name"] = result[0]
             temp["heading_id"] = result[1]
             temp["enable"] = result[2]
-            temp["tier_index"] = result[3]
             words.append(temp)
         return words
 
@@ -455,7 +452,7 @@ class Wrapper(object):
                 h = self.db.execQuery("select fr_heading from heading where id=%s", (parent_id,))
                 heading_name = h[0][0]
             # set our parent as the root
-            new_line = self.getCSVLine(parent_id, heading_name, tier="-1")
+            new_line = self.getCSVLine(parent_id, heading_name, tier="-1", cat=root_cat)
             line_list.append(new_line)
             parent_list[parent_id] = False
             # then add in us
@@ -880,10 +877,10 @@ class Wrapper(object):
             for term in results:
                 t = {}
                 if term[0] is not None:
-                    t["heading_id"] = term[0]
-                    t["keyword"] = term[1]
-                    t["tier_index"] = term[4]
                     t["word"] = term[5]
+                    t["keyword"] = term[1]
+                    t["heading_id"] = term[0]
+                    t["tier_index"] = term[4]
                 else:
                     t["word"] = term[1]
                     t["keyword"] = term[1]

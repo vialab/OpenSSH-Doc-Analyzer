@@ -816,7 +816,7 @@ text {
 
 .node circle {
   /* fill: #fff; */
-  stroke: steelblue;
+  stroke: rgb(155,155,155);
   stroke-width: 3px;
 }
 
@@ -1083,13 +1083,23 @@ foreignObject {
 }
 
 .ring.earth {
-  background-color: rgba(155, 179, 148, 0.1);
+  background-color: rgba(55, 150, 85, 0.2);
 }
 
 .ring.mind {
-  background-color: rgba(148, 158, 179, 0.1);
+  background-color: rgba(85, 155, 205, 0.2);
 }
 
 .ring.society {
-  background-color: rgba(179, 153, 148, 0.1);
+  background-color: rgba(200, 105, 75, 0.2);
+}
+
+.node circle[data-cat="earth"] {
+  stroke: rgba(55, 150, 85, 1);
+}
+.node circle[data-cat="mind"] {
+  stroke: rgba(85, 155, 205, 1);
+}
+.node circle[data-cat="society"] {
+  stroke: rgba(200, 105, 75, 1);
 }

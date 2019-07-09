@@ -221,7 +221,28 @@ function update(svg, pack, path, id, cb_keyword) {
                 return r;
             })
             .style("fill", function(d) {
-                return d.data.length > 0 ? "rgb(255,255,255)" : "rgb(155,155,155)";
+                let cat_color = "rgb(255,255,255)";
+                switch(d.data.cat) {
+                  case "1":
+                    cat_color = "#ddece2";
+                    break;
+                  case "2":
+                    cat_color = "#e2eef7";
+                    break;
+                  case "3":
+                    cat_color = "#f5e5e0";
+                    break;
+                }
+                return d.data.length > 0 ? cat_color : "rgb(155,155,155)";
+            })
+            .attr("data-cat", function(d) {
+                let cat = "";
+                if(d.data.length > 0) {
+                  if(d.data.cat == "1") cat = "earth";
+                  if(d.data.cat == "2") cat = "mind";
+                  if(d.data.cat == "3") cat = "society";
+                }
+                return cat;
             })
             .attr("cursor", "pointer");
 
