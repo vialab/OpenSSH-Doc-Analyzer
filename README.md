@@ -79,6 +79,8 @@ http://localhost:5000/
 
 ## Deployment
 
+https://synonym.vialab.ca/
+
 Pushes to this repository are picked up by DockerHub, which automatically rebuilds the docker image. Using Kubernetes, deployment to production is automated, and thus, please be cautious when pushing your code to the master branch. Database connections, and volume mounting is managed in the automation process.
 
 
