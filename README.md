@@ -1,6 +1,6 @@
-# Slow Analytics / Journal Matching
+# Synonymic Search / Journal Matching
 
-A web application created for the OpenSSH project, that performs a text and OCR topic analysis on documents sourced from the ERUDIT database.
+The synonymic search project is aimed at humanities researchers trying to ask more intelligent questions of document corpora. Our stakeholders identified to us that as document collections get larger, there is an inverse relationship to their ability to find what they are looking for. In the past this has been addressed with novel methods of query generation, but we wanted to offer a different method for building intelligent queries. The synonymic search uses a navigable visual thesaurus to allow for query extensions. Users can upload documents, which me model and then direct to similar matches, but can also input keywords and then navigate a hierarchy of English and French synonyms that are categorically related. The overall goal of this project was to allow for dynamic query generation especially when the user is not completely certain of what they are searching for. We imagine that through this interface humanities researchers can augment their search process to find more relevant results in large document corpora.
 
 ## Getting Started
 
@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 This software was created in PYTHON 2.7 and is not compatible with more up to date versions.
 
-A database connection is required for proper functioning of this software. Please create your own `dbconfig.py` file in the `./static/py/` directory. An example is provided:
+A database connection is required for proper functioning of this software. You may connect to your local database by providing your own `dbconfig.py` file in the `./static/py/` directory. Alternatively, you may pass the `DATABASE_URL` environment variable a database string to the FLASK instance. An example is provided:
 
 ```
 mysql = {
@@ -36,7 +36,7 @@ apt-get update && apt-get install -y \
 
 ### Installing
 
-In order a local (non-containerized) version running on your machine, please run the provided commands (UNIX). 
+In order to run a local (non-containerized) version running on your machine, please run the provided commands (UNIX). 
 
 Install and activate a Python 2.7 virtual environment (virtualenv):
 
@@ -48,19 +48,24 @@ source venv/bin/activate
 Install Python dependencies:
 
 ```
-pip install flask numpy scikit-learn scipy pypdf2 pdfminer wand matplotlib \
-opencv-python pandas textstat mysqlclient lxml simplejson nltk lz4 \
-treetaggerwrapper unicodecsv pathlib2
+pip install Werkzeug==0.14.1 flask numpy scikit-learn==0.20 scipy==1.2.0 pypdf2 pdfminer wand matplotlib==2.2.4 \
+opencv-python pandas textstat mysqlclient lxml simplejson nltk lz4 treetaggerwrapper unicodecsv pathlib2
 ```
-Note: `pip install -r requirments.txt` might work as well (not tested)
+Note: `pip install -r requirements.txt` might work as well (not tested)
 
 ### Running Flask
 
-After successfully installing you should be able to run the Flask server with the following commands:
+After successfully installing you should be able to run the Flask server with the following script:
 
 ```
+#!/bin/bash
+echo "Starting python server.."
+source venv/bin/activate
 export FLASK_APP=file_upload.py
+export DEPLOY_ENV=PROD #PROD
+export DATABASE_URL="mysql://sshcyber:<password>@mysql.science.uoit.ca:3306/sshcyber" #PROD
 flask run
+echo "Python listening on http://localhost:5000"
 ```
 
 ### Debugging
@@ -74,15 +79,8 @@ http://localhost:5000/
 
 ## Deployment
 
-Deployment is made simple due to the use of Docker. Before deploying in a live system, please contact the project authors in order to receive a copy of the database. 
+Pushes to this repository are picked up by DockerHub, which automatically rebuilds the docker image. Using Kubernetes, deployment to production is automated, and thus, please be cautious when pushing your code to the master branch. Database connections, and volume mounting is managed in the automation process.
 
-Once a database connection can be made (locally), all that is left to do is to run the shell script using the command provided below, and ensure that the appropriate routing/proxies have been setup on your web server. 
-
-NOTE: Modifications of used ports may be required.
-
-```
-./run.sh
-```
 
 ## Built With
 
