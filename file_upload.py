@@ -61,39 +61,6 @@ strPath = "/Users/jayrsawal/Documents"
 
 @app.route("/")
 def index():
-    # results = db.execQuery("""select h.id, h.tierindex
-    # from heading h
-    # left join wordsize w on w.headingid = h.id
-    # where h.pos='n' and h.subcat='' and w.pos_size is null;""")
-    # n = 0
-    # for result in results:
-    #     pos = db.execQuery("""select h.id, sum(w.size) from heading h
-    #     left join heading h2 on h2.tierindex=h.tierindex and h2.subcat=''
-    #     left join wordsize w on w.headingid=h2.id
-    #     where h.pos='n' and h.subcat='' and h.tierindex=%s
-    #     group by h.id;""", (result[1],))
-    #     db.execUpdate("update wordsize set pos_size=%s where headingid=%s", (pos[0][1],result[0]))
-    #     n += 1
-    #     if n % 1000 == 0:
-    #         print(n)
-    # saveParentHeadings()
-    # countKeywords()
-    # tm.tfidf_vect.fit(tm.tf)
-    # tm.saveModel()
-    # saveStopWords()
-    # prePreProcessTextToDisk()
-    # tm.writeModelToDB()
-    # inferTopicNames()
-    # runTopicModel()
-    # savePreProcessedList()
-    # transformDocumentToModel(5000)
-    # saveTFDF()
-    # oht_wrapper.writeHierarchyToCSV()
-    # saveEntities()
-    # getMap()
-    # cleanAffiliations()
-    # createMapJSON()
-    # saveJournalCounts()
     return render_template("index.html")
 
 
@@ -116,11 +83,6 @@ def journal_analyzer():
 
     total_start = time.time()
     search = getJournalSearchResults(session["tfidf"], 999)
-    # results = db.execQuery("""
-    #     select id
-    #     , title
-    #     from journal
-    #     """)
     search = [row for row in search]
     search[0] = search[0] + (1,)
 
