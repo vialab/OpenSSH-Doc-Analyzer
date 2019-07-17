@@ -9,12 +9,10 @@
 All documents were pre-processed and catalogued in the `document` table. The paths for the raw documents in `document.path` are located on the vialab compute server. The `document.id` column is used across the entire system to reference a specific document. Many of the tables in the database consist of cleaned and extracted data, but are unused in the actual functioning of the system.
 
 ### Core Tables:
-```
 - journal
 - document
 	- meta
 	- titre
-```
 
 
 ## Data Processing
@@ -23,15 +21,11 @@ The documents with the `document.cleanpath` column filled are the documents used
 We used `sklearn` and `treetagger` to vectorize and POS tag documents respectively to generate our TFIDF model. The python model was saved and gzipped in `/model/tm.gzip`, which continues to be used for modelling user uploaded documents. The TFIDF model, as well as the transformed word vectors for each document is also saved in the database, which are the main components used for performing document search queries.
 
 ### Core Tables:
-```
 - tfidf
 	- term
-
 - doctfidf
-
 - (user)dochash
 	- userdoctfidf
-```
 
 
 ## OHT
@@ -46,13 +40,11 @@ Within the OHT hierarchy, a single node in the tree is called a `heading` and ca
 Within the tree, the main headings for each tier are always nouns, where other POS' are only held adjacent to the noun and do not affect the structure of the tree. Each heading also has a bag of words associated to it.
 
 ### Core Tables:
-```
 - oht
 - thematicheading
 - heading
 	- word
 	- wordsize
-```
 
 
 # High-Level Design
