@@ -77,7 +77,7 @@ In early iterations of the system, a lot of data was being saved in the session 
 - `static/py/pickle_session.py`
 
 
-### Home
+## Home
 The home page is where a search query begins. A user can enter a keyword to search directly in OHT and start building the search query immediately. Alternatively, a user can upload a document by dragging and dropping a document into the dropper area provided.
 
 Searches and documents are saved in the database in series, and available to the user in the home page where applicable. Documents uploaded will redirect the user to the search page, where the top search terms are used as the base of the search query.
@@ -117,7 +117,7 @@ In code, we emulate this by cascading SQL queries where forced search terms are 
 - `static/py/oht.py`
 
 
-### Journal Search
+## Journal Search
 Journal search can only currently be done using a document. By uploading a document or selecting a recently uploaded document, we perform the same SQL query used in document matching, aggregated by journal. The TFIDF scores are then summed in relation to the key search terms found in the document in context.
 
 #### Files:
