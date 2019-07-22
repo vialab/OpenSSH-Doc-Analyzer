@@ -20,6 +20,8 @@ import time
 import urllib
 import matplotlib.pyplot as plt
 import pandas as pd
+import PyPDF2
+import docx
 # import gzip
 from nltk import word_tokenize
 from lxml import etree, html
@@ -140,10 +142,7 @@ def upload():
         file = request.files['file']
         # make sure upload is support file type
         if file and cm.isSupportedFile(file.filename):
-            strText = file.read()
-            if file.filename.split(".")[-1] == u"xml":
-                xmlDoc = cm.parseXML(strText=strText)
-                strText = erudit.getTextFromXML(None, xmlDoc)
+            strText = extractTextFromUpload(file)
             if strText == "":
                 return
             # remove stopwords
@@ -669,6 +668,32 @@ def filterOHTHeadingList(headings):
         temp["size"] = heading.size
         heading_list.append(temp)
     return heading_list
+
+
+def extractTextFromUpload(file):
+    """ Extract complete text from an uploaded file """
+    text = []
+    ext = file.filename.split(".")[-1]
+    if ext == u"xml":
+        strText = file.read()
+        xmlDoc = cm.parseXML(strText=strText)
+        strText = erudit.getTextFromXML(None, xmlDoc)
+    elif ext == u"pdf":
+        pdfReader = PyPDF2.PdfFileReader(file)
+        # iterate pages and extract text from each
+        for i in range(pdfReader.numPages):
+            p = pdfReader.getPage(i)
+            text.append(p.extractText())
+    elif ext == u"docx":
+        doc = docx.Document(file)
+        # print the number of pages in pdf file
+        for p in doc.paragraphs:
+            text.append(p.text)
+    elif ext == u"txt":
+        text.append(file.read())
+    else:
+        return ""
+    return " ".join(text).encode("utf8")
 
 
 ############################## HELPER FUNCTIONS ##############################

@@ -1,6 +1,6 @@
 ERUDIT_NAMESPACES = {'erudit':'http://www.erudit.org/xsd/article'}
 UPLOAD_FOLDER = "uploads/"
-ALLOWED_EXTENSIONS = set(["txt", "pdf", "xml"])
+ALLOWED_EXTENSIONS = set(["txt", "pdf", "xml", "docx"])
 
 # Document Search constants
 DS_MINSIG = 0.05 # significance threshold for topic distribution (MAX 1.0)
