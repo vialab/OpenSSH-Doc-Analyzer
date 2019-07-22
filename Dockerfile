@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install -U setuptools
 
-RUN pip install Werkzeug==0.14.1 flask==1.0.4 numpy scikit-learn==0.20 scipy==1.2.0 pypdf2 pdfminer wand matplotlib==2.2.4 \
-opencv-python pandas==0.24.2 textstat mysqlclient lxml simplejson nltk lz4 treetaggerwrapper unicodecsv pathlib2 pypdf2 python-docx
+RUN pip install Werkzeug==0.14.1 flask==1.0.4 numpy==1.13.1 scikit-learn==0.20 scipy==1.2.0 pypdf2==1.26.0 pdfminer wand matplotlib==2.2.4 \
+opencv-python pandas==0.24.2 textstat mysqlclient lxml==4.0.0 simplejson nltk==3.2.4 lz4 treetaggerwrapper unicodecsv pathlib2 python-docx==0.8.10
 
 ENV FLASK_APP file_upload.py
 ENV DEPLOY_ENV PROD

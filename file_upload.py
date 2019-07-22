@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append("./static/py")
+import io
 import os
 import db
 import codecs
@@ -685,7 +686,8 @@ def extractTextFromUpload(file):
             p = pdfReader.getPage(i)
             text.append(p.extractText())
     elif ext == u"docx":
-        doc = docx.Document(file)
+        bytes = io.BytesIO(file.read())
+        doc = docx.Document(bytes)
         # print the number of pages in pdf file
         for p in doc.paragraphs:
             text.append(p.text)
