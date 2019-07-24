@@ -216,6 +216,8 @@ function update(svg, pack, path, id, cb_keyword) {
         // Update the node attributes and style
         nodeUpdate.select("circle.node")
             .attr("r", function(d) {
+                console.log(circle_size);
+                console.log(d);
                 let r = circle_size*(d.data.set_size/max_node_size);
                 if(r < min_circle_size) r = min_circle_size;
                 return r;

@@ -1,7 +1,8 @@
 /******************************************************************************
  * analyzer.js
  * Miscellaneous functions for the analyzer page that mostly have to do with
- * display or positioning for in-page interactions
+ * display or positioning for in-page interactions. If you are looking for
+ * functions that involve toggling a certain window, it is probably here.
  * Last updated: 07/01/2018
  *****************************************************************************/
 
@@ -228,6 +229,37 @@ function openExploreVis(heading_id) {
         selected_heading = heading_id;
     }
     headingClicked({"data":{"heading_id":heading_id}});
+}
+
+// open up the keyword search results window
+function openSearchResultVis(elem) {
+    $("#search-keyword-container .keyword-container").remove();
+    $(".no-keyword").hide();
+    let keyword = $(".custom-keyword-heading", elem).html();
+    // toggle functionality, make sure to close other windows first
+    $(".no-keyword").hide();
+    if(!keyword_searching) {
+        if(keyword != "") {
+            toggleKeywordDialog();
+        } else {
+            return;
+        }
+    } else {
+        if(keyword == "") {
+            toggleKeywordDialog();
+            return;
+        }
+    }
+    setKeyword(keyword);
+    $("#search-keyword").val(keyword);
+
+    // call back for clicking on a keyword in the query bar
+    let cb_keyword = function() {
+        let heading_id = $(this).attr("heading-id");
+        openExploreVis(heading_id);
+    };
+
+    getKeywordList(keyword, cb_keyword);
 }
 
 // set custom keyword option in keyword dialog

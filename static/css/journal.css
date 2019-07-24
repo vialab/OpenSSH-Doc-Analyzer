@@ -46,7 +46,13 @@
     height: auto;
     opacity: 1;
 }
-/* 
+
+#journal-list .journal-item i.fa {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+}
+/*
 #journal-list .journal-item:hover a img {
     opacity: 1;
 } */

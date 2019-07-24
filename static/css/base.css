@@ -251,8 +251,6 @@ ul.doc-term li a.see-all-terms {
   font-size: 64px;
 }
 
-.custom-keyword-container,
-.keyword-container,
 .load-keyword,
 .recent-doc,
 .recent-term {
@@ -268,21 +266,31 @@ ul.doc-term li a.see-all-terms {
   border-radius: 500px;
 }
 
-.term-container {
+.term-container
+,.keyword-container
+,.custom-keyword-container {
   position: relative;
   cursor: pointer;
   margin: 10px;
   border-radius: 500px;
+  background: none !important;
 }
 
 .term-container:hover .ring,
-.term-container.new-search-term {
+.term-container.new-search-term,
+.keyword-container:hover .ring,
+.custom-keyword-container:hover .ring {
   opacity: 1;
 }
 
 .custom-keyword-container:hover {
   background-color: rgba(0, 100, 150, 0.5);
   cursor: pointer;
+}
+
+.keyword-container,
+.custom-keyword-container {
+    float: left;
 }
 
 .term-container button.close {
@@ -358,7 +366,8 @@ ul.doc-term li a.see-all-terms {
 
 .term-container:hover .term-heading,
 .recent-term .term-heading,
-.keyword-container:hover .keyword-heading {
+.keyword-container .keyword-heading,
+.custom-keyword-container .keyword-heading {
   background-color: rgba(0, 100, 150, 0.5);
   color: white !important;
 }

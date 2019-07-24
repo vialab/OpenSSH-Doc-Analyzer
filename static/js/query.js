@@ -1,6 +1,7 @@
 /******************************************************************************
  * query.js
- * Anything that has to do with the /analyzer search bar
+ * Any functions that have to do with the /analyzer search bar, as well as
+ * showing any such results will exist here.
  * * Last updated: 07/01/2018
  *****************************************************************************/
 
@@ -43,6 +44,7 @@ function showKeywordResults(data, cb_keyword) {
             <div class='keyword-vis' id='" + svg_path + "'></div>\
         </div>");
         $(".custom-keyword-container").after($box);
+        drawTier($box, data[i][4]);
     }
     $(".custom-keyword-container").off("click");
     $(".custom-keyword-container").on("click", function() {
@@ -92,16 +94,21 @@ function drawKeyword(keyword, heading_id, tier_index, draw_count = false, term_i
     if(already_used) return;
 
     let id = heading_id;
-    if(typeof(heading_id) == "undefined") {
+    let action = "openExploreVis(\"" + id + "\");";
+    if(heading_id === undefined || heading_id === "None" || heading_id === null) {
         id = "";
+        action = "openSearchResultVis(this);"
     }
     let $box = $("<div class='term-container text-center custom-keyword new-search-term' id='keyword-"
-    + (new Date()).getTime() + "' data-termid='" + term_id + "' onclick='openExploreVis(\""
-    + id + "\")'><button class='close' style='z-index:999;'\
+    + (new Date()).getTime() + "' data-termid='" + term_id + "' onclick='" + action + "'><button class='close' style='z-index:999;'\
      onclick='deleteTerm(this);'><span>&times;</span></button><input type='hidden' \
      class='custom-keyword-weight' value='1'/><div class='custom-keyword-heading' heading-id='"
      + id + "'>" + keyword + "</div><span onclick='toggleStar(this);' class='star'>&#9698;</span></div>");
-    drawTier($box, tier_index);
+    if(tier_index) {
+      drawTier($box, tier_index);
+    } else {
+      drawTier($box, "");
+    }
     $("#add-term").before($box);
     if($(".overflow-arrow").length > 0) toggleScrollArrow();
     resortable();

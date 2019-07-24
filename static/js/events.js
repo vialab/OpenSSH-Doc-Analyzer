@@ -1,7 +1,10 @@
 /******************************************************************************
  * events.js
- * Event listeners and handlers
- * * Last updated: 07/01/2018
+ * Event listeners and handlers initialization on analyzer page.
+ * Here we have aggregated all the document.ready initialization for
+ * convenience. One core feature that is coded here is the keyword search
+ * which can be hard to debug if you don't know where to look for the code.
+ * * Last updated: 07/23/2019
  *****************************************************************************/
 
 $(document).ready(function() {
@@ -101,7 +104,9 @@ $(window).on("resize", function() {
     toggleKeywordDialog();
 });
 
+// OHT keyword search listener
 $("#search-keyword, #search-keyword-home").on("input click", function() {
+  // first toggle the keyword result screen
     let keyword = $(this).val();
     $(".no-keyword").hide();
     if(!keyword_searching) {
@@ -125,11 +130,14 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
         clearTimeout(type_timeout);
     }
 
+    // call back for clicking on a keyword in the query bar
     let cb_keyword = function() {
         let heading_id = $(this).attr("heading-id");
+        console.log(heading_id);
         openExploreVis(heading_id);
     };
 
+    // do different things for keyword searching on the main page
     if($(this).attr("id") == "search-keyword-home") {
         cb_keyword = function() {
             window.location.href = "/analyzer?quicksearch="
@@ -138,7 +146,7 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
                 + $(this).attr("tier-index");
         };
     }
-
+    // if the user has paused, search for the word that has been typed
     type_timeout = setTimeout(function() {
         getKeywordList(keyword, cb_keyword);
     }, 1000);

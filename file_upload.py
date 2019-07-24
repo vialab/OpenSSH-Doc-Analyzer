@@ -104,7 +104,7 @@ def journal_view():
 
     results = db.execQuery("""
         select documentid, 0
-        from meta where journalid=%s""", (journal_id,))
+        from meta where journalid=%s limit 100""", (journal_id,))
     documents = getSearchMetaInfo(results, [])
     return render_template("journal_view.html", doc_list=documents)
 
@@ -225,7 +225,9 @@ def search():
             clean_word = k["keyword"]
             clean_list.append(clean_word)
             term_list.append(k["term_id"])
-            if k["heading_id"] == "null":
+            try:
+                int(k["heading_id"])
+            except ValueError:
                 k["heading_id"] = None
             if "search_id" not in content:
                 db.execQuery("""insert into searchterm(searchid, keyword, weight, rank, headingid)
@@ -318,6 +320,11 @@ def oht_synset(heading_id):
     return jsonify(response)
 
 
+@app.route("/oht/tier/<tier_index>")
+def oht_tier(tier_index):
+    return jsonify(oht_wrapper.getTierIndexTrio(tier_index))
+
+
 @app.route("/erudit/journal_count", methods=["POST"])
 def erudit_journal():
     """ Get over-arching journal distribution based on search """
@@ -334,11 +341,6 @@ def erudit_journal():
                 must_include.append(clean_word)
     dist = corpus.getJournalCount(clean_list, must_include)
     return jsonify(dist)
-
-
-@app.route("/oht/tier/<tier_index>")
-def oht_tier(tier_index):
-    return jsonify(oht_wrapper.getTierIndexTrio(tier_index))
 
 
 @app.route("/history")
@@ -447,7 +449,7 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
         from userdoctfidf udt
         left join tfidf t on t.termid=udt.termid
         left join heading h on h.id=t.headingid
-        where udt.dochashid=%s and t.headingid is not null
+        where udt.dochashid=%s
         order by udt.tfidf desc
         limit 5""", (dochash_id,))
 
@@ -460,7 +462,8 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
         tfidf[term_idx]["tf"] = result[2]
         tfidf[term_idx]["idf"] = result[3]
         tfidf[term_idx]["tfidf"] = result[4]
-        tfidf[term_idx]["heading_id"] = result[5]
+        if result[5] is not None:
+            tfidf[term_idx]["heading_id"] = result[5]
         tfidf[term_idx]["tier_index"] = result[6]
     session["tfidf"] = tfidf
 
@@ -505,7 +508,7 @@ def getJournalSearchResults(tfidf, n=10):
     """ Like search results, but amalgamated by journal instead """
     terms = ",".join([str(term) for term in tfidf])
     rank_list = db.execQuery("""
-        select m.journalid, j.title, j.logo from meta m
+        select m.journalid, j.title, j.logo, j.url from meta m
         left join (
 			select documentid
 			, sum(tfidf) score

@@ -1,6 +1,7 @@
 /******************************************************************************
  * hooks.js
- * Ajax calls that connect us to the database
+ * Ajax calls that connect us to the database.
+ * Functions with "get" are likely here.
  * * Last updated: 07/01/2018
  *****************************************************************************/
 

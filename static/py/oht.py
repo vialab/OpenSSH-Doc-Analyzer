@@ -510,7 +510,8 @@ class Wrapper(object):
                 , (heading_id,))
             set_size = result[0][1]
             child_size = result[0][0]
-
+        if set_size is None:
+            set_size = 0
         new_line = "\"" + str(heading_id) \
             + "\",\"" + name \
             + "\",\"" + str(parent) \
