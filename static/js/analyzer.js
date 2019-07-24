@@ -234,6 +234,7 @@ function openExploreVis(heading_id) {
 // open up the keyword search results window
 function openSearchResultVis(elem) {
     $("#search-keyword-container .keyword-container").remove();
+    $(".load-keyword").show();
     $(".no-keyword").hide();
     let keyword = $(".custom-keyword-heading", elem).html();
     // toggle functionality, make sure to close other windows first
@@ -264,5 +265,5 @@ function openSearchResultVis(elem) {
 
 // set custom keyword option in keyword dialog
 function setKeyword(keyword) {
-    $("#search-keyword-container .keyword-heading").html(keyword);
+    $("#search-keyword-container .keyword-heading").html(keyword.slice(0,24));
 }

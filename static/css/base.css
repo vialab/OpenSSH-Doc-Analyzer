@@ -251,6 +251,14 @@ ul.doc-term li a.see-all-terms {
   font-size: 64px;
 }
 
+.no-keyword {
+  float: left;
+  width: 120px;
+  height: 120px;
+  white-space: nowrap;
+  margin-top: 50px;
+}
+
 .load-keyword,
 .recent-doc,
 .recent-term {
