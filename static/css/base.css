@@ -166,7 +166,8 @@ ul.doc-term li a.see-all-terms {
 }
 
 #search-term-box {
-  overflow: scroll;
+  overflow-x: scroll;
+  overflow-y: hidden;
   white-space: nowrap;
   width: 90%;
   padding-right: 15%;
@@ -725,9 +726,13 @@ text {
   height: 150px;
   cursor: pointer;
   opacity: 0.2;
-  overflow: scroll;
+  overflow: hidden;
   min-width: 130px;
   border-radius: 5px;
+}
+
+.recent-search:hover {
+  overflow-x: scroll;
 }
 
 .recent-search:hover,
@@ -805,7 +810,7 @@ text {
   position: absolute;
   bottom: 15px;
   right: 15px;
-  overflow: scroll;
+  overflow: hidden;
   border: 1px solid gray;
   box-shadow: 0px 0px 10px #ccc;
   padding: 5px;
@@ -817,6 +822,7 @@ text {
 #journal-count:hover {
   box-shadow: 0px 0px 15px #aaa;
   opacity: 1 !important;
+  overflow-y: scroll;
 }
 
 #journal-count span {
@@ -1119,4 +1125,27 @@ foreignObject {
 }
 .node circle[data-cat="society"] {
   stroke: rgba(200, 105, 75, 1);
+}
+
+/* SCROLLBAR FORMATTING TO NORMALIZE ACROSS OS' */
+/* width / height */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

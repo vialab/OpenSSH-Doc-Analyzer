@@ -102,6 +102,7 @@ class Heading(object):
             temp["name"] = result[0]
             temp["heading_id"] = result[1]
             temp["enable"] = result[2]
+            temp["tier_index"] = self.tierindex
             words.append(temp)
         return words
 

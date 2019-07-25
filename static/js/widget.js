@@ -17,13 +17,18 @@ function drawJournalCount(data, merge, minimize=true, use_old=false) {
     let has_new = false;
     // append new query data to current if we have new search query
     // also calculate the mean for label filtering
-    if(merge && typeof(chart_data) != "undefined") {
+    if(merge && chart_data !== undefined) {
         let n = 0, sum = 0;
         for(let i = 0; i < chart_data.length; i++) {
+          if(data[i] === undefined) {
+            chart_data[i].new = 0;
+            chart_data[i].total = 0 + chart_data[i].freq;
+          } else {
             chart_data[i].new = data[i].freq;
             chart_data[i].total = data[i].freq + chart_data[i].freq;
-            sum += chart_data[i].total;
-            n += 2;
+          }
+          sum += chart_data[i].total;
+          n += 2;
         }
         y_mean = sum / n;
         keys.push("new");

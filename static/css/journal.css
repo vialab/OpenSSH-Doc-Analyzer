@@ -27,6 +27,7 @@
     display: block;
     background-color: rgba(0,0,0,0.5);
     color: white;
+    pointer-events: none;
 }
 
 /* #journal-list .journal-item span:hover {
