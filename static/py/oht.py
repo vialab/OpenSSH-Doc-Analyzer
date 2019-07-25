@@ -870,10 +870,11 @@ class Wrapper(object):
         return top_heading, top_score
 
 
-    def aggregateByRelevance(self, results):
+    def aggregateByRelevance(self, results, recovering=False):
         """ Based off a list of indistinct search terms,
             return most tightly related distinct set """
         term_list = {}
+        search_list = []
         if len(results) > 0:
             for term in results:
                 t = {}
@@ -892,36 +893,39 @@ class Wrapper(object):
                 t["term_id"] = term[8]
                 t["pos"] = term[9]
                 t["posdesc"] = term[10]
-                # save duplicates to an array
-                if t["word"] not in term_list:
+                if recovering:
+                    # save as raw keyword if recovering
+                    search_list.append(t)
+                elif t["word"] not in term_list:
+                    # save duplicates to an array
                     term_list[t["word"]] = [t]
                 else:
                     term_list[t["word"]].append(t)
-
-        # only use most relevant headings and compare correlation
-        search_list = []
-        base_word = next(iter(term_list))
-        best_score = -1 # first one always wins incase of tie
-        # correlation will be based off the first keyword
-        for term in term_list[base_word]:
-            if term["heading_id"] is None:
-                continue
-            total_score = 0
-            temp = [term]
-            # loop through rest of terms
-            for key in term_list:
-                if term_list[key][0]["heading_id"] is None:
-                    temp.append(term_list[key][0])
+        # if this is a new document search, do the aggregation, otherwise raw
+        if not recovering:
+            # only use most relevant headings and compare correlation
+            base_word = next(iter(term_list))
+            best_score = -1 # first one always wins incase of tie
+            # correlation will be based off the first keyword
+            for term in term_list[base_word]:
+                if term["heading_id"] is None:
                     continue
-                if key == base_word:
-                    continue
-                heading, score = self.getClosestHeading(term["tier_index"], term_list[key])
-                temp.append(heading)
-                total_score += score
-            # use this set of unique search terms if better correlation
-            if total_score > best_score:
-                best_score = total_score
-                search_list = temp
+                total_score = 0
+                temp = [term]
+                # loop through rest of terms
+                for key in term_list:
+                    if term_list[key][0]["heading_id"] is None:
+                        temp.append(term_list[key][0])
+                        continue
+                    if key == base_word:
+                        continue
+                    heading, score = self.getClosestHeading(term["tier_index"], term_list[key])
+                    temp.append(heading)
+                    total_score += score
+                # use this set of unique search terms if better correlation
+                if total_score > best_score:
+                    best_score = total_score
+                    search_list = temp
 
         return {
             "content": search_list,

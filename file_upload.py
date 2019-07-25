@@ -430,9 +430,9 @@ def recoverSearch(search_id):
     left join heading h2 on h2.id=w.headingid
     left join tfidf_heading th on th.wordid=w.id
     left join pos p on p.oht=w.pos
-    where st.searchid=%s and s.ipaddr=%s
-    order by st.rank""", (search_id, user_ip))
-    data = oht_wrapper.aggregateByRelevance(results)
+    where st.searchid=%s
+    order by st.rank""", (search_id,))
+    data = oht_wrapper.aggregateByRelevance(results, recovering=True)
     # return json markup
     return jsonify(data)
 

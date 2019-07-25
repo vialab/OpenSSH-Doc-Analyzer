@@ -61,6 +61,7 @@ function recoverSearch(search_id) {
         , type: "GET"
         , contentType: "application/json"
         , success: function(content) {
+            console.log(content);
             let tiers = content["tier_index"];
             home_tier = tiers.home;
             parent_tier = tiers.parent;
