@@ -706,7 +706,7 @@ text {
 }
 
 .recent-doc {
-  opacity: 0.2;
+  opacity: 0.5;
 }
 
 .recent-term {
@@ -725,7 +725,7 @@ text {
   position: relative;
   height: 150px;
   cursor: pointer;
-  opacity: 0.2;
+  opacity: 0.5;
   overflow: hidden;
   min-width: 130px;
   border-radius: 5px;
