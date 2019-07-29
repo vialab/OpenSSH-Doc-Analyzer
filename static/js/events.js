@@ -133,7 +133,6 @@ $("#search-keyword, #search-keyword-home").on("input click", function() {
     // call back for clicking on a keyword in the query bar
     let cb_keyword = function() {
         let heading_id = $(this).attr("heading-id");
-        console.log(heading_id);
         openExploreVis(heading_id);
     };
 

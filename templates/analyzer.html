@@ -15,7 +15,7 @@
             <div class="col-sm-9" id="search-dialog-main"></div>
             <div class="col-sm-3">
                 <div class="search-side part-of-speech">
-                    <h4>Sélectionner un Mot:</h4>
+                    <h4>Select a term:</h4>
                     <div id="pos-words">
                     </div>
                 </div>
@@ -33,7 +33,7 @@
         <span>&times;</span>
     </button>
     <div id="search-keyword-container">
-        <h1>Suggestions pour "<span class="keyword-heading"></span>" ...</h1>
+        <h1>Suggestions for "<span class="keyword-heading"></span>" ...</h1>
         <div class="custom-keyword-container">
             <div class="keyword-heading"></div>
             <div class="ring" style="width: 120px; height: 120px;"></div>
@@ -42,7 +42,7 @@
             <img class="loading" src="{{ url_for('static', filename='css/loading.gif') }}" />
         </div>
         <div class="no-keyword" style="display:none;">
-            Aucun Résultat Trouvé
+            No results found
         </div>
     </div>
 </div>
@@ -54,7 +54,7 @@
 </div>
 <div id="search-term-container">
     <div id="search-keyword-box">
-        <input type="text" id="search-keyword" placeholder="Chercher par Mot Clé"/>
+        <input type="text" id="search-keyword" placeholder="Search for a keyword"/>
     </div>
     <div id="search-term-box">
         <div id="add-term"><span>+</span></div>
@@ -65,7 +65,7 @@
     <div id="overflow-arrow-right">
         <span class="overflow-arrow" onclick="scrollSTBox(1);">&raquo;&raquo;</span>
     </div>
-    <button id="search-btn" onclick="search();">Chercher</button>
+    <button id="search-btn" onclick="search();">Search</button>
 </div>
 <div id="search-result-container">
   <div id="loading" style="display: none;"><img class="loading" src="{{ url_for('static', filename='css/loading.gif') }}" /></div>
@@ -76,7 +76,7 @@
             <div class="doc-title">{{ result["title"]|safe }}</div>
             <div class="doc-author">{{ result["author"]|safe }}</div>
             <div class="doc-cite">{{ result["citation"]|safe }}</div>
-            <h3>MOTS CLÉS</h3>
+            <h3>KEYWORDS</h3>
             <ul class="doc-term" id="doc-topic">
             {% for topic in result["topiclist"] %}
             {% if topic['dist'] > 0.1 %}
@@ -86,7 +86,7 @@
             {% endif %}
             {% endfor %}
             </ul>
-            <h3>TERMES DE CHERCHE</h3>
+            <h3>ENTITIES</h3>
             <ul class="doc-term" id="doc-people">
             {% for entity in result["entitylist"] %}
             {% if entity["type"] == "nompers" %}

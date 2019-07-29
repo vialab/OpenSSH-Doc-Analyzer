@@ -126,7 +126,7 @@ function showSearchResults( data ) {
             <div class='doc-title'></div>\
             <div class='doc-author'></div>\
             <div class='doc-cite'></div>\
-            <h3>MOTS CLÉS</h3>\
+            <h3>KEYWORDS</h3>\
             <ul class='doc-term' id='doc-topic'></ul>\
         </div>");
 
@@ -191,9 +191,9 @@ function showSearchResults( data ) {
                 if(!has_missing) {
                     $(list_id, $container).append("<li><a class='see-all-terms' \
                     onclick='showDocumentKeywords(\"" + doc.id + "\",\"" + doc.title
-                    + "\");'>voir tout &raquo;</a></li>")
+                    + "\");'>view more &raquo;</a></li>")
                     has_missing = true;
-                    $container.append($("<h3>TERMES MANQUANTS</h3><ul class='doc-term' id='doc-missing-term'></ul>"));
+                    $container.append($("<h3>MISSING TERMS</h3><ul class='doc-term' id='doc-missing-term'></ul>"));
                     list_id = "#doc-missing-term";
                 }
                 html += "non-existent' onclick='forceIncludeTerm(\"" + topic.name + "\", \""
