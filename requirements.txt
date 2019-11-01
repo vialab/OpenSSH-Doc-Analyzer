@@ -19,7 +19,7 @@ numpy==1.13.1
 olefile==0.44
 pandas==0.22.0
 pathlib2==2.3.0
-Pillow==4.2.1
+Pillow==6.2.0
 pyparsing==2.2.0
 PyPDF2==1.26.0
 python-dateutil==2.6.1
