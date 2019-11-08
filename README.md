@@ -48,10 +48,8 @@ source venv/bin/activate
 Install Python dependencies:
 
 ```
-pip install Werkzeug==0.14.1 flask numpy scikit-learn==0.20 scipy==1.2.0 pypdf2 pdfminer wand matplotlib==2.2.4 \
-opencv-python pandas textstat mysqlclient lxml simplejson nltk lz4 treetaggerwrapper unicodecsv pathlib2
+pip install -r requirements.txt
 ```
-Note: `pip install -r requirements.txt` might work as well (not tested)
 
 ### Running Flask
 

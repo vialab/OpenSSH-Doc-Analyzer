@@ -7,7 +7,6 @@ venv
 sproc
 /model/corps/**
 *.csv
-*.txt
 run.sh
 tm.pkl
 *.zip

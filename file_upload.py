@@ -1287,4 +1287,4 @@ def saveJournalCounts():
 
 if __name__ == "__main__":
     sess.init_app(app)
-    app.run(debug=True)
+    app.run()

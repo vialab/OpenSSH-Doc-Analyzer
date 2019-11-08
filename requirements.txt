@@ -1,38 +1,40 @@
-backports.functools-lru-cache==1.5
-certifi==2017.11.5
-chardet==3.0.4
-click==6.7
-cycler==0.10.0
-Django==1.11.5
-Flask==0.12.2
-idna==2.6
-image==1.5.15
-itsdangerous==0.24
-Jinja2==2.9.6
-lxml==4.0.0
-lz4==0.10.1
-MarkupSafe==1.0
-matplotlib==2.1.2
-MySQL-python==1.2.5
-nltk==3.2.4
+Flask==1.0.4
+Jinja2==2.10.3
+Werkzeug==0.16.0
+requests==2.20.0
+nltk==3.4.5
+
 numpy==1.13.1
-olefile==0.44
-pandas==0.22.0
-pathlib2==2.3.0
-Pillow==4.2.1
-pyparsing==2.2.0
+scikit-learn==0.19
+scipy==1.2.0
 PyPDF2==1.26.0
-python-dateutil==2.6.1
+opencv-python==4.1.1.26
+pandas==0.24.2
+pathlib2==2.3.5
 python-docx==0.8.10
-pytz==2017.2
-requests==2.19.1
-scandir==1.6
-scikit-learn==0.19.0
-scipy==0.19.1
-simplejson==3.13.2
-six==1.11.0
-subprocess32==3.2.7
-treetaggerwrapper==2.2.4
 unicodecsv==0.14.1
-urllib3==1.22
-Werkzeug==0.12.2
+treetaggerwrapper==2.3
+lz4==2.2.1
+simplejson==3.16.0
+lxml==4.0.0
+mysqlclient==1.4.4
+matplotlib==2.2.4
+textstat==0.5.6
+pdfminer==20140328
+Wand==0.5.7
+
+# backports.functools-lru-cache==1.5
+# Click==7.0
+# cycler==0.10.0
+# future==0.17.1
+# itsdangerous==1.1.0
+# kiwisolver==1.1.0
+# MarkupSafe==1.1.1
+# pyparsing==2.4.2
+# Pyphen==0.9.5
+# python-dateutil==2.8.0
+# pytz==2019.2
+# repoze.lru==0.7
+# scandir==1.10.0
+# six==1.12.0
+# subprocess32==3.5.4
