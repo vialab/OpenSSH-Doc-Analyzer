@@ -3,8 +3,8 @@ import db
 import codecs
 import constants as CONST
 import unicodecsv
-import cPickle as pickle
-from cStringIO import StringIO
+import pickle as pickle
+from io import StringIO
 
 class Word(object):
     """ Word object that holds word and heading information """
@@ -232,7 +232,7 @@ class Wrapper(object):
         # with open("./model/pkl/synset.pkl", "w+") as f:
         #     pickle.dump(self.synset_count, f)
         self.heading = self.buildHeadingList()
-        with open("./model/synset.pkl", "r") as f:
+        with open("./model/synset.pkl", "rb") as f:
             self.synset_count = pickle.load(f)
 
     def buildHeadingList(self):
@@ -340,11 +340,11 @@ class Wrapper(object):
 
             aWord = self.getWordList(strWord, pos=strPOS, lang="fr")
             if len(aWord) == 0:
-                aGram = filter(bool, strWord.split(" "))
+                aGram = list(filter(bool, strWord.split(" ")))
                 if len(aGram) > 1:
                     # we got an n-gram so split it up and weight accordingly
                     ngram_weight = len(aGram)
-                    aGramPOS = filter(bool, strPOS.split(" "))
+                    aGramPOS = list(filter(bool, strPOS.split(" ")))
                     for ngram, ngram_pos in zip(aGram, aGramPOS):
                         aWordGram = self.getWordList(ngram
                                                     , pos=ngram_pos

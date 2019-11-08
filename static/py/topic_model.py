@@ -56,10 +56,10 @@ class TopicModel(object):
     def preProcessText(self, strText, quote=False):
         """ Remove stopwords and punctuation, and also lemmatize the text. """
         # Always add spaces after apostrophe
-        strText = strText.replace(u"\u2019", u" ")
+        strText = strText.replace("\u2019", " ")
         # Kill underscores, and other characters we don't care about
-        translate_char = u"!@#$%^&*()[]{};:,./<>?\|`~-=_+"
-        translate_table = dict((ord(char), u" ") for char in translate_char)
+        translate_char = "!@#$%^&*()[]{};:,./<>?\|`~-=_+"
+        translate_table = dict((ord(char), " ") for char in translate_char)
         strText = strText.translate(translate_table)
         # This tokenizes, pos tags, and lemmatizes all our words
         aWordList = treetaggerwrapper.make_tags(self.tagger.tag_text(strText), exclude_nottags=True)
@@ -68,16 +68,16 @@ class TopicModel(object):
         # also make sure pos is lower case and without colons
         aCleanWordList = []
         for word in aWordList:
-            strPOS = word[1].lower().replace(u":", u"")
+            strPOS = word[1].lower().replace(":", "")
 
             if "pun" in strPOS or "sent" in strPOS or "@" in word[2]:
                 continue
             # lemmatized word can have multiple versions
-            aLemma = word[2].lower().replace(u"'", "").split(u"|")
+            aLemma = word[2].lower().replace("'", "").split("|")
 
             for lemma in aLemma:
                 # make sure individual lemma is not a stop word
-                if lemma not in self.aStopWord and lemma[0] != u"_" and len(lemma) > 1:
+                if lemma not in self.aStopWord and lemma[0] != "_" and len(lemma) > 1:
                     aCleanWordList.append([lemma, strPOS])
         if quote:
             return " ".join("\""+word[0]+"_"+word[1]+"\"" for word in aCleanWordList)
@@ -97,10 +97,10 @@ class TopicModel(object):
         aVocab = self.count_vect.vocabulary_
         aDescriptor = {}
         for idx, freq in enumerate(doc_tf.data):
-            word = u""
+            word = ""
             tfidf = 0.0
             # get the english word
-            for key, value in aVocab.iteritems():
+            for key, value in aVocab.items():
                 if value == doc_tf.indices[idx]:
                     word = key
                     break
@@ -136,7 +136,7 @@ class TopicModel(object):
         """ Given unique descriptors, get relevant bi and tri-grams with frequency """
         aBiGram = {}
         aTriGram = {}
-        aWord = strText.split(u" ")
+        aWord = strText.split(" ")
 
         for idx in range(len(aWord)):
             if aWord[idx] not in aDescriptor:
@@ -147,32 +147,32 @@ class TopicModel(object):
                 continue
             # get possible bi-grams
             if len(aWord) > idx+1:
-                strBiGram = aWord[idx] + u" " + aWord[idx+1]
+                strBiGram = aWord[idx] + " " + aWord[idx+1]
                 if strBiGram in aBiGram:
                     aBiGram[strBiGram]["freq"] += 1
                 else:
                     aBiGram[strBiGram] = { "freq":1, "score":0.0 }
             if idx > 0:
-                strBiGram = aWord[idx-1] + u" " + aWord[idx]
+                strBiGram = aWord[idx-1] + " " + aWord[idx]
                 if strBiGram in aBiGram:
                     aBiGram[strBiGram]["freq"] += 1
                 else:
                     aBiGram[strBiGram] = { "freq":1, "score":0.0 }
             # get possible tri-grams
             if len(aWord) > idx+2:
-                strTriGram = aWord[idx] + u" " + aWord[idx+1] + u" " + aWord[idx+2]
+                strTriGram = aWord[idx] + " " + aWord[idx+1] + " " + aWord[idx+2]
                 if strTriGram in aTriGram:
                     aTriGram[strTriGram]["freq"] += 1
                 else:
                     aTriGram[strTriGram] = { "freq":1, "score":0.0 }
             if len(aWord) > idx+1 and idx > 0:
-                strTriGram = aWord[idx-1] + u" " + aWord[idx] + u" " + aWord[idx+1]
+                strTriGram = aWord[idx-1] + " " + aWord[idx] + " " + aWord[idx+1]
                 if strTriGram in aTriGram:
                     aTriGram[strTriGram]["freq"] += 1
                 else:
                     aTriGram[strTriGram] = { "freq":1, "score":0.0 }
             if idx > 1:
-                strTriGram = aWord[idx-2] + u" " + aWord[idx-1] + u" " + aWord[idx]
+                strTriGram = aWord[idx-2] + " " + aWord[idx-1] + " " + aWord[idx]
                 if strTriGram in aTriGram:
                     aTriGram[strTriGram]["freq"] += 1
                 else:
@@ -298,9 +298,9 @@ class TopicModel(object):
     def printTopWords(self, model, feature_names, n_top_words):
         """ Print the top N words from each topic in a model """
         for topic_idx, topic in enumerate(model.exp_dirichlet_component_):
-            print("Topic #%d:" % topic_idx)
-            print(" ".join([feature_names[i] + "*" + str(topic[i])
-                                for i in topic.argsort()[:-n_top_words - 1:-1]]))
+            print(("Topic #%d:" % topic_idx))
+            print((" ".join([feature_names[i] + "*" + str(topic[i])
+                                for i in topic.argsort()[:-n_top_words - 1:-1]])))
 
     def saveModel(self):
         """ Pickle the model variables """
@@ -341,13 +341,13 @@ class TopicModel(object):
 
         # # save terms with tf and idf
         for term in self.count_vect.vocabulary_:
-            aTerm = filter(bool, term.split(" "))
+            aTerm = list(filter(bool, term.split(" ")))
             no_pos = ""
             pos = ""
             # check if bi-gram or tri-gram
             if len(aTerm) > 1:
                 for idx, word in enumerate(aTerm):
-                    term_pos = filter(bool,word.split("_"))
+                    term_pos = list(filter(bool,word.split("_")))
                     if len(term_pos) < 2:
                         term_pos.append("")
                     no_pos = no_pos + term_pos[0]
@@ -358,7 +358,7 @@ class TopicModel(object):
                 no_pos = no_pos.strip()
                 pos = pos.strip()
             else:
-                term_pos = filter(bool,term.split("_"))
+                term_pos = list(filter(bool,term.split("_")))
                 if len(term_pos) < 2:
                     term_pos.append("")
                 no_pos = term_pos[0]
@@ -371,7 +371,7 @@ class TopicModel(object):
         # save topics and their term distributions
         for topic_idx, topic in enumerate(self.lda.components_):
             self.db.execUpdate("insert into topic(topicname) values(%s)", (topic_idx,))
-            for key, value in self.count_vect.vocabulary_.iteritems():
+            for key, value in self.count_vect.vocabulary_.items():
                 self.db.execUpdate("""insert into topicterm(topicid, termid, dist)
                 select topic.id, term.id, %s from topic
                 left join term on term.wordpos=%s collate utf8mb4_bin

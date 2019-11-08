@@ -7,7 +7,7 @@ import os
 import db
 import codecs
 import simplejson as json
-import cPickle as pickle
+import pickle as pickle
 import numpy as np
 import erudit_parser as erudit
 import erudit_corpus as corpus
@@ -18,7 +18,7 @@ import pickle_session as ps
 import oht
 import re
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import matplotlib.pyplot as plt
 import pandas as pd
 import PyPDF2
@@ -91,7 +91,7 @@ def journal_analyzer():
 
     # otherwise, our search will be done dynamically through client
     total_end = time.time()
-    print("Total Time: %s seconds" % (total_end - total_start))
+    print(("Total Time: %s seconds" % (total_end - total_start)))
     return render_template("journal_analyzer.html", journal_list=search)
 
 
@@ -287,7 +287,7 @@ def analyzer():
         # search = getSearchResults(session["tfidf"], clean_list)
     # otherwise, our search will be done dynamically through client
     total_end = time.time()
-    print("Total Time: %s seconds" % (total_end - total_start))
+    print(("Total Time: %s seconds" % (total_end - total_start)))
     return render_template("analyzer.html", search_result=search, search_term=search_term, key_term=key_term, tier_index=tier_index)
 
 
@@ -485,7 +485,7 @@ def getSearchResults(tfidf, clean_list):
     start = time.time()
     rank_list = match(tfidf, 100)
     end = time.time()
-    print("Found 10 results in %s seconds" % (end - start))
+    print(("Found 10 results in %s seconds" % (end - start)))
     # return meta info
     return getSearchMetaInfo(rank_list, clean_list)
 
@@ -536,7 +536,7 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
         resultlist.append(aDoc[1])
         results.append(resultlist)
     end = time.time()
-    print("Retrieved meta info in %s seconds" % (end - start))
+    print(("Retrieved meta info in %s seconds" % (end - start)))
     # create the markup to return and also pull topic distribution for doc
     search = []
     start = time.time()
@@ -641,7 +641,7 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
         #     doc["entitylist"].append(temp)
         search.append(doc)
     end = time.time()
-    print("Got document meta info in %s seconds" % (end - start))
+    print(("Got document meta info in %s seconds" % (end - start)))
     return search
 
 
@@ -678,23 +678,23 @@ def extractTextFromUpload(file):
     """ Extract complete text from an uploaded file """
     text = []
     ext = file.filename.split(".")[-1]
-    if ext == u"xml":
+    if ext == "xml":
         strText = file.read()
         xmlDoc = cm.parseXML(strText=strText)
         strText = erudit.getTextFromXML(None, xmlDoc)
-    elif ext == u"pdf":
+    elif ext == "pdf":
         pdfReader = PyPDF2.PdfFileReader(file)
         # iterate pages and extract text from each
         for i in range(pdfReader.numPages):
             p = pdfReader.getPage(i)
             text.append(p.extractText())
-    elif ext == u"docx":
+    elif ext == "docx":
         bytes = io.BytesIO(file.read())
         doc = docx.Document(bytes)
         # print the number of pages in pdf file
         for p in doc.paragraphs:
             text.append(p.text)
-    elif ext == u"txt":
+    elif ext == "txt":
         text.append(file.read())
     else:
         return ""
@@ -721,7 +721,7 @@ def saveStopWords():
     for result in results:
         aStopWord.append(result[0].lower().strip())
     if " " not in aStopWord:
-        aStopWord.append(u" ")
+        aStopWord.append(" ")
     # aStopWord = set(aStopWord)
     with open("./model/pkl/stopword.pkl", "w+") as f:
         pickle.dump(aStopWord, f)
@@ -804,7 +804,7 @@ def savePreProcessedList():
 
     for aFile in aSavedFile:
         db.execUpdate("update document set cleanpath=%s where id=%s",
-                      (aFile.values()[0], aFile.keys()[0]))
+                      (list(aFile.values())[0], list(aFile.keys())[0]))
 
 
 def runTopicModel(nSampleSize=1000):
@@ -813,7 +813,7 @@ def runTopicModel(nSampleSize=1000):
     aSample = []
     dirPath = "./model/corps/boosted/"
     n = 0
-    strText = u""
+    strText = ""
     for filename in os.listdir(dirPath):
         if filename.endswith(".txt"):
             result = dirPath + filename
@@ -833,8 +833,8 @@ def runTopicModel(nSampleSize=1000):
     for i in range(1000):
         try:
             tm.processText(strText)
-        except Exception, e:
-            print str(e)
+        except Exception as e:
+            print(str(e))
     # tm.writeModelToDB()
     # tm.saveModel()
 
@@ -891,7 +891,7 @@ def countKeywords():
                 try:
                     tf = count_vect.fit_transform([aData[key]])
                 except:
-                    print key
+                    print(key)
                     continue
                 keyword_list = []
 
@@ -935,7 +935,7 @@ def saveParentHeadings():
             else 0 end ;
     """)
     n = 0
-    print "got %s headings ..." % len(headings)
+    print("got %s headings ..." % len(headings))
     for heading in headings:
         n += 1
         if heading[1] == "n":
@@ -956,7 +956,7 @@ def saveParentHeadings():
                     heading[2])
 
         if (n % 1000) == 0:
-            print n
+            print(n)
 
 
 def saveEntities():
@@ -968,7 +968,7 @@ def saveEntities():
             result[0], "/Users/jayrsawal/Documents" + result[1])
         n += 1
         if (n % 1000) == 0:
-            print n
+            print(n)
 
 
 def cleanAffiliations():
@@ -1007,7 +1007,7 @@ def getMap():
     n = 0
     for result in results:
         if n % 10 == 0:
-            print n
+            print(n)
         if n == 2450:
             break
         n += 1
@@ -1017,8 +1017,8 @@ def getMap():
                 search = result[0].strip().encode("utf-8")
                 strText = result[0].strip()
                 if not strText.startswith("Universit"):
-                    translate_char = u"!@#$%^&*()[]{};:,./<>?\|`~-=_+"
-                    translate_table = dict((ord(char), u" ")
+                    translate_char = "!@#$%^&*()[]{};:,./<>?\|`~-=_+"
+                    translate_table = dict((ord(char), " ")
                                            for char in translate_char)
                     strText = strText.translate(
                         translate_table).replace("cours", "")
@@ -1041,8 +1041,8 @@ def getMap():
                             x += 1
                 search = search.strip()
                 url = "https://maps.googleapis.com/maps/api/geocode/json?key=&address=" + \
-                    urllib.quote(search)
-                geo = json.loads(urllib.urlopen(url).read())
+                    urllib.parse.quote(search)
+                geo = json.loads(urllib.request.urlopen(url).read())
                 if geo["status"] == "ZERO_RESULTS":
                     retry = 3
                     continue

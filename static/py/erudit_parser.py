@@ -126,7 +126,7 @@ def saveEntityData(strDocumentID, strPath):
         db.execProc("erudit_INSERT_entity", (strDocumentID, strXML))
         db.execProc("erudit_INSERT_auteur", (strDocumentID, strLiminaireXML))        
     except:
-        print "OOPS"
+        print("OOPS")
 
 
 # Save meta data section of the ERUDIT XML

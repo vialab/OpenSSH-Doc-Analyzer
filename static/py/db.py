@@ -2,7 +2,7 @@
 import MySQLdb as sql
 import common as cm
 import os
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 
 class Database(object):
@@ -47,7 +47,7 @@ class Database(object):
     def beginSession(self):
         """ Returns a cursor to be able to maintain a session """
         if self.session_open:
-            raise "A session already exists."
+            raise Exception("A session already exists.")
         if not self.conn.open:
             self._connect()
         return self.conn.cursor()

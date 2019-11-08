@@ -3,19 +3,19 @@ import db
 import numpy as np
 import base64
 import re
-import cStringIO
+import io
 import imp
 import constants as CONST
 import hashlib
 import codecs
 import gzip
-import cPickle as pickle
+import pickle as pickle
 from lxml import etree, objectify
 
 ## Common helper functions used across the web app
 def load_zipped_pickle(filename):
     with gzip.open(filename, 'rb') as f:
-        loaded_object = pickle.load(f)
+        loaded_object = pickle.load(f, encoding='ISO-8859-1')
         return loaded_object
 
 
@@ -48,10 +48,10 @@ def removeNamespace(xmlData, namespace):
     """ Strip the namespaces found in an XML Element tree
     Erudit data comes has custom schema, strip it out
     so that we can validate with our own schemas """
-    ns = u'{%s}' % namespace
+    ns = '{%s}' % namespace
     nsl = len(ns)
     for elem in xmlData.getiterator():
-        if isinstance(elem.tag, basestring):
+        if isinstance(elem.tag, str):
             if elem.tag.startswith(ns):
                 elem.tag = elem.tag[nsl:]
 
@@ -89,7 +89,7 @@ def parseXML(strPath=None, strText=None):
         return etree.fromstring(strText)
     else:
         f = open(strPath).read()
-        xmlDoc = etree.parse(cStringIO.StringIO(f))
+        xmlDoc = etree.parse(io.StringIO(f))
         return xmlDoc
 
 def parseXMLSchema(strSchemaPath):
