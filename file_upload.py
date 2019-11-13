@@ -30,12 +30,16 @@ from flask import *
 from lz4.frame import compress, decompress
 from sklearn.feature_extraction.text import CountVectorizer
 from pathlib2 import Path
+from flask_babel import Babel
 
+print("loading")
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = CONST.UPLOAD_FOLDER
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.session_interface = ps.PickleSessionInterface("./app_session")
+
+babel = Babel(app)
 
 # Common variables
 oht_wrapper = oht.Wrapper()
@@ -60,6 +64,14 @@ tm.loadModel()
 # with open("./model/pkl/tm.pkl", "r") as f:
 #     tm = pickle.load(f)
 strPath = "/Users/jayrsawal/Documents"
+
+
+
+@babel.localeselector
+def get_locale():
+    print("SELECTING LANG: ",request.accept_languages.best_match(CONST.LANGUAGES))
+    # return request.accept_languages.best_match(CONST.LANGUAGES)
+    return 'fr'
 
 
 @app.route("/")

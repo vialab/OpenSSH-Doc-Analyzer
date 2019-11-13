@@ -3,7 +3,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>{% block title %}Synonymic Search | Home{% endblock title %}</title>
+  <title>{% block title %}{{ _('Synonymic Search') }} | {{ _('Home') }}{% endblock title %}</title>
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -24,20 +24,20 @@
     <div class="container">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
+          <span class="sr-only">{{ _('Toggle navigation') }}</span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/">Synonymic</a>
+        <a class="navbar-brand" href="/">{{ _('Synonymic') }}</a>
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li><a href="/">Document Search</a></li>
-          <li><a href="/journal">Journal Search</a></li>
+          <li><a href="/">{{ _('Document Search') }}</a></li>
+          <li><a href="/journal">{{ _('Journal Search') }}</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right" id="intro-btn">
-          <li><a onclick="runIntroTour();">need help?</a></li>
+          <li><a onclick="runIntroTour();">{{ _('need help?') }}</a></li>
         </ul>
       </div>
     </div>
@@ -48,7 +48,7 @@
       <input type="hidden" id="modal-heading-id" />
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modal-title-synset">Heading Synset</h5>
+          <h5 class="modal-title" id="modal-title-synset">{{ _('Heading Synset') }}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -57,8 +57,8 @@
 
         </div>
         <div class="modal-footer">
-          <button id="modal-btn-reorder" onclick="reorderVis();" type="button" class="btn btn-secondary" data-dismiss="modal">Select as Main Node</button>
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button id="modal-btn-reorder" onclick="reorderVis();" type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Select as Main Node') }}</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Close') }}</button>
         </div>
       </div>
     </div>

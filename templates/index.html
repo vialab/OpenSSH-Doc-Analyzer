@@ -3,12 +3,12 @@
 {% block title %}Synonymic Search | Upload{% endblock %}
 {% block page_cover %}
 <div class="" id="search-cover">
-  <h2>Synonymic Search.</h2>
+  <h2>{{ _('Synonymic Search.') }}</h2>
   <div class="form-group">
     <span class="fa fa-search form-control-feedback"></span>
     <input class="form-control" id="search-keyword-home" type="text" placeholder="What would you like to search?" />
   </div>
-  <h4>Finding new ways to explore the <span class="font-accent">Érudit</span> corpus.</h4>
+  <h4>{{ _('Finding new ways to explore the') }} <span class="font-accent">Érudit</span> {{ _('corpus.') }}</h4>
 </div>
 <div id="search-suggestion">
   <div id="search-keyword-container" style="display:none;">
@@ -21,7 +21,7 @@
       <img class="loading" src="{{ url_for('static', filename='css/loading.gif') }}" />
     </div>
     <div class="no-keyword" style="display:none;">
-      No results found.
+      {{ _('No results found.') }}
     </div>
   </div>
 </div>
@@ -29,19 +29,19 @@
 {% block page_content %}
 <div class="container-fluid" id="home-container">
   <div class="row" id="recent-search-history">
-    <h4>Recent Searches</h4>
+    <h4>{{ _('Recent Searches') }}</h4>
     <div class="col-md-12" id="recent-search-list" style="display:none;">
       <div class='row' id='search-list'></div>
     </div>
   </div>
   <div class="row">
     <div class="col-md-12" id="analyze-doc-form">
-      <h4>Upload a document (txt, pdf, docx)</h4>
+      <h4>{{ _('Upload a document (txt, pdf, docx)') }}</h4>
       <section>
         <div id="dropzone">
           <form action="/upload" class="dropzone needsclick dz-clickable" id="doc-upload">
             <div class="dz-message needsclick">
-              Click here or drag and drop a document to upload.<br>
+              {{ _('Click here or drag and drop a document to upload.') }}<br>
             </div>
           </form>
         </div>

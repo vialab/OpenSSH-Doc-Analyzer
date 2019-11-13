@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Oops! - Page Not Found{% endblock %}
+{% block title %}{{ _('Oops! - Page Not Found') }}{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Page not found.</h1>
+    <h1>{{ _('Page not found.') }}</h1>
 </div>
 <div class="row">
     <div class="col-sm-12">
-        The page your requested no longer exists. Click <a href="/">HERE</a> to get you back.
+        {{ _('The page your requested no longer exists. Click') }} <a href="/">{{ _('HERE') }}</a> {{ _('to get you back.') }}
     </div>
 </div>
 {% endblock %}

@@ -12,3 +12,14 @@ app_session/**
 **/.DS_Store
 .DS_Store
 test.sh
+**/__pycache__
+
+treetagger/bin
+treetagger/cmd
+treetagger/doc
+treetagger/lib
+treetagger/COPYRIGHT
+treetagger/FILES
+treetagger/README
+treetagger/README.script
+treetagger/Release-Notes

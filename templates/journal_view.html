@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Journal | Documents{% endblock %}
+{% block title %}{{ _('Journal | Documents') }}{% endblock %}
 {% block add_style %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/journal.css') }}">
 {% endblock add_style %} 
@@ -8,11 +8,11 @@
 <div class="container">
     {% for doc in doc_list %}
         <div class="doc" id="doc{{doc.id|safe}}">
-            <h3>ARTICLE</h3>
+            <h3>{{ _('ARTICLE') }}</h3>
             <div class="doc-title">{{ doc.title }}</div>
             <div class="doc-author">{{ doc.author }}</div>
             <div class="doc-cite">{{ doc.citation }}</div>
-            <h3>TOP KEYWORDS</h3>
+            <h3>{{ _('TOP KEYWORDS') }}</h3>
             <ul class="doc-term" id="doc-topic">
                 {% for topic in doc.topiclist %}
                 <li>
