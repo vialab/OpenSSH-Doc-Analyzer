@@ -23,3 +23,4 @@ treetagger/FILES
 treetagger/README
 treetagger/README.script
 treetagger/Release-Notes
+translations/*/LC_MESSAGES/messages.mo

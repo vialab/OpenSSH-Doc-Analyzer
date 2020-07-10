@@ -1,25 +1,34 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _('Journal | Analyzer') }}{% endblock %}
+{% block title %}
+{{ _('Journal | Analyzer') }}
+{%endblock %}
+
 {% block add_style %}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/journal.css') }}">
-{% endblock add_style %}
-{% block page_content %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static', filename='css/journal.css') }}"
+/>
+{% endblock add_style %} {% block page_content %}
 <div class="container" id="journal-list">
-    {% for journal in journal_list %}
-    <div class="journal-item {% if journal[4] %}featured{% endif %}">
-        <a href="{% if not journal[3] %}/journal/documents?id={{journal[0]}}{% else %}{{journal[3]}}{% endif %}" class="" target="_blank">
-            {% if journal[2] %}
-            <img src="{{journal[2]|safe}}" alt="{{journal[1]|safe}}"/>
-            {% endif %}
-            {% if journal[3] %}
-            <i class="fa fa-link fa-1"></i>
-            {% endif %}
-        </a>
-        <span style="{% if not journal[2] %}display:block;{% endif %}">{{ journal[1]|safe }}</span>
-    </div>
-    {% endfor %}
+  {% for journal in journal_list %}
+  <div class="journal-item {% if journal[4] %}featured{% endif %}">
+    <a
+      href="{% if not journal[3] %}/journal/documents?id={{journal[0]}}{% else %}{{journal[3]}}{% endif %}"
+      class=""
+      target="_blank"
+    >
+      {% if journal[2] %}
+      <img src="{{journal[2]|safe}}" alt="{{journal[1]|safe}}" />
+      {% endif %} {% if journal[3] %}
+      <i class="fa fa-link fa-1"></i>
+      {% endif %}
+    </a>
+    <span style="{% if not journal[2] %}display:block;{% endif %}"
+      >{{ journal[1]|safe }}</span
+    >
+  </div>
+  {% endfor %}
 </div>
-{% endblock page_content %}
-{% block add_js %}
-{% endblock add_js %}
+{% endblock page_content %} {% block add_js %} {% endblock add_js %}

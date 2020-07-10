@@ -1,14 +1,15 @@
-# Translations template for PROJECT.
-# Copyright (C) 2019 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
+# Translations template for Synonymic Search.
+# Copyright (C) 2019 Vialab
+# This file is distributed under the same license as the Synonymic Search
+# project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-11-13 01:57+0000\n"
+"Project-Id-Version: Synonymic Search 1.0\n"
+"Report-Msgid-Bugs-To: vialab.research@gmail.com\n"
+"POT-Creation-Date: 2019-12-02 18:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +27,7 @@ msgid "Page not found."
 msgstr ""
 
 #: templates/404.html:11
-msgid "The page your requested no longer exists. Click"
+msgid "The page you requested no longer exists. Click"
 msgstr ""
 
 #: templates/404.html:11 templates/500.html:12
@@ -117,18 +118,22 @@ msgid "Journal Search"
 msgstr ""
 
 #: templates/base.html:40
+msgid "Français"
+msgstr ""
+
+#: templates/base.html:43
 msgid "need help?"
 msgstr ""
 
-#: templates/base.html:51
+#: templates/base.html:54
 msgid "Heading Synset"
 msgstr ""
 
-#: templates/base.html:60
+#: templates/base.html:63
 msgid "Select as Main Node"
 msgstr ""
 
-#: templates/base.html:61
+#: templates/base.html:64
 msgid "Close"
 msgstr ""
 
@@ -142,6 +147,10 @@ msgstr ""
 
 #: templates/index.html:6
 msgid "Synonymic Search."
+msgstr ""
+
+#: templates/index.html:9
+msgid "What would you like to search?"
 msgstr ""
 
 #: templates/index.html:11

@@ -1,23 +1,16 @@
-# French translations for Synonymic Search.
-# Copyright (C) 2019 Vialab
-# This file is distributed under the same license as the Synonymic Search
-# project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-#
+#. extracted from english-french_finished.csv
 msgid ""
 msgstr ""
-"Project-Id-Version: Synonymic Search 1.0\n"
-"Report-Msgid-Bugs-To: vialab.research@gmail.com\n"
-"POT-Creation-Date: 2019-11-23 23:22+0000\n"
-"PO-Revision-Date: 2019-11-13 15:03+0000\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-12-02 18:02+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: fr\n"
-"Language-Team: fr <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
+"X-Generator: Translate Toolkit 2.3.1\n"
 
 #: templates/404.html:3
 msgid "Oops! - Page Not Found"
@@ -37,7 +30,7 @@ msgstr "ICI"
 
 #: templates/404.html:11
 msgid "to get you back."
-msgstr "pour revenir à la page précédente."
+msgstr "Cliquez ICI pour revenir à la page précédente."
 
 #: templates/500.html:3
 msgid "Oops! - Internal Server Error"
@@ -48,12 +41,21 @@ msgid "Oops! Something went horribly wrong .."
 msgstr "Oups! Quelque chose a terriblement mal tourné."
 
 #: templates/500.html:11
-msgid "The developers have been notified and working towards making sure this does not happen again. Thanks for your patience!"
-msgstr "L'équipe technique a été avisée et veillera à ce que cela ne se reproduise plus. Merci pour votre patience!"
+msgid ""
+"The developers have been notified and working towards making sure this does "
+"not happen again."
+msgstr ""
+"L'équipe technique a été avisée et veillera à ce que cela ne se reproduise "
+"plus."
+
+#: ++++++++Thanks+for+your+patience%21+Click+%22
+msgctxt "        Thanks for your patience! Click \""
+msgid ""
+msgstr "Merci pour votre patience!"
 
 #: templates/500.html:12
 msgid " to get you back."
-msgstr " ici pour revenir à la page précédente."
+msgstr "Cliquez ici pour revenir à la page précédente."
 
 #: templates/analyzer.html:3
 msgid "Synonymic Search | Analyzer"
@@ -116,22 +118,18 @@ msgid "Journal Search"
 msgstr "Rechercher une revue"
 
 #: templates/base.html:40
-msgid "Français"
-msgstr "English"
-
-#: templates/base.html:43
 msgid "need help?"
 msgstr "besoin d'aide?"
 
-#: templates/base.html:54
+#: templates/base.html:51
 msgid "Heading Synset"
 msgstr "En-tête synset (?)"
 
-#: templates/base.html:63
+#: templates/base.html:60
 msgid "Select as Main Node"
 msgstr "Sélectionnez comme nœud principal"
 
-#: templates/base.html:64
+#: templates/base.html:61
 msgid "Close"
 msgstr "Fermer"
 
@@ -146,10 +144,6 @@ msgstr "Explorer"
 #: templates/index.html:6
 msgid "Synonymic Search."
 msgstr "Recherche synonymique."
-
-#: templates/index.html:9
-msgid "What would you like to search?"
-msgstr "Que voudriez-vous chercher?"
 
 #: templates/index.html:11
 msgid "Finding new ways to explore the"

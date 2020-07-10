@@ -29,6 +29,17 @@ img.loading {
   max-height: 192px;
 }
 
+#language-btn {
+  cursor: pointer;
+  opacity: 0.5;
+}
+#language-btn:hover {
+  opacity: 1;
+}
+#language-btn:hover a {
+  color: #688ae7 !important;
+}
+
 #search-result-container,
 #add-term,
 #search-box,

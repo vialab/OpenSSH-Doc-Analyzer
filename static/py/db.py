@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 
 class Database(object):
     """ Basic MySQL database helper functions """
+
     conn = None
     session_open = False
 
@@ -19,10 +20,22 @@ class Database(object):
         if env is None or env == "PROD":
             if connstr is None:
                 raise Exception("DATABASE_URL was not provided")
-            url =  urlparse(connstr)
-            self.conn = sql.connect(host=url.hostname, user=url.username, passwd=url.password, db=url.path[1:], charset='utf8mb4')
+            url = urlparse(connstr)
+            self.conn = sql.connect(
+                host=url.hostname,
+                user=url.username,
+                passwd=url.password,
+                db=url.path[1:],
+                charset="utf8mb4",
+            )
         else:
-            self.conn = sql.connect(host=cfg.mysql["host"], user=cfg.mysql["user"], passwd=cfg.mysql["passwd"], db=cfg.mysql["db"], charset='utf8mb4')
+            self.conn = sql.connect(
+                host=cfg.mysql["host"],
+                user=cfg.mysql["user"],
+                passwd=cfg.mysql["passwd"],
+                db=cfg.mysql["db"],
+                charset="utf8mb4",
+            )
 
     def _execute(self, sqlStmt, args=None, cursor=None, is_update=True):
         try:
@@ -52,7 +65,9 @@ class Database(object):
             self._connect()
         return self.conn.cursor()
 
-    def execSessionQuery(self, cursor, strCmd, args=(), close_cursor=False, is_update=False):
+    def execSessionQuery(
+        self, cursor, strCmd, args=(), close_cursor=False, is_update=False
+    ):
         """ Used to run a query on a specific cursor """
         r_cursor = self._execute(strCmd, args, cursor, is_update)
         results = []

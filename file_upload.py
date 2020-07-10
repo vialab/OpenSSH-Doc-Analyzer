@@ -1,42 +1,54 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
-sys.path.append("./static/py")
+import codecs
 import io
 import os
-import db
-import codecs
-import simplejson as json
 import pickle as pickle
-import numpy as np
-import erudit_parser as erudit
-import erudit_corpus as corpus
-import topic_model as tm
-import common as cm
-import constants as CONST
-import pickle_session as ps
-import oht
 import re
+import sys
 import time
-import urllib.request, urllib.parse, urllib.error
-import matplotlib.pyplot as plt
-import pandas as pd
-import PyPDF2
+import urllib.error
+import urllib.parse
+import urllib.request
+
+sys.path.append("./static/py")
+
 import docx
-# import gzip
-from nltk import word_tokenize
-from lxml import etree, html
+
+# import matplotlib.pyplot as plt
+import numpy as np
+
+# import pandas as pd
+import PyPDF2
+
+# import simplejson as json
+import json
 from flask import *
-from lz4.frame import compress, decompress
-from sklearn.feature_extraction.text import CountVectorizer
-from pathlib2 import Path
 from flask_babel import Babel
 
-print("loading")
+# from lxml import etree, html
+from lz4.frame import compress, decompress
+
+# import gzip
+from nltk import word_tokenize
+
+# from pathlib2 import Path
+from sklearn.feature_extraction.text import CountVectorizer
+
+import common as cm
+import constants as CONST
+import db
+import erudit_corpus as corpus
+import erudit_parser as erudit
+import oht
+import pickle_session as ps
+import topic_model as tm
+
+
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = CONST.UPLOAD_FOLDER
-app.secret_key = 'super secret key'
-app.config['SESSION_TYPE'] = 'filesystem'
+app.secret_key = "super secret key"
+app.config["SESSION_TYPE"] = "filesystem"
 app.session_interface = ps.PickleSessionInterface("./app_session")
 
 babel = Babel(app)
@@ -46,7 +58,8 @@ oht_wrapper = oht.Wrapper()
 db = db.Database()
 aStopWord = []
 results = db.execQuery(
-    "select lower(word) word, treetag from stopword where dataset=%s", ("adam2",))
+    "select lower(word) word, treetag from stopword where dataset=%s", ("adam2",)
+)
 for result in results:
     aStopWord.append(result[0].strip())
 aStopWord = set(aStopWord)
@@ -66,12 +79,20 @@ tm.loadModel()
 strPath = "/Users/jayrsawal/Documents"
 
 
-
+# Select the language to use
 @babel.localeselector
 def get_locale():
-    print("SELECTING LANG: ",request.accept_languages.best_match(CONST.LANGUAGES))
-    # return request.accept_languages.best_match(CONST.LANGUAGES)
-    return 'fr'
+    if request.cookies.get("selected-language", None):
+        language = request.cookies.get("selected-language")
+    else:
+        language = request.accept_languages.best_match(CONST.LANGUAGES)
+    return language
+
+
+# Return the list of languages available when requested
+@app.route("/api/languages", methods=["GET"])
+def get_languages():
+    return jsonify(CONST.LANGUAGES)
 
 
 @app.route("/")
@@ -114,9 +135,12 @@ def journal_view():
     if journal_id is None:
         return redirect(url_for("index"))
 
-    results = db.execQuery("""
+    results = db.execQuery(
+        """
         select documentid, 0
-        from meta where journalid=%s limit 100""", (journal_id,))
+        from meta where journalid=%s limit 100""",
+        (journal_id,),
+    )
     documents = getSearchMetaInfo(results, [])
     return render_template("journal_view.html", doc_list=documents)
 
@@ -124,12 +148,15 @@ def journal_view():
 @app.route("/document/keywords/<doc_id>", methods=["GET"])
 def getKeywords(doc_id):
     """ Get a keyword list for a single document """
-    results = db.execQuery("""select d.termid, d.word
+    results = db.execQuery(
+        """select d.termid, d.word
     , d.tfidf, t.headingid
     from doctfidf d
     left join tfidf t on t.termid=d.termid
     where d.documentid=%s
-    order by d.tfidf desc""", (doc_id,))
+    order by d.tfidf desc""",
+        (doc_id,),
+    )
     used_terms = []
     keywords = []
     i = 0
@@ -151,8 +178,8 @@ def getKeywords(doc_id):
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
     """ Document upload web hook """
-    if request.method == 'POST':
-        file = request.files['file']
+    if request.method == "POST":
+        file = request.files["file"]
         # make sure upload is support file type
         if file and cm.isSupportedFile(file.filename):
             strText = extractTextFromUpload(file)
@@ -162,12 +189,15 @@ def upload():
             strText = tm.removeStopWords(strText)
             # hash the text and look for any matches in db
             strHash = cm.getSHA256(strText)
-            aHash = db.execQuery("""
+            aHash = db.execQuery(
+                """
                 select d.id, t.termid, t.word, udt.tf, udt.idf, udt.tfidf
                 from dochash d
                 left join userdoctfidf udt on udt.dochashid=d.id
                 left join tfidf t on t.id=udt.termid
-                where d.hashkey=%s""", (strHash,))
+                where d.hashkey=%s""",
+                (strHash,),
+            )
 
             if len(aHash) > 1:
                 # we have a match - recover it
@@ -176,11 +206,17 @@ def upload():
                 # no match, save this to the db for future reference
                 user_ip = request.environ["REMOTE_ADDR"]
                 doc_name = file.filename
-                db.execUpdate("""insert into dochash(ipaddr, hashkey, docname)
-                values(%s, %s, %s)""", (user_ip, strHash, doc_name))
-                dochash_id = db.execQuery("""
+                db.execUpdate(
+                    """insert into dochash(ipaddr, hashkey, docname)
+                values(%s, %s, %s)""",
+                    (user_ip, strHash, doc_name),
+                )
+                dochash_id = db.execQuery(
+                    """
                     select id from dochash where hashkey=%s
-                    order by created desc limit 1""", (strHash,))[0][0]
+                    order by created desc limit 1""",
+                    (strHash,),
+                )[0][0]
                 session["dochashid"] = dochash_id
                 # preprocess text
                 strClean = tm.preProcessText(strText.decode("utf8"))
@@ -188,17 +224,25 @@ def upload():
                 tfidf = tm.transformTfidf(strClean)
                 session["tfidf"] = tfidf
                 for idx in tfidf:
-                    db.execUpdate("""
+                    db.execUpdate(
+                        """
                     insert into userdoctfidf(dochashid, termid, tf, idf, tfidf)
                     values(%s, %s, %s, %s, %s);
-                    """, (dochash_id, idx, tfidf[idx]["tf"], tfidf[idx]["idf"], tfidf[idx]["tfidf"]))
+                    """,
+                        (
+                            dochash_id,
+                            idx,
+                            tfidf[idx]["tf"],
+                            tfidf[idx]["idf"],
+                            tfidf[idx]["tfidf"],
+                        ),
+                    )
             # add data to session for later
             key_term = oht_wrapper.getTfidfHeadingList(tfidf)
             session["keyterm"] = key_term
-            search_term = [term for term in key_term[:CONST.DS_MAXTOPIC]]
+            search_term = [term for term in key_term[: CONST.DS_MAXTOPIC]]
             session["searchterm"] = search_term
-            session["tierindex"] = oht_wrapper.getTierIndexIntersection(
-                search_term)
+            session["tierindex"] = oht_wrapper.getTierIndexIntersection(search_term)
     return redirect(url_for("index"))
 
 
@@ -216,15 +260,23 @@ def search():
     if search_id is None:
         # use session based queries
         cursor = db.beginSession()
-        result = db.execSessionQuery(cursor, """
+        result = db.execSessionQuery(
+            cursor,
+            """
         insert into search(ipaddr)
         values(%s);
-        """, (user_ip,))
+        """,
+            (user_ip,),
+        )
         # get last inserted record in session
-        result = db.execSessionQuery(cursor, """
+        result = db.execSessionQuery(
+            cursor,
+            """
         select last_insert_id();
         commit;
-        """, close_cursor=True)
+        """,
+            close_cursor=True,
+        )
         search_id = result[0][0]
 
     term_list = []
@@ -242,8 +294,11 @@ def search():
             except ValueError:
                 k["heading_id"] = None
             if "search_id" not in content:
-                db.execQuery("""insert into searchterm(searchid, keyword, weight, rank, headingid)
-                values(%s, %s, %s, %s, %s); commit;""", (search_id, k["keyword"], k["weight"], k["order"], k["heading_id"]))
+                db.execQuery(
+                    """insert into searchterm(searchid, keyword, weight, rank, headingid)
+                values(%s, %s, %s, %s, %s); commit;""",
+                    (search_id, k["keyword"], k["weight"], k["order"], k["heading_id"]),
+                )
             if k["must_include"]:
                 must_include.append(clean_word)
     # find matches in the corpus
@@ -277,8 +332,7 @@ def analyzer():
         recoverDocumentTfidf(dochash_id)
 
     # nothing to load - return to home page
-    if (dochash_id is None and quick_search is None
-            and search_id is None):
+    if dochash_id is None and quick_search is None and search_id is None:
         return redirect(url_for("index"))
 
     total_start = time.time()
@@ -300,7 +354,13 @@ def analyzer():
     # otherwise, our search will be done dynamically through client
     total_end = time.time()
     print(("Total Time: %s seconds" % (total_end - total_start)))
-    return render_template("analyzer.html", search_result=search, search_term=search_term, key_term=key_term, tier_index=tier_index)
+    return render_template(
+        "analyzer.html",
+        search_result=search,
+        search_term=search_term,
+        key_term=key_term,
+        tier_index=tier_index,
+    )
 
 
 @app.route("/oht")
@@ -327,7 +387,7 @@ def oht_synset(heading_id):
         "name": heading.fr,
         "tier_index": heading.tierindex,
         "words": words,
-        "pos": filterOHTHeadingList(pos)
+        "pos": filterOHTHeadingList(pos),
     }
     return jsonify(response)
 
@@ -360,14 +420,17 @@ def history():
     """ Web hook for retrieving search history on main page """
     user_ip = request.environ["REMOTE_ADDR"]
     # get search queries
-    results = db.execQuery("""
+    results = db.execQuery(
+        """
     select id
     , DATE_FORMAT(created, '%%m/%%d/%%Y %%H:%%i')
     from search
     where ipaddr=%s
     order by created desc
     limit 5
-    """, (user_ip,))
+    """,
+        (user_ip,),
+    )
     search_list = []
     for result in results:
         temp = {}
@@ -375,7 +438,8 @@ def history():
         temp["date"] = result[1]
         temp["terms"] = []
         # get terms used for this search
-        term_list = db.execQuery("""select st.headingid
+        term_list = db.execQuery(
+            """select st.headingid
     , st.keyword
     , st.weight
     , st.rank
@@ -385,7 +449,9 @@ def history():
     left join search s on s.id=st.searchid
     left join heading h on h.id=st.headingid
     where st.searchid=%s
-    order by st.rank""", (result[0],))
+    order by st.rank""",
+            (result[0],),
+        )
         for term in term_list:
             t = {}
             if term[0] is not None:
@@ -398,13 +464,15 @@ def history():
         search_list.append(temp)
 
     # get document queries
-    results = db.execQuery("""
+    results = db.execQuery(
+        """
     select id, docname
     , DATE_FORMAT(created, '%%m/%%d/%%Y %%H:%%i')
     from dochash d
     order by created desc
     limit 5
-    """)
+    """
+    )
     doc_list = []
     for result in results:
         temp = {}
@@ -413,9 +481,7 @@ def history():
         temp["date"] = result[2]
         doc_list.append(temp)
     # json markup
-    history = {
-        "searches": search_list, "documents": doc_list
-    }
+    history = {"searches": search_list, "documents": doc_list}
     return jsonify(history)
 
 
@@ -424,7 +490,8 @@ def recoverSearch(search_id):
     """ Recover a set of search terms that was previously used by user """
     user_ip = request.environ["REMOTE_ADDR"]
     # get results and authenticate with ipaddress
-    results = db.execQuery("""select st.headingid
+    results = db.execQuery(
+        """select st.headingid
     , st.keyword
     , st.weight
     , st.rank
@@ -443,7 +510,9 @@ def recoverSearch(search_id):
     left join tfidf_heading th on th.wordid=w.id
     left join pos p on p.oht=w.pos
     where st.searchid=%s
-    order by st.rank""", (search_id,))
+    order by st.rank""",
+        (search_id,),
+    )
     data = oht_wrapper.aggregateByRelevance(results, recovering=True)
     # return json markup
     return jsonify(data)
@@ -456,14 +525,17 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
     # 2. session["keyterm"] - Topic heading id matches based off topicdist
     # 3. session["searchterm"] - filtered list of key terms
     session["dochashid"] = dochash_id
-    aHash = db.execQuery("""
+    aHash = db.execQuery(
+        """
         select t.termid, t.word, udt.tf, udt.idf, udt.tfidf, t.headingid, h.tierindex
         from userdoctfidf udt
         left join tfidf t on t.termid=udt.termid
         left join heading h on h.id=t.headingid
         where udt.dochashid=%s
         order by udt.tfidf desc
-        limit 5""", (dochash_id,))
+        limit 5""",
+        (dochash_id,),
+    )
 
     # we have a match - recover it
     tfidf = {}
@@ -481,7 +553,7 @@ def recoverDocumentTfidf(dochash_id, redirect=True):
 
     # get headings from oht
     key_term = oht_wrapper.getTfidfHeadingList(session["tfidf"])
-    search_term = [term for term in key_term[:CONST.DS_MAXTOPIC]]
+    search_term = [term for term in key_term[: CONST.DS_MAXTOPIC]]
     session["keyterm"] = key_term
     session["searchterm"] = search_term
     session["tierindex"] = oht_wrapper.getTierIndexIntersection(search_term)
@@ -505,34 +577,44 @@ def getSearchResults(tfidf, clean_list):
 def match(tfidf, n=100):
     """ Find closest matching docs using tfidf score """
     terms = ",".join([str(term) for term in tfidf])
-    return db.execQuery("""
+    return db.execQuery(
+        """
         select documentid
         , sum(tfidf)
         from doctfidf
-        where termid in (""" + terms + """)
+        where termid in ("""
+        + terms
+        + """)
         group by documentid
         order by sum(tfidf) desc
         limit %s
-        """, (n,))
+        """,
+        (n,),
+    )
 
 
 def getJournalSearchResults(tfidf, n=10):
     """ Like search results, but amalgamated by journal instead """
     terms = ",".join([str(term) for term in tfidf])
-    rank_list = db.execQuery("""
+    rank_list = db.execQuery(
+        """
         select m.journalid, j.title, j.logo, j.url from meta m
         left join (
 			select documentid
 			, sum(tfidf) score
 			from doctfidf
-			where termid in (""" + terms + """)
+			where termid in ("""
+        + terms
+        + """)
 			group by documentid
 			order by sum(tfidf) desc) x on x.documentid=m.documentid
         left join journal j on j.id=m.journalid
 		group by m.journalid
         order by sum(x.score) desc
         limit %s;
-        """, (n,))
+        """,
+        (n,),
+    )
     return rank_list
 
 
@@ -586,11 +668,14 @@ def getSearchMetaInfo(rank_list, keyword_list, must_include=[]):
         doc["uri"] = result[12]
         doc["cossim"] = result[13]
         # get document distributions
-        aTopicDist = db.execQuery("""
+        aTopicDist = db.execQuery(
+            """
         select d.termid, d.word, d.tfidf, t.headingid
         from doctfidf d
         left join tfidf t on t.termid=d.termid
-        where d.documentid=%s""", (doc["id"],))
+        where d.documentid=%s""",
+            (doc["id"],),
+        )
         aTopicDist = list(aTopicDist)
         aTopicDist.sort(key=lambda tup: tup[2], reverse=True)
         unused_terms = keyword_list[:]
@@ -722,14 +807,17 @@ def saveTFDF():
         tfdf = pickle.load(f)
 
     for word in tfdf:
-        db.execUpdate("insert into tfdf(word, freq, docfreq) values(%s, %s, %s)",
-                      (word, tfdf[word]["tf"], tfdf[word]["df"]))
+        db.execUpdate(
+            "insert into tfdf(word, freq, docfreq) values(%s, %s, %s)",
+            (word, tfdf[word]["tf"], tfdf[word]["df"]),
+        )
 
 
 def saveStopWords():
     aStopWord = []
     results = db.execQuery(
-        "select lower(word) word from stopword where dataset=%s", ("adam2",))
+        "select lower(word) word from stopword where dataset=%s", ("adam2",)
+    )
     for result in results:
         aStopWord.append(result[0].lower().strip())
     if " " not in aStopWord:
@@ -746,8 +834,7 @@ def inferTopic(tfidf):
 
 
 def inferTopicNames():
-    results = db.execQuery(
-        "select word, pos from tfidf where headingid is null")
+    results = db.execQuery("select word, pos from tfidf where headingid is null")
     for result in results:
         aHeading = oht_wrapper.getTopicHeadingRankList(result[0])
         aTop = {"value": 0, "id": None, "col": []}
@@ -759,8 +846,10 @@ def inferTopicNames():
             elif aHeading[key] == aTop["value"]:
                 aTop["col"].append(key)
         strCol = ",".join(str(key) for key in aTop["col"])
-        db.execUpdate("update topic set headingid=%s, infername=%s where id=%s",
-                      (aTop["id"], strCol, result[0]))
+        db.execUpdate(
+            "update topic set headingid=%s, infername=%s where id=%s",
+            (aTop["id"], strCol, result[0]),
+        )
 
 
 def transformDocumentToModel(nSampleSize=100):
@@ -768,10 +857,12 @@ def transformDocumentToModel(nSampleSize=100):
     all topic distributions - Run cosin sim on top 10 topics and then run
     cosin similarity on topic distribution """
 
-    results = db.execQuery("""
+    results = db.execQuery(
+        """
         select distinct cleanpath from document
         where cleanpath is not null
-    """)
+    """
+    )
 
     n = 0
     for result in results:
@@ -780,8 +871,7 @@ def transformDocumentToModel(nSampleSize=100):
         for key in aData:
             topic_dist = tm.transform(aData[key])
             db.execUpdate("delete from doctopic where documentid=%s;", (key,))
-            db.execUpdate(
-                "delete from doctopiclz where documentid=%s;", (key,))
+            db.execUpdate("delete from doctopiclz where documentid=%s;", (key,))
 
             topic_str = ""
             for topic_idx, dist in enumerate(topic_dist[0]):
@@ -790,17 +880,26 @@ def transformDocumentToModel(nSampleSize=100):
                 topic_str = topic_str + str(topic_idx) + "-" + str(dist)
 
             topic_hash = compress(topic_str)
-            db.execUpdate("""
+            db.execUpdate(
+                """
                 insert into doctopiclz(documentid, topichash)
-                values(%s, %s)""", (key, str(topic_hash).decode("latin1").encode("utf8")))
+                values(%s, %s)""",
+                (key, str(topic_hash).decode("latin1").encode("utf8")),
+            )
 
-            for topic_idx in topic_dist[0].argsort()[::-1][:CONST.DS_MAXTOPIC]:
-                db.execUpdate("""
+            for topic_idx in topic_dist[0].argsort()[::-1][: CONST.DS_MAXTOPIC]:
+                db.execUpdate(
+                    """
                     insert into doctopic(documentid, topicid, dist, rank)
-                    select %s, id, %s, %s from topic where topicname=%s;""", (key, topic_dist[0][topic_idx], rank, str(topic_idx)))
+                    select %s, id, %s, %s from topic where topicname=%s;""",
+                    (key, topic_dist[0][topic_idx], rank, str(topic_idx)),
+                )
 
-            db.execUpdate("""update document set
-                transformdt=CURRENT_TIMESTAMP where id=%s""", (key,))
+            db.execUpdate(
+                """update document set
+                transformdt=CURRENT_TIMESTAMP where id=%s""",
+                (key,),
+            )
             n += 1
             if n == nSampleSize:
                 break
@@ -815,8 +914,10 @@ def savePreProcessedList():
         aSavedFile = pickle.load(f)
 
     for aFile in aSavedFile:
-        db.execUpdate("update document set cleanpath=%s where id=%s",
-                      (list(aFile.values())[0], list(aFile.keys())[0]))
+        db.execUpdate(
+            "update document set cleanpath=%s where id=%s",
+            (list(aFile.values())[0], list(aFile.keys())[0]),
+        )
 
 
 def runTopicModel(nSampleSize=1000):
@@ -855,18 +956,22 @@ def prePreProcessTextToDisk():
     with open("./model/pkl/stopword.pkl", "r") as f:
         tm.aStopWord = pickle.load(f)
 
-    results = db.execQuery("""
+    results = db.execQuery(
+        """
         select max(cast(replace(replace(cleanpath,'./model/corps/', '')
             , '.txt', '') as UNSIGNED)) lastfile
-        from document""")
+        from document"""
+    )
     if len(results) > 0:
         nDoc = int(results[0][0])
     else:
         nDoc = 0
 
-    results = db.execQuery("""
+    results = db.execQuery(
+        """
         select id, path from document
-        where dataset='erudit' and cleanpath is null""")
+        where dataset='erudit' and cleanpath is null"""
+    )
     aData = {}
 
     for result in results:
@@ -883,13 +988,19 @@ def prePreProcessTextToDisk():
             cm.saveUTF8ToDisk(strCleanPath, json.dumps(aData))
             for key in aData:
                 db.execUpdate(
-                    "update document set cleanpath=%s where id=%s", (strCleanPath, key))
+                    "update document set cleanpath=%s where id=%s", (strCleanPath, key)
+                )
             aData = {}
 
 
 def countKeywords():
-    count_vect = CountVectorizer(max_df=CONST.TM_MAXDF, min_df=CONST.TM_MINDF, max_features=CONST.TM_FEATURES,
-                                 stop_words=aStopWord, token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")")
+    count_vect = CountVectorizer(
+        max_df=CONST.TM_MAXDF,
+        min_df=CONST.TM_MINDF,
+        max_features=CONST.TM_FEATURES,
+        stop_words=aStopWord,
+        token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")",
+    )
 
     dirPath = "./model/corps/"
     for filename in os.listdir(dirPath):
@@ -908,30 +1019,43 @@ def countKeywords():
                 keyword_list = []
 
                 for word in count_vect.get_feature_names():
-                    keyword = db.execQuery("""
+                    keyword = db.execQuery(
+                        """
                     select id from keyword where word=%s
-                    """, (word,))
+                    """,
+                        (word,),
+                    )
 
                     if len(keyword) == 0:
-                        db.execUpdate("""
+                        db.execUpdate(
+                            """
                         insert into keyword(word) values(%s);
-                        """, (word,))
-                        keyword = db.execQuery("""
+                        """,
+                            (word,),
+                        )
+                        keyword = db.execQuery(
+                            """
                         select id from keyword where word=%s
-                        """, (word,))
+                        """,
+                            (word,),
+                        )
                     keyword_list.append(keyword[0][0])
 
                 num_words = sum([freq for freq in tf.data])
                 for keyword_id, freq in zip(keyword_list, tf.data):
                     dist = freq / float(num_words)
-                    db.execUpdate("""
+                    db.execUpdate(
+                        """
                     insert into dockeyword(documentid, keywordid, freq, dist)
                     values(%s, %s, %s, %s)
-                    """, (key, keyword_id, freq, dist))
+                    """,
+                        (key, keyword_id, freq, dist),
+                    )
 
 
 def saveParentHeadings():
-    headings = db.execQuery("""select h.id
+    headings = db.execQuery(
+        """select h.id
         , h.pos
         , h.tierindex
         from heading h
@@ -945,7 +1069,8 @@ def saveParentHeadings():
             when h.t6!=p.t6 and h.t7!='NA' then 1
             when p.t7!='NA' then 1
             else 0 end ;
-    """)
+    """
+    )
     n = 0
     print("got %s headings ..." % len(headings))
     for heading in headings:
@@ -953,19 +1078,24 @@ def saveParentHeadings():
         if heading[1] == "n":
             p_tier, s_tier, parent_id = oht_wrapper.getParentTier(heading[2])
             db.execUpdate(
-                "update heading set parentid=%s where id=%s", (parent_id, heading[0]))
+                "update heading set parentid=%s where id=%s", (parent_id, heading[0])
+            )
         else:
-            parent = db.execQuery("""select id from heading
+            parent = db.execQuery(
+                """select id from heading
             where tierindex=%s and pos='n' and subcat=''
             limit 1
-            """, (heading[2],))
+            """,
+                (heading[2],),
+            )
             if len(parent) > 0:
                 db.execUpdate(
-                    "update heading set parentid=%s where id=%s", (parent[0][0], heading[0]))
+                    "update heading set parentid=%s where id=%s",
+                    (parent[0][0], heading[0]),
+                )
             else:
                 # flat level with no words in it
-                p_tier, s_tier, parent_id = oht_wrapper.getParentTier(
-                    heading[2])
+                p_tier, s_tier, parent_id = oht_wrapper.getParentTier(heading[2])
 
         if (n % 1000) == 0:
             print(n)
@@ -974,22 +1104,24 @@ def saveParentHeadings():
 def saveEntities():
     n = 0
     results = db.execQuery(
-        "select id, path from document where cleanpath is not null and id not in (select distinct documentid from entity)")
+        "select id, path from document where cleanpath is not null and id not in (select distinct documentid from entity)"
+    )
     for result in results:
-        erudit.saveEntityData(
-            result[0], "/Users/jayrsawal/Documents" + result[1])
+        erudit.saveEntityData(result[0], "/Users/jayrsawal/Documents" + result[1])
         n += 1
         if (n % 1000) == 0:
             print(n)
 
 
 def cleanAffiliations():
-    results = db.execQuery("""select a.id, a.affiliation, a.lat, a.lng
+    results = db.execQuery(
+        """select a.id, a.affiliation, a.lat, a.lng
         from affiliation a
         inner join (
         select lat, lng, count(*) c from affiliation group by lat, lng having count(*) > 1
         ) x on x.lat=a.lat and x.lng=a.lng
-        order by a.lat, a.lng, length(a.affiliation);""")
+        order by a.lat, a.lng, length(a.affiliation);"""
+    )
     aff_group = []
     first = {}
     first["id"] = results[0][0]
@@ -999,12 +1131,18 @@ def cleanAffiliations():
 
     for result in results[1:]:
         if result[2] == first["lat"] and result[3] == first["lng"]:
-            db.execUpdate("""update author set affiliationid=%s, university=%s
+            db.execUpdate(
+                """update author set affiliationid=%s, university=%s
                 where affiliationid=%s
-                """, (first["id"], first["aff"], result[0]))
-            db.execUpdate("""delete from affiliation
+                """,
+                (first["id"], first["aff"], result[0]),
+            )
+            db.execUpdate(
+                """delete from affiliation
                 where id=%s
-                """, (result[0],))
+                """,
+                (result[0],),
+            )
         else:
             first["id"] = result[0]
             first["aff"] = result[1]
@@ -1015,7 +1153,8 @@ def cleanAffiliations():
 def getMap():
     # results = db.execQuery("select distinct affiliation from author where affiliationid is null and affiliation like %s", ("%%universit%%",))
     results = db.execQuery(
-        "select distinct university from author where university is not null and affiliationid is null;")
+        "select distinct university from author where university is not null and affiliationid is null;"
+    )
     n = 0
     for result in results:
         if n % 10 == 0:
@@ -1030,12 +1169,9 @@ def getMap():
                 strText = result[0].strip()
                 if not strText.startswith("Universit"):
                     translate_char = "!@#$%^&*()[]{};:,./<>?\|`~-=_+"
-                    translate_table = dict((ord(char), " ")
-                                           for char in translate_char)
-                    strText = strText.translate(
-                        translate_table).replace("cours", "")
-                    tokens = word_tokenize(
-                        tm.removeStopWords(strText).encode("utf-8"))
+                    translate_table = dict((ord(char), " ") for char in translate_char)
+                    strText = strText.translate(translate_table).replace("cours", "")
+                    tokens = word_tokenize(tm.removeStopWords(strText).encode("utf-8"))
                     search = ""
                     append = False
                     x = 0
@@ -1052,26 +1188,34 @@ def getMap():
                             search += t + " "
                             x += 1
                 search = search.strip()
-                url = "https://maps.googleapis.com/maps/api/geocode/json?key=&address=" + \
-                    urllib.parse.quote(search)
+                url = (
+                    "https://maps.googleapis.com/maps/api/geocode/json?key=&address="
+                    + urllib.parse.quote(search)
+                )
                 geo = json.loads(urllib.request.urlopen(url).read())
                 if geo["status"] == "ZERO_RESULTS":
                     retry = 3
                     continue
                 if geo["status"] == "OVER_QUERY_LIMIT":
-                    time.sleep((retry + 1)**2)
+                    time.sleep((retry + 1) ** 2)
                     raise ValueError("Blah")
                 lat = geo["results"][0]["geometry"]["location"]["lat"]
                 lng = geo["results"][0]["geometry"]["location"]["lng"]
                 addr = geo["results"][0]["formatted_address"]
                 types = " ".join(geo["results"][0]["types"])
-                db.execUpdate("""insert into affiliation(affiliation, addr, lat, lng, loc)
-                    values(%s, %s, %s, %s, %s);
-                    """, (result[0], addr, lat, lng, types))
-                aff = db.execQuery(
-                    "select id from affiliation where affiliation=%s", (result[0],))
                 db.execUpdate(
-                    "update author set affiliationid=%s where university=%s", (aff[0][0], result[0]))
+                    """insert into affiliation(affiliation, addr, lat, lng, loc)
+                    values(%s, %s, %s, %s, %s);
+                    """,
+                    (result[0], addr, lat, lng, types),
+                )
+                aff = db.execQuery(
+                    "select id from affiliation where affiliation=%s", (result[0],)
+                )
+                db.execUpdate(
+                    "update author set affiliationid=%s where university=%s",
+                    (aff[0][0], result[0]),
+                )
                 time.sleep(0.1)
                 retry = 2
             except:
@@ -1079,7 +1223,8 @@ def getMap():
 
 
 def createMapJSON():
-    results = db.execQuery("""
+    results = db.execQuery(
+        """
         select m.documentid
         , m.journalid
         , m.titrerev
@@ -1105,7 +1250,8 @@ def createMapJSON():
             group by documentid
             having count(*)  > 2
         );
-        """)
+        """
+    )
     documents = []
     last_doc_id = results[0][0]
     for result in results:
@@ -1126,15 +1272,14 @@ def createMapJSON():
     strCleanPath = "./model/entities.json"
     entities = createEntityMapJSON()
     createEntityLinkData(documents)
-    data = {
-        "entities": entities, "documents": documents
-    }
+    data = {"entities": entities, "documents": documents}
     cm.saveUTF8ToDisk(strCleanPath, json.dumps(data))
 
 
 def createEntityMapJSON():
     entities = {}
-    results = db.execQuery("""
+    results = db.execQuery(
+        """
         select id
         , affiliation
         , addr
@@ -1142,7 +1287,8 @@ def createEntityMapJSON():
         , lng
         , loc
         from affiliation
-        """)
+        """
+    )
     for result in results:
         entities[result[0]] = {}
         entities[result[0]]["entityid"] = result[0]
@@ -1157,7 +1303,8 @@ def createEntityMapJSON():
 def createEntityLinkData(documents):
     for doc in documents:
         links = []
-        authors = db.execQuery("""
+        authors = db.execQuery(
+            """
             select distinct aa.affiliationid
             , af.lat
             , af.lng
@@ -1166,7 +1313,9 @@ def createEntityLinkData(documents):
             inner join affiliation af on aa.affiliationid=af.id
             where a.documentid=%s
             and aa.affiliationid is not null
-            """, (doc["documentid"],))
+            """,
+            (doc["documentid"],),
+        )
         for a in authors:
             author = {}
             author["affiliationid"] = a[0]
@@ -1189,9 +1338,12 @@ def sortAuthorLinks(links):
     q_maxlatlng = []
     added_list = []
     for i, link in enumerate(link_stack):
-        if i not in added_list and link["lng"] >= max_lat["lng"] \
-                and link["lat"] >= max_lng["lat"] \
-                and (link != max_lng or max_lat == max_lng):
+        if (
+            i not in added_list
+            and link["lng"] >= max_lat["lng"]
+            and link["lat"] >= max_lng["lat"]
+            and (link != max_lng or max_lat == max_lng)
+        ):
             q_maxlatlng.append(link)
             added_list.append(i)
     sorted_links += traverseQuadrant(q_maxlatlng, max_lat["lng"])
@@ -1199,9 +1351,12 @@ def sortAuthorLinks(links):
     # but make sure we do not include min_lat to avoid duplicates
     q_maxlnglat = []
     for i, link in enumerate(link_stack):
-        if i not in added_list and link["lat"] <= max_lng["lat"] \
-                and link["lng"] <= min_lat["lng"] \
-                and (link != min_lat or max_lng == min_lat):
+        if (
+            i not in added_list
+            and link["lat"] <= max_lng["lat"]
+            and link["lng"] <= min_lat["lng"]
+            and (link != min_lat or max_lng == min_lat)
+        ):
             q_maxlnglat.append(link)
             added_list.append(i)
     sorted_links += traverseQuadrant(q_maxlnglat, max_lng["lat"])
@@ -1209,9 +1364,12 @@ def sortAuthorLinks(links):
     # but make sure we do not include min_lng to avoid duplicates
     q_minlatlng = []
     for i, link in enumerate(link_stack):
-        if i not in added_list and link["lng"] <= min_lat["lng"] \
-                and link["lat"] <= min_lng["lat"] \
-                and (link != min_lng or min_lng == min_lat):
+        if (
+            i not in added_list
+            and link["lng"] <= min_lat["lng"]
+            and link["lat"] <= min_lng["lat"]
+            and (link != min_lng or min_lng == min_lat)
+        ):
             q_minlatlng.append(link)
             added_list.append(i)
     sorted_links += traverseQuadrant(q_minlatlng, min_lat["lng"])
@@ -1219,9 +1377,12 @@ def sortAuthorLinks(links):
     # but make sure we do not include min_lng to avoid duplicates
     q_minlnglat = []
     for i, link in enumerate(link_stack):
-        if i not in added_list and link["lat"] >= min_lng["lat"] \
-                and link["lng"] <= max_lat["lng"] \
-                and (link != max_lat or min_lng == max_lat):
+        if (
+            i not in added_list
+            and link["lat"] >= min_lng["lat"]
+            and link["lng"] <= max_lat["lng"]
+            and (link != max_lat or min_lng == max_lat)
+        ):
             q_minlnglat.append(link)
             added_list.append(i)
     sorted_links += traverseQuadrant(q_minlnglat, min_lng["lat"])
@@ -1283,11 +1444,13 @@ def getMinMaxLatLng(links):
 
 
 def saveJournalCounts():
-    results = db.execQuery("""
+    results = db.execQuery(
+        """
     select j.id, j.title, count(*) from journal j
     left join meta m on m.journalid=j.id
     group by j.id, j.title;
-    """)
+    """
+    )
     journal = {}
     for result in results:
         journal[result[0]] = {}
@@ -1298,5 +1461,5 @@ def saveJournalCounts():
 
 
 if __name__ == "__main__":
-    sess.init_app(app)
+    # sess.init_app(app)
     app.run()
