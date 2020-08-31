@@ -18,18 +18,19 @@ def getXMLSchema(xmlData):
     cm.removeNamespace(root, CONST.ERUDIT_NAMESPACES["erudit"])
 
     xsd = cm.parseXMLSchema("./static/xml/para.xsd")
-    if (xsd.validate(xmlData)):
+    if xsd.validate(xmlData):
         return "PARA"
-    
+
     xsd = cm.parseXMLSchema("./static/xml/roc.xsd")
-    if(xsd.validate(xmlData)):
+    if xsd.validate(xmlData):
         return "ROC"
 
     xsd = cm.parseXMLSchema("./static/xml/libre.xsd")
-    if(xsd.validate(xmlData)):
+    if xsd.validate(xmlData):
         return "LIBRE"
-    
+
     return "UNKNOWN"
+
 
 # Strip the text from the corps element based on its schema
 def getTextFromXML(strDocumentID, xmlData):
@@ -40,10 +41,10 @@ def getTextFromXML(strDocumentID, xmlData):
         return ""
     strSchema = getXMLSchema(xmlCorps)
 
-    if(strSchema == "PARA"):
+    if strSchema == "PARA":
         # well formed
         strText = " ".join(xmlCorps.xpath("//para//alinea//text()"))
-    elif(strSchema == "ROC"):
+    elif strSchema == "ROC":
         # everything should be seperated by paragraphs
         # need to handle for some anomalies first
         strText = getTextFromROC(strDocumentID, xmlCorps)
@@ -81,38 +82,42 @@ def getTextFromROC(strDocumentID, xmlCorps):
     #             else:
     #                 nTitles += 1
     # else:
-    #     # we do not have meta data for this document        
+    #     # we do not have meta data for this document
     #     # let's try to receive the meta data to try again
     #     strMetaXML = cm.getUTFStringFromXML(xmlMeta)
     #     db.execProc("erudit_INSERT_metadata", (strDocumentID, strMetaXML))
     #     metaData = db.execQuery("select d.path, m.titrerev from document d left join meta m on m.documentid = d.id where d.id=%s", (strDocumentID,))
-        
+
     #     if metaData:
-    #         # we got something! let's do this again            
+    #         # we got something! let's do this again
     #         # WARNING: "SAFE" RECURSION HAPPENING HERE
     #         return processTextFromROC(strDocumentID, xmlCorps)
 
     return " ".join(xmlCorps.xpath("//alinea//text()"))
-        
+
 
 # Save all the data we want from this XML Document
 def saveAllData(strDocumentID, xmlDoc):
-        root = xmlDoc.getroot()
-        cm.removeNamespace(root, CONST.ERUDIT_NAMESPACES["erudit"])
-        strXML = cm.getUTFStringFromXML(xmlDoc)
+    root = xmlDoc.getroot()
+    cm.removeNamespace(root, CONST.ERUDIT_NAMESPACES["erudit"])
+    strXML = cm.getUTFStringFromXML(xmlDoc)
 
-        xmlMeta = cm.getXPathElement(xmlDoc, "//admin")
-        strMetaXML = cm.getUTFStringFromXML(xmlMeta)
+    xmlMeta = cm.getXPathElement(xmlDoc, "//admin")
+    strMetaXML = cm.getUTFStringFromXML(xmlMeta)
 
-        xmlBiblio = cm.getXPathElement(xmlDoc, "//partiesann")
-        strBiblioXML = cm.getUTFStringFromXML(xmlBiblio)
+    xmlBiblio = cm.getXPathElement(xmlDoc, "//partiesann")
+    strBiblioXML = cm.getUTFStringFromXML(xmlBiblio)
 
-        xmlLiminaire = cm.getXPathElement(xmlDoc, "//liminaire")
-        strLiminaireXML = cm.getUTFStringFromXML(xmlLiminaire)
+    xmlLiminaire = cm.getXPathElement(xmlDoc, "//liminaire")
+    strLiminaireXML = cm.getUTFStringFromXML(xmlLiminaire)
 
-        xmlCorps = cm.getXPathElement(xmlDoc, "//corps")
-        strCorpsXML = cm.getUTFStringFromXML(xmlCorps)
-        db.execProc("erudit_INSERT", (strDocumentID, strXML, strMetaXML, strBiblioXML, strLiminaireXML, strCorpsXML))
+    xmlCorps = cm.getXPathElement(xmlDoc, "//corps")
+    strCorpsXML = cm.getUTFStringFromXML(xmlCorps)
+    db.execProc(
+        "erudit_INSERT",
+        (strDocumentID, strXML, strMetaXML, strBiblioXML, strLiminaireXML, strCorpsXML),
+    )
+
 
 # Save the entity data (nompers, nomorg) in an xml doc
 def saveEntityData(strDocumentID, strPath):
@@ -124,9 +129,9 @@ def saveEntityData(strDocumentID, strPath):
     strLiminaireXML = cm.getUTFStringFromXML(xmlLiminaire)
     try:
         db.execProc("erudit_INSERT_entity", (strDocumentID, strXML))
-        db.execProc("erudit_INSERT_auteur", (strDocumentID, strLiminaireXML))        
+        db.execProc("erudit_INSERT_auteur", (strDocumentID, strLiminaireXML))
     except:
-        print "OOPS"
+        print("OOPS")
 
 
 # Save meta data section of the ERUDIT XML
@@ -136,12 +141,14 @@ def saveMetaData(strDocumentID, xmlDoc):
     strMetaXML = cm.getUTFStringFromXML(xmlMeta)
     db.execProc("erudit_INSERT_metadata", (strDocumentID, strMetaXML))
 
+
 # Save bibliography section of the ERUDIT XML
 # Assumes namespace has been stripped from XML
 def saveBibliography(strDocumentID, xmlDoc):
     xmlBiblio = cm.getXPathElement(xmlDoc, "//partiesann")
     strBiblioXML = cm.getUTFStringFromXML(xmlBiblio)
     db.execProc("erudit_INSERT_biblio", (strDocumentID, strBiblioXML))
+
 
 # Save key notes section of the ERUDIT XML
 # Assumes namespace has been stripped from XML
@@ -150,6 +157,7 @@ def saveKeynote(strDocumentID, xmlDoc):
     strLiminaireXML = cm.getUTFStringFromXML(xmlLiminaire)
     db.execProc("erudit_INSERT_liminaire", (strDocumentID, strLiminaireXML))
 
+
 # Save corps section of the ERUDIT XML
 # Assumes namespace has been stripped from XML
 def saveCorpus(strDocumentID, xmlDoc):
@@ -157,8 +165,11 @@ def saveCorpus(strDocumentID, xmlDoc):
     strCorpsXML = cm.getUTFStringFromXML(xmlCorps)
     db.execProc("erudit_INSERT_corps", (strDocumentID, strCorpsXML))
 
+
 # Save raw Erudit XML
 def saveRawXML(strDocumentID, xmlDoc):
     strXML = cm.getUTFStringFromXML(xmlDoc)
-    db.execUpdate("insert into raw_xml(documentid, rawxml) values(%s, %s)", (strDocumentID, strXML))
-
+    db.execUpdate(
+        "insert into raw_xml(documentid, rawxml) values(%s, %s)",
+        (strDocumentID, strXML),
+    )

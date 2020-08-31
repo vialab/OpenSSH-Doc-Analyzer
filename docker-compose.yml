@@ -5,8 +5,14 @@ services:
     ports:
       - "5000:5000"
     environment:
-      FLASK_ENV: production
+      # FLASK_ENV: production
+      FLASK_ENV: development
+      FLASK_DEBUG: 1
       DATABASE_URL: "mysql://root:sshcyber@mysql5:3306/sshcyber"
+    volumes:
+      - ./static:/usr/src/app/static:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     networks:
       - mysql-db
 

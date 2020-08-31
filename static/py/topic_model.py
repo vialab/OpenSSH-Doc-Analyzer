@@ -15,26 +15,40 @@ import gc
 import scipy
 import operator
 from sklearn.externals import joblib
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, HashingVectorizer, TfidfTransformer
+from sklearn.feature_extraction.text import (
+    TfidfVectorizer,
+    CountVectorizer,
+    HashingVectorizer,
+    TfidfTransformer,
+)
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 
 # os.environ["JAVAHOME"] = "C:/Program Files (x86)/Java/jre1.8.0_121/bin/java.exe"
 os.environ["TAGDIR"] = "./treetagger/"
 
+
 class TopicModel(object):
     """ Class for handling all topic modeling functions """
+
     db = db.Database()
     tagger = treetaggerwrapper.TreeTagger(TAGLANG="fr")
     # ner = nltk.tag.stanford.StanfordNERTagger("C:/stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz", "C:/stanford-ner/stanford-ner.jar", encoding="utf-8")
     # TDIF NMF
-    nmf = NMF(n_components=CONST.TM_TOPICS, random_state=CONST.TM_RANDOM,
-            alpha=CONST.TM_ALPHA, l1_ratio=CONST.TM_L1RATIO)
+    nmf = NMF(
+        n_components=CONST.TM_TOPICS,
+        random_state=CONST.TM_RANDOM,
+        alpha=CONST.TM_ALPHA,
+        l1_ratio=CONST.TM_L1RATIO,
+    )
     # LDA VARIABLES
     lda_path = "/model/"
-    lda = LatentDirichletAllocation(n_topics=CONST.TM_TOPICS, max_iter=CONST.TM_MAXITER,
-                                    learning_method='online',
-                                    learning_offset=CONST.TM_OFFSET,
-                                    random_state=CONST.TM_RANDOM)
+    lda = LatentDirichletAllocation(
+        n_topics=CONST.TM_TOPICS,
+        max_iter=CONST.TM_MAXITER,
+        learning_method="online",
+        learning_offset=CONST.TM_OFFSET,
+        random_state=CONST.TM_RANDOM,
+    )
     aDocList = []
     aStopWord = []
     tfidf_vect = None
@@ -47,42 +61,49 @@ class TopicModel(object):
         for word in stop_words:
             self.aStopWord.append(word.strip())
 
-        self.count_vect = CountVectorizer(max_df=CONST.TM_MAXDF, min_df=CONST.TM_MINDF
-                                        , max_features=CONST.TM_FEATURES, stop_words=self.aStopWord)
-                                        # , token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")")
+        self.count_vect = CountVectorizer(
+            max_df=CONST.TM_MAXDF,
+            min_df=CONST.TM_MINDF,
+            max_features=CONST.TM_FEATURES,
+            stop_words=self.aStopWord,
+        )
+        # , token_pattern=r"(?<=\")(?:\\.|[^\"\\]){2,}(?=\")")
         self.tfidf_vect = TfidfTransformer()
-
 
     def preProcessText(self, strText, quote=False):
         """ Remove stopwords and punctuation, and also lemmatize the text. """
         # Always add spaces after apostrophe
-        strText = strText.replace(u"\u2019", u" ")
+        strText = strText.replace("\u2019", " ")
         # Kill underscores, and other characters we don't care about
-        translate_char = u"!@#$%^&*()[]{};:,./<>?\|`~-=_+"
-        translate_table = dict((ord(char), u" ") for char in translate_char)
+        translate_char = "!@#$%^&*()[]{};:,./<>?\|`~-=_+"
+        translate_table = dict((ord(char), " ") for char in translate_char)
         strText = strText.translate(translate_table)
         # This tokenizes, pos tags, and lemmatizes all our words
-        aWordList = treetaggerwrapper.make_tags(self.tagger.tag_text(strText), exclude_nottags=True)
+        aWordList = treetaggerwrapper.make_tags(
+            self.tagger.tag_text(strText), exclude_nottags=True
+        )
 
         # Remove all stop words (based on lemmatized words) and punctuation
         # also make sure pos is lower case and without colons
         aCleanWordList = []
         for word in aWordList:
-            strPOS = word[1].lower().replace(u":", u"")
+            strPOS = word[1].lower().replace(":", "")
 
             if "pun" in strPOS or "sent" in strPOS or "@" in word[2]:
                 continue
             # lemmatized word can have multiple versions
-            aLemma = word[2].lower().replace(u"'", "").split(u"|")
+            aLemma = word[2].lower().replace("'", "").split("|")
 
             for lemma in aLemma:
                 # make sure individual lemma is not a stop word
-                if lemma not in self.aStopWord and lemma[0] != u"_" and len(lemma) > 1:
+                if lemma not in self.aStopWord and lemma[0] != "_" and len(lemma) > 1:
                     aCleanWordList.append([lemma, strPOS])
         if quote:
-            return " ".join("\""+word[0]+"_"+word[1]+"\"" for word in aCleanWordList)
+            return " ".join(
+                '"' + word[0] + "_" + word[1] + '"' for word in aCleanWordList
+            )
         else:
-            return " ".join(word[0]+"_"+word[1] for word in aCleanWordList)
+            return " ".join(word[0] + "_" + word[1] for word in aCleanWordList)
 
     def processText(self, strRawText, is_clean=True):
         """ Run TFIDF transformation on text and extract and boost
@@ -97,10 +118,10 @@ class TopicModel(object):
         aVocab = self.count_vect.vocabulary_
         aDescriptor = {}
         for idx, freq in enumerate(doc_tf.data):
-            word = u""
+            word = ""
             tfidf = 0.0
             # get the english word
-            for key, value in aVocab.iteritems():
+            for key, value in aVocab.items():
                 if value == doc_tf.indices[idx]:
                     word = key
                     break
@@ -109,7 +130,7 @@ class TopicModel(object):
                 if value == doc_tf.indices[idx]:
                     tfidf = doc_tfidf.data[key]
 
-            aDescriptor[word] = { "freq":freq, "score":tfidf }
+            aDescriptor[word] = {"freq": freq, "score": tfidf}
 
         aDescriptor = self.getSignificantDescriptors(aDescriptor)
         aDescriptor = self.formNGrams(strText, aDescriptor)
@@ -125,7 +146,9 @@ class TopicModel(object):
         aRelevant = {}
         for word in aDescriptor:
             if len(aRelevant) != 0:
-                if aDescriptor[word]["score"] < fM or abs(aDescriptor[word]["score"] - fM) <= (fStd * CONST.TT_DEVIATION):
+                if aDescriptor[word]["score"] < fM or abs(
+                    aDescriptor[word]["score"] - fM
+                ) <= (fStd * CONST.TT_DEVIATION):
                     # exclude any word with tfidf score below mean tfidf score of doc
                     continue
             aRelevant[word] = aDescriptor[word]
@@ -136,7 +159,7 @@ class TopicModel(object):
         """ Given unique descriptors, get relevant bi and tri-grams with frequency """
         aBiGram = {}
         aTriGram = {}
-        aWord = strText.split(u" ")
+        aWord = strText.split(" ")
 
         for idx in range(len(aWord)):
             if aWord[idx] not in aDescriptor:
@@ -146,37 +169,37 @@ class TopicModel(object):
                 # can not justify descriptor exists in ngram due to min frequency
                 continue
             # get possible bi-grams
-            if len(aWord) > idx+1:
-                strBiGram = aWord[idx] + u" " + aWord[idx+1]
+            if len(aWord) > idx + 1:
+                strBiGram = aWord[idx] + " " + aWord[idx + 1]
                 if strBiGram in aBiGram:
                     aBiGram[strBiGram]["freq"] += 1
                 else:
-                    aBiGram[strBiGram] = { "freq":1, "score":0.0 }
+                    aBiGram[strBiGram] = {"freq": 1, "score": 0.0}
             if idx > 0:
-                strBiGram = aWord[idx-1] + u" " + aWord[idx]
+                strBiGram = aWord[idx - 1] + " " + aWord[idx]
                 if strBiGram in aBiGram:
                     aBiGram[strBiGram]["freq"] += 1
                 else:
-                    aBiGram[strBiGram] = { "freq":1, "score":0.0 }
+                    aBiGram[strBiGram] = {"freq": 1, "score": 0.0}
             # get possible tri-grams
-            if len(aWord) > idx+2:
-                strTriGram = aWord[idx] + u" " + aWord[idx+1] + u" " + aWord[idx+2]
+            if len(aWord) > idx + 2:
+                strTriGram = aWord[idx] + " " + aWord[idx + 1] + " " + aWord[idx + 2]
                 if strTriGram in aTriGram:
                     aTriGram[strTriGram]["freq"] += 1
                 else:
-                    aTriGram[strTriGram] = { "freq":1, "score":0.0 }
-            if len(aWord) > idx+1 and idx > 0:
-                strTriGram = aWord[idx-1] + u" " + aWord[idx] + u" " + aWord[idx+1]
+                    aTriGram[strTriGram] = {"freq": 1, "score": 0.0}
+            if len(aWord) > idx + 1 and idx > 0:
+                strTriGram = aWord[idx - 1] + " " + aWord[idx] + " " + aWord[idx + 1]
                 if strTriGram in aTriGram:
                     aTriGram[strTriGram]["freq"] += 1
                 else:
-                    aTriGram[strTriGram] = { "freq":1, "score":0.0 }
+                    aTriGram[strTriGram] = {"freq": 1, "score": 0.0}
             if idx > 1:
-                strTriGram = aWord[idx-2] + u" " + aWord[idx-1] + u" " + aWord[idx]
+                strTriGram = aWord[idx - 2] + " " + aWord[idx - 1] + " " + aWord[idx]
                 if strTriGram in aTriGram:
                     aTriGram[strTriGram]["freq"] += 1
                 else:
-                    aTriGram[strTriGram] = { "freq":1, "score":0.0 }
+                    aTriGram[strTriGram] = {"freq": 1, "score": 0.0}
 
         # combine tri-grams with bi-grams
         aSigNGram = self.replaceNGramDescriptor(aTriGram, aBiGram)
@@ -197,7 +220,10 @@ class TopicModel(object):
 
             aSigDesc = {}
             for descriptor in aDescriptor:
-                if descriptor in ngram and aDescriptor[descriptor]["freq"] > CONST.TT_MINFREQ:
+                if (
+                    descriptor in ngram
+                    and aDescriptor[descriptor]["freq"] > CONST.TT_MINFREQ
+                ):
                     nDF += aDescriptor[descriptor]["freq"]
                     fDesc += 1.0
                     tfidf += aDescriptor[descriptor]["score"]
@@ -207,10 +233,10 @@ class TopicModel(object):
             if fDesc < 1:
                 continue
 
-            fRelFreq = nTF/(nDF/fDesc)
+            fRelFreq = nTF / (nDF / fDesc)
             if fRelFreq > CONST.TT_NGRAMSIG:
                 # average the tfidf score of descriptors involved
-                aNGram[ngram]["score"] = (tfidf / fDesc)
+                aNGram[ngram]["score"] = tfidf / fDesc
                 aSigNGram[ngram] = aNGram[ngram]
                 # replace original descriptors
                 for descriptor in aSigDesc:
@@ -225,9 +251,11 @@ class TopicModel(object):
         aBoosted = {}
         for descriptor in aDescriptor:
             if any(tag in descriptor for tag in CONST.NOUN_TAG):
-                aBoosted[descriptor] = { "freq":(aDescriptor[descriptor]["freq"] * CONST.NOUN_BOOST) }
+                aBoosted[descriptor] = {
+                    "freq": (aDescriptor[descriptor]["freq"] * CONST.NOUN_BOOST)
+                }
             else:
-                aBoosted[descriptor] = { "freq":aDescriptor[descriptor]["freq"] }
+                aBoosted[descriptor] = {"freq": aDescriptor[descriptor]["freq"]}
 
         # aSorted = sorted(aBoosted.items(), key=operator.itemgetter(1))
         # size = len(aSorted)
@@ -246,7 +274,7 @@ class TopicModel(object):
     def interpolateIntoLog(self, x, y):
         logx = np.log10(x)
         logy = np.log10(y)
-        lin_interp = scipy.interpolate.interp1d(logx, logy, kind='cubic')
+        lin_interp = scipy.interpolate.interp1d(logx, logy, kind="cubic")
         log_interp = lambda z: np.power(10.0, lin_interp(np.log10(z)))
         return log_interp
 
@@ -255,14 +283,16 @@ class TopicModel(object):
         strText = ""
         for word in aDescriptor:
             for i in range(aDescriptor[word]["freq"]):
-                strText += "\"" + word + "\" "
+                strText += '"' + word + '" '
         return strText
 
     def removeStopWords(self, strText):
         """ Stop word removal from string"""
         aStopWordSet = set(self.aStopWord)
         aWord = strText.split(" ")
-        strCleanText = " ".join(word.lower() for word in aWord if word.lower() not in aStopWordSet)
+        strCleanText = " ".join(
+            word.lower() for word in aWord if word.lower() not in aStopWordSet
+        )
         return strCleanText
 
     def fitLDA(self, aDocument, _aDocList):
@@ -298,9 +328,17 @@ class TopicModel(object):
     def printTopWords(self, model, feature_names, n_top_words):
         """ Print the top N words from each topic in a model """
         for topic_idx, topic in enumerate(model.exp_dirichlet_component_):
-            print("Topic #%d:" % topic_idx)
-            print(" ".join([feature_names[i] + "*" + str(topic[i])
-                                for i in topic.argsort()[:-n_top_words - 1:-1]]))
+            print(("Topic #%d:" % topic_idx))
+            print(
+                (
+                    " ".join(
+                        [
+                            feature_names[i] + "*" + str(topic[i])
+                            for i in topic.argsort()[: -n_top_words - 1 : -1]
+                        ]
+                    )
+                )
+            )
 
     def saveModel(self):
         """ Pickle the model variables """
@@ -337,43 +375,48 @@ class TopicModel(object):
     def writeModelToDB(self, aDocument=None):
         """ Write all topics, features, and distributions to database """
         aFeatureNames = self.count_vect.get_feature_names()
-        tf_sum = self.tf.sum(axis=0).A1 # sum term frequencies for each doc
+        tf_sum = self.tf.sum(axis=0).A1  # sum term frequencies for each doc
 
         # # save terms with tf and idf
         for term in self.count_vect.vocabulary_:
-            aTerm = filter(bool, term.split(" "))
+            aTerm = list(filter(bool, term.split(" ")))
             no_pos = ""
             pos = ""
             # check if bi-gram or tri-gram
             if len(aTerm) > 1:
                 for idx, word in enumerate(aTerm):
-                    term_pos = filter(bool,word.split("_"))
+                    term_pos = list(filter(bool, word.split("_")))
                     if len(term_pos) < 2:
                         term_pos.append("")
                     no_pos = no_pos + term_pos[0]
                     pos = pos + term_pos[1]
-                    if idx != len(aTerm)-1:
+                    if idx != len(aTerm) - 1:
                         no_pos = no_pos + " "
                         pos = pos + " "
                 no_pos = no_pos.strip()
                 pos = pos.strip()
             else:
-                term_pos = filter(bool,term.split("_"))
+                term_pos = list(filter(bool, term.split("_")))
                 if len(term_pos) < 2:
                     term_pos.append("")
                 no_pos = term_pos[0]
                 pos = term_pos[1]
 
             idx = self.count_vect.vocabulary_[term]
-            self.db.execUpdate("""insert into term(wordpos, word, pos, freq, docfreq) values(%s, %s, %s, %s, %s)"""
-            , (term, no_pos, pos, tf_sum[idx], self.tfidf.idf_[idx]))
+            self.db.execUpdate(
+                """insert into term(wordpos, word, pos, freq, docfreq) values(%s, %s, %s, %s, %s)""",
+                (term, no_pos, pos, tf_sum[idx], self.tfidf.idf_[idx]),
+            )
 
         # save topics and their term distributions
         for topic_idx, topic in enumerate(self.lda.components_):
             self.db.execUpdate("insert into topic(topicname) values(%s)", (topic_idx,))
-            for key, value in self.count_vect.vocabulary_.iteritems():
-                self.db.execUpdate("""insert into topicterm(topicid, termid, dist)
+            for key, value in self.count_vect.vocabulary_.items():
+                self.db.execUpdate(
+                    """insert into topicterm(topicid, termid, dist)
                 select topic.id, term.id, %s from topic
                 left join term on term.wordpos=%s collate utf8mb4_bin
                 where topic.topicname=%s
-                """, (topic[value], key.encode("utf-8"), topic_idx))
+                """,
+                    (topic[value], key.encode("utf-8"), topic_idx),
+                )

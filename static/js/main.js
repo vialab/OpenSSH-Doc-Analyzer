@@ -137,3 +137,55 @@ function getParameterByName(name, url) {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
+
+function setCookie(name, value, days) {
+  var expires = "";
+  if (days) {
+    var date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
+function getCookie(name) {
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(';');
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+}
+
+$(document).ready(function() {
+  $("#language-btn").click( function(event) {
+
+    let supportedLanguages = ['en'];
+    // Get languages this site supports
+    $.ajax({
+      type: 'GET',
+      url: '/api/languages',
+      async: false,
+      success: function(data){
+        supportedLanguages = data;
+      }
+    });
+
+    lang = getCookie('selected-language') || 'en'
+    
+    let index = supportedLanguages.indexOf(lang)
+    if (index !== -1) supportedLanguages.splice(index, 1);
+    if (supportedLanguages.length<1) { return; }
+  
+    if (supportedLanguages.length == 1) {
+      lang = supportedLanguages[0]
+
+      setCookie('selected-language', lang)
+      location.reload();
+    } else {
+      // TODO spawn a drop-down list of language selectors
+    }
+  });
+});

@@ -2,44 +2,49 @@
 
 {% block title %}Journal | Search{% endblock %}
 
-{% block page_content %}
+{%block page_content %}
 <div class="container-fluid" id="home-container">
-    <h2>Journal Search</h2>
-    <div class="row">
-        <div class="col-md-12" id="analyze-doc-form">
-            <h4>Upload Document</h4>
-            <section>
-                <div id="dropzone">
-                    <form action="upload" class="dropzone needsclick dz-clickable" id="doc-upload">
-                        <div class="dz-message needsclick">
-                        Drop files here or click to upload.<br>
-                        </div>
-                    </form>
-                </div>
-            </section>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div id="recent-doc-list" style="display:none;">
-                <div class='row' id='doc-list'></div>
+  <h2>{{ _('Journal Search') }}</h2>
+  <div class="row">
+    <div class="col-md-12" id="analyze-doc-form">
+      <h4>{{ _('Upload Document') }}</h4>
+      <section>
+        <div id="dropzone">
+          <form
+            action="upload"
+            class="dropzone needsclick dz-clickable"
+            id="doc-upload"
+          >
+            <div class="dz-message needsclick">
+              {{ _('Drop files here or click to upload.') }}<br />
             </div>
+          </form>
         </div>
+      </section>
     </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div id="recent-doc-list" style="display: none;">
+        <div class="row" id="doc-list"></div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock page_content %}
+
 {% block add_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/dropzone.js"></script>
 <script>
-    Dropzone.autoDiscover = false;
+  Dropzone.autoDiscover = false;
 
-    $(function() {
+  $(function () {
     var myDropzone = new Dropzone("#doc-upload");
-    myDropzone.on("queuecomplete", function(file) {
-            // Called when all files in the queue finish uploading.
-            window.location = "{{ url_for('journal_analyzer') }}";
-        });
-    })
+    myDropzone.on("queuecomplete", function (file) {
+      // Called when all files in the queue finish uploading.
+      window.location = "{{ url_for('journal_analyzer') }}";
+    });
+  });
 </script>
 <script src="{{ url_for('static', filename='js/journal.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vis.js') }}"></script>

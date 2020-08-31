@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Synonymic Search | Analyzer{% endblock %}
+{% block title %}{{ _('Synonymic Search | Analyzer') }}{% endblock %}
 {% block add_style %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-slider.min.css') }}">
 {% endblock add_style %}
@@ -15,7 +15,7 @@
             <div class="col-sm-9" id="search-dialog-main"></div>
             <div class="col-sm-3">
                 <div class="search-side part-of-speech">
-                    <h4>Select a term:</h4>
+                    <h4>{{ _('Select a term:') }}</h4>
                     <div id="pos-words">
                     </div>
                 </div>
@@ -33,7 +33,7 @@
         <span>&times;</span>
     </button>
     <div id="search-keyword-container">
-        <h1>Suggestions for "<span class="keyword-heading"></span>" ...</h1>
+        <h1>{{ _('Suggestions for') }} "<span class="keyword-heading"></span>" ...</h1>
         <div class="custom-keyword-container">
             <div class="keyword-heading"></div>
             <div class="ring" style="width: 120px; height: 120px;"></div>
@@ -42,13 +42,13 @@
             <img class="loading" src="{{ url_for('static', filename='css/loading.gif') }}" />
         </div>
         <div class="no-keyword" style="display:none;">
-            No results found
+            {{ _('No results found') }}
         </div>
     </div>
 </div>
 <div id="journal-count">
     <!-- <svg id="corpus-count" width="960" height="450"></svg> -->
-    <span id="journal-count-title">Query Results</span>
+    <span id="journal-count-title">{{ _('Query Results') }}</span>
     <button class="close" style="z-index:999" onclick="redrawJournalCount(true, true);"><span>x</span></button>
     <svg id="search-count"></svg>
 </div>
@@ -65,18 +65,18 @@
     <div id="overflow-arrow-right">
         <span class="overflow-arrow" onclick="scrollSTBox(1);">&raquo;&raquo;</span>
     </div>
-    <button id="search-btn" onclick="search();">Search</button>
+    <button id="search-btn" onclick="search();">{{ _('Search') }}</button>
 </div>
 <div id="search-result-container">
   <div id="loading" style="display: none;"><img class="loading" src="{{ url_for('static', filename='css/loading.gif') }}" /></div>
     {% if search_result %}
         {% for result in search_result %}
         <div class="doc" id="doc-{{result['id']}}">
-            <h3>ARTICLE</h3>
+            <h3>{{ _('ARTICLE') }}</h3>
             <div class="doc-title">{{ result["title"]|safe }}</div>
             <div class="doc-author">{{ result["author"]|safe }}</div>
             <div class="doc-cite">{{ result["citation"]|safe }}</div>
-            <h3>KEYWORDS</h3>
+            <h3>{{ _('KEYWORDS') }}</h3>
             <ul class="doc-term" id="doc-topic">
             {% for topic in result["topiclist"] %}
             {% if topic['dist'] > 0.1 %}
@@ -86,7 +86,7 @@
             {% endif %}
             {% endfor %}
             </ul>
-            <h3>ENTITIES</h3>
+            <h3>{{ _('ENTITIES') }}</h3>
             <ul class="doc-term" id="doc-people">
             {% for entity in result["entitylist"] %}
             {% if entity["type"] == "nompers" %}
