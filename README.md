@@ -12,7 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 This software was created in PYTHON 3.7 and is not compatible with more up to date versions.
 
-A database connection is required for proper functioning of this software. You may connect to your local database by providing your own `dbconfig.py` file in the `./static/py/` directory. Alternatively, you may pass the `DATABASE_URL` environment variable a database string to the FLASK instance. An example is provided:
+A database connection is required for proper functioning of this software. You may connect to your local database by providing your own `dbconfig.py` file in the `./static/py/` directory. In order for `dbconfig.py` to be read uncomment line 1 of `db.py` which is also in `./static/py`. Alternatively, you may pass the `DATABASE_URL` environment variable a database string to the FLASK instance. An example is provided:
 
 ```
 mysql = {
@@ -52,6 +52,18 @@ Install Python dependencies:
 ```
 pip install -r requirements.txt
 ```
+
+Install tree tagger then go back to root folder.
+
+```
+cd treetagger
+./install-tagger.sh
+cd ..
+```
+
+### Get model
+
+Make a copy of the `/model` folder that's deployed on the server that contains `synset.pkl` and `tm.gzip` (don't unzip it). Place `/model` in the project's root folder.
 
 ### Running Flask
 

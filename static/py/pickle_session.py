@@ -5,7 +5,6 @@ from pickle import UnpicklingError, dumps, loads
 from collections import MutableMapping
 from flask.sessions import SessionInterface, SessionMixin
 
-
 class PickleSession(MutableMapping):
     """Server-side session implementation.
 

@@ -1,5 +1,5 @@
 {
     "git.ignoreLimitWarning": true,
     "python.linting.pylintEnabled": false,
-    "python.pythonPath": "./venv/bin/python"
+    "python.pythonPath": "C:\\Users\\yamas\\Anaconda3\\python.exe"
 }

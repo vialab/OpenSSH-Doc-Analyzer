@@ -1,4 +1,4 @@
-# import dbconfig as cfg
+#import dbconfig as cfg
 import MySQLdb as sql
 import common as cm
 import os
@@ -21,12 +21,12 @@ class Database(object):
             if connstr is None:
                 raise Exception("DATABASE_URL was not provided")
             url = urlparse(connstr)
-            self.conn = sql.connect(
+            self.conn = sql.connect(    
                 host=url.hostname,
                 user=url.username,
                 passwd=url.password,
                 db=url.path[1:],
-                charset="utf8mb4",
+                charset="utf8mb4"
             )
         else:
             self.conn = sql.connect(
@@ -34,7 +34,7 @@ class Database(object):
                 user=cfg.mysql["user"],
                 passwd=cfg.mysql["passwd"],
                 db=cfg.mysql["db"],
-                charset="utf8mb4",
+                charset="utf8mb4"
             )
 
     def _execute(self, sqlStmt, args=None, cursor=None, is_update=True):
