@@ -11,4 +11,4 @@ python-docx==0.8.10
 treetaggerwrapper==2.3
 #simplejson==3.16.0
 mysqlclient==1.4.4
-Werkzeug==0.16.1
+Werkzeug==2.2.3
