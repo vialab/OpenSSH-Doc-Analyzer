@@ -15,7 +15,7 @@ lz4 = "==2.2.1"
 python-docx = "==0.8.10"
 treetaggerwrapper = "==2.3"
 mysqlclient = "==1.4.4"
-Flask = "==1.1.1"
+Flask = "==2.2.5"
 Flask-Babel = "==0.12.2"
 PyPDF2 = "==1.26.0"
 
